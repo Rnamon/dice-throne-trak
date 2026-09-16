@@ -200,6 +200,11 @@ main{padding:16px 16px 24px;max-width:760px;margin:0 auto}
 .pick.on .av{box-shadow:inset 0 0 0 1px rgba(255,255,255,.12), 0 0 0 2px var(--orange)}
 .poolhead{display:flex;align-items:center;gap:8px;padding:12px 14px 2px}
 .poolhead h3{font-size:15px;flex:1}
+.reelwrap{position:relative;width:118px;height:118px;flex:none}
+.frame{position:absolute;inset:0;opacity:0}
+.frame.on{opacity:1}
+.prep{margin-top:10px}
+.prep .meterwrap{margin-top:6px}
 .rollname{font-family:var(--cond);font-weight:700;font-size:19px;text-transform:uppercase;letter-spacing:.8px;text-align:center;margin-top:12px;min-height:26px}
 .spin{animation:pulse .5s ease-in-out infinite alternate}
 @keyframes pulse{from{transform:scale(.97)}to{transform:scale(1.03)}}
@@ -363,6 +368,10 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
     <div class="card">
       <div class="row" id="faces" style="justify-content:center;gap:18px"></div>
       <div class="rollname" id="rollName"></div>
+      <div class="prep" id="prep" style="display:none">
+        <div class="tiny muted" style="text-align:center" id="prepText"></div>
+        <div class="meterwrap"><div class="meter" id="prepMeter" style="width:0%"></div></div>
+      </div>
       <button class="btn block" id="rollBtn" style="margin-top:14px" onclick="startRoll()">Roll</button>
       <button class="btn block" id="rollLog" style="margin-top:10px;display:none" onclick="logDraw()">Log this battle</button>
     </div>
@@ -437,7 +446,7 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
     </div>
 
     <button class="btn block" onclick="wipe()">Erase all data</button>
-    <div class="tiny muted" style="text-align:center;margin-top:14px">v0.5 · offline ready</div>
+    <div class="tiny muted" style="text-align:center;margin-top:14px">v0.6 · offline ready</div>
   </section>
 </main>
 
@@ -607,13 +616,14 @@ function nextImg(el){
   el.src = 'img/' + el.dataset.slug + '.' + IMG_EXT[i];
 }
 
-function av(name, size){
+function av(name, size, eager){
   const h = hero(name);
   if (!h) return '<span class="av ' + (size || 's') + '" style="--c:#8A85A8">?</span>';
   const c = SET_COLOR[h.set] || '#8A85A8';
   const s = slug(name);
   return '<span class="av ' + (size || 's') + '" style="--c:' + c + '">' + initials(name) +
-    '<img src="img/' + s + '.' + IMG_EXT[0] + '" data-slug="' + s + '" data-i="0" alt="" loading="lazy" onerror="nextImg(this)"></span>';
+    '<img src="img/' + s + '.' + IMG_EXT[0] + '" data-slug="' + s + '" data-i="0" alt="" loading="' +
+    (eager ? 'eager' : 'lazy') + '" onerror="nextImg(this)"></span>';
 }
 
 function copyNames(){
@@ -1009,18 +1019,20 @@ function renderDraw(){
     '<button class="' + (S.drawSort === k ? 'on' : '') + '" onclick="setDrawSort(\'' + k + '\')">' + l + '</button>').join('');
   $('#poolMine').innerHTML = poolHTML('mine', 'My heroes');
   $('#poolOpp').innerHTML  = S.drawMode === 'both' ? poolHTML('opp', "Opponent's heroes") : '';
-  if (!rolling && !lastDraw) resetFaces();
+  if (!rolling && !lastDraw) warmReels();
 }
 
 function resetFaces(){
   const both = S.drawMode === 'both';
-  $('#faces').innerHTML = '<span id="f1">' + av('?', 'xl') + '</span>' +
-    (both ? '<span class="muted small">vs</span><span id="f2">' + av('?', 'xl') + '</span>' : '');
+  reel = { sig: '', f1: null, f2: null, ready: false, p: null };
+  $('#faces').innerHTML = '<span class="reelwrap" id="f1">' + av('?', 'xl') + '</span>' +
+    (both ? '<span class="muted small">vs</span><span class="reelwrap" id="f2">' + av('?', 'xl') + '</span>' : '');
   $('#rollName').textContent = '';
   $('#rollLog').style.display = 'none';
+  $('#prep').style.display = 'none';
 }
 
-async function setDrawMode(m){ S.drawMode = m; lastDraw = null; await save(); renderDraw(); resetFaces(); }
+async function setDrawMode(m){ S.drawMode = m; lastDraw = null; reel.sig = ''; await save(); resetFaces(); renderDraw(); }
 async function setDrawSort(k){ S.drawSort = k; await save(); renderDraw(); }
 
 async function togglePick(which, name){
@@ -1028,50 +1040,96 @@ async function togglePick(which, name){
   i < 0 ? p.push(name) : p.splice(i,1);
   await save();
   renderDraw();
+  warmReels();
 }
 
 async function pickAll(which, on){
   S.pools[which] = on ? S.heroes.map(h => h.name) : [];
   await save();
   renderDraw();
+  warmReels();
 }
 
-/* Build every face up front and hide them. Swapping visibility costs nothing,
-   while rebuilding an <img> each frame makes the initials flash through. */
-function buildReel(sel, list){
+/* ---- spin reel ----
+   Frames are rendered for real (transparent, not display:none) and loaded
+   eagerly — a hidden or lazy image never downloads, which is what made the
+   initials flash through mid-spin. The reel is built in the background when
+   you open this screen, so pressing Roll is usually instant. */
+let reel = { sig: '', f1: null, f2: null, ready: false, p: null };
+let warmTimer = null;
+
+function poolSig(){
+  return S.drawMode + '|' + pickList('mine').join(',') + '|' +
+    (S.drawMode === 'both' ? pickList('opp').join(',') : '');
+}
+
+function fillReel(sel, list){
   const el = $(sel);
-  el.innerHTML = list.map(n => '<span style="display:none">' + av(n, 'xl') + '</span>').join('');
-  return [...el.children];
+  el.innerHTML = ['?'].concat(list)
+    .map(n => '<span class="frame">' + av(n, 'xl', true) + '</span>').join('');
+  const frames = [...el.children];
+  frames[0].classList.add('on');
+  return frames;
 }
 
-function preload(frames){
+function showFrame(frames, i){
+  frames.forEach(f => f.classList.remove('on'));
+  frames[i].classList.add('on');
+}
+
+function decodeAll(frames){
   const imgs = frames.flatMap(f => [...f.querySelectorAll('img')]);
+  const total = imgs.length;
+  let done = 0;
+  const bump = () => {
+    done++;
+    if (done >= total) return;
+    $('#prepText').textContent = 'Preparing heroes… ' + done + ' / ' + total;
+    $('#prepMeter').style.width = (done / total * 100) + '%';
+  };
   return Promise.race([
-    Promise.all(imgs.map(i => (i.decode ? i.decode() : Promise.resolve()).catch(() => {}))),
-    new Promise(r => setTimeout(r, 1500))
-  ]);
+    Promise.all(imgs.map(i =>
+      (i.decode ? i.decode() : Promise.resolve()).catch(() => {}).then(bump)
+    )),
+    new Promise(r => setTimeout(r, 12000))
+  ]).then(() => { reel.ready = true; $('#prep').style.display = 'none'; });
 }
 
-/* Spins through pre-built frames, slowing down, then lands on one. */
-function spin(sel, frames, dur, done){
-  const el = $(sel);
-  el.classList.add('spin');
+function buildReels(){
+  const sig = poolSig();
+  if (reel.sig === sig && reel.f1) return;
+  const both = S.drawMode === 'both';
+  const mine = pickList('mine'), opp = both ? pickList('opp') : [];
+  if (!mine.length || (both && !opp.length)){ reel.sig = ''; reel.f1 = null; return resetFaces(); }
+
+  reel.sig = sig; reel.ready = false;
+  $('#faces').innerHTML = '<span class="reelwrap" id="f1"></span>' +
+    (both ? '<span class="muted small">vs</span><span class="reelwrap" id="f2"></span>' : '');
+  reel.f1 = fillReel('#f1', mine);
+  reel.f2 = both ? fillReel('#f2', opp) : null;
+  reel.p  = decodeAll(reel.f2 ? reel.f1.concat(reel.f2) : reel.f1);
+}
+
+/* Rebuilding on every tap would be wasteful, so wait for the tapping to stop. */
+function warmReels(){
+  clearTimeout(warmTimer);
+  warmTimer = setTimeout(() => { if (!rolling) buildReels(); }, 400);
+}
+
+function spin(frames, dur, done){
+  const wrap = frames[0].parentElement;
+  wrap.classList.add('spin');
   const t0 = performance.now();
-  let shown = -1;
-  const show = i => {
-    if (shown >= 0) frames[shown].style.display = 'none';
-    frames[i].style.display = '';
-    shown = i;
-  };
+  const pick = () => 1 + Math.floor(Math.random() * (frames.length - 1));
   (function tick(){
     const t = performance.now() - t0;
     if (t >= dur){
-      const i = Math.floor(Math.random() * frames.length);
-      show(i);
-      el.classList.remove('spin');
-      return done(i);
+      const i = pick();
+      showFrame(frames, i);
+      wrap.classList.remove('spin');
+      return done(i - 1);
     }
-    show(Math.floor(Math.random() * frames.length));
+    showFrame(frames, pick());
     setTimeout(tick, 55 + 330 * Math.pow(t / dur, 3));
   })();
 }
@@ -1085,13 +1143,19 @@ async function startRoll(){
   if (both && !opp.length) return toast('No heroes selected for the opponent');
 
   rolling = true; lastDraw = null;
-  $('#rollBtn').textContent = 'Rolling…';
+  $('#rollName').textContent = '';
+  $('#rollLog').style.display = 'none';
   $('#rollBtn').disabled = true;
-  resetFaces();
 
-  const f1 = buildReel('#f1', mine);
-  const f2 = both ? buildReel('#f2', opp) : null;
-  await preload(f2 ? f1.concat(f2) : f1);
+  clearTimeout(warmTimer);
+  buildReels();
+  if (!reel.ready){
+    $('#rollBtn').textContent = 'Preparing…';
+    $('#prep').style.display = 'block';
+    $('#prepText').textContent = 'Preparing heroes…';
+    await reel.p;
+  }
+  $('#rollBtn').textContent = 'Rolling…';
 
   let a = null, b = null;
   const label = n => {
@@ -1110,8 +1174,8 @@ async function startRoll(){
     if (both) $('#rollLog').style.display = 'block';
   };
 
-  spin('#f1', f1, 5000, i => { a = mine[i]; if (!both) finish(); });
-  if (both) spin('#f2', f2, 5600, i => { b = opp[i]; finish(); });
+  spin(reel.f1, 5000, i => { a = mine[i]; if (!both) finish(); });
+  if (both) spin(reel.f2, 5600, i => { b = opp[i]; finish(); });
 }
 
 function logDraw(){
