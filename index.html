@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16132A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DT TRAK">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>DICE THRONE TRAK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16132A;
+  --panel:#1F1B3A;
+  --panel-2:#2A2450;
+  --line:#38315F;
+  --bone:#EDE7DA;
+  --muted:#9A93C4;
+  --orange:#F26B2B;
+  --orange-dim:rgba(242,107,43,.15);
+  --win:#57A97B;
+  --loss:#C4544A;
+  --r:10px;
+  --tab-h:62px;
+  --sans:"Barlow",system-ui,"Segoe UI",Arial,sans-serif;
+  --cond:"Barlow Condensed","Barlow",system-ui,Arial,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--ink);
+  color:var(--bone);
+  font-family:var(--sans);
+  font-size:15px;
+  line-height:1.5;
+  padding-bottom:calc(var(--tab-h) + env(safe-area-inset-bottom));
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:var(--cond);font-weight:700;margin:0;line-height:1.15;text-transform:uppercase;letter-spacing:.6px}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+a{color:var(--orange)}
+code{font-family:var(--sans);color:var(--orange);font-weight:600}
+
+/* ---------- shell ---------- */
+.topbar{
+  position:sticky;top:0;z-index:40;
+  background:rgba(22,19,42,.94);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+  padding:calc(10px + env(safe-area-inset-top)) 16px 10px;
+  display:flex;align-items:baseline;gap:10px;
+}
+.topbar h1{font-size:19px}
+.topbar .sub{color:var(--muted);font-size:12px;margin-left:auto;font-variant-numeric:tabular-nums}
+main{padding:16px 16px 24px;max-width:760px;margin:0 auto}
+.screen{display:none}
+.screen.on{display:block}
+
+.tabs{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;
+  height:calc(var(--tab-h) + env(safe-area-inset-bottom));
+  padding-bottom:env(safe-area-inset-bottom);
+  background:rgba(31,27,58,.97);
+  backdrop-filter:blur(10px);
+  border-top:1px solid var(--line);
+  display:grid;grid-template-columns:repeat(6,1fr);
+}
+.tabs button{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  color:var(--muted);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;
+}
+.tabs button.on{color:var(--orange)}
+.tabs .pip{width:18px;height:18px;display:block}
+
+/* ---------- pieces ---------- */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.count{font-family:var(--cond);font-weight:700;font-size:46px;line-height:1;letter-spacing:0;font-variant-numeric:tabular-nums}
+.count small{font-size:18px;font-weight:600;color:var(--muted)}
+.meterwrap{height:7px;background:var(--panel-2);border-radius:99px;overflow:hidden;margin-top:12px}
+.meter{height:100%;background:var(--orange);border-radius:99px;transition:width .35s ease}
+.row{display:flex;align-items:center;gap:10px}
+.spread{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.tiny{font-size:12px}
+
+/* every action button: orange, white, bold */
+.btn{
+  background:var(--orange);color:#fff;border:0;border-radius:8px;
+  padding:12px 16px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;font-size:14px;
+}
+.btn:active{transform:translateY(1px)}
+.btn:disabled{opacity:.55}
+.btn.block{width:100%;display:block;text-align:center}
+.btn.sm{padding:7px 11px;font-size:12px;letter-spacing:.5px}
+.btnrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.link{color:var(--muted);font-size:13px;font-weight:600;padding:6px 0;text-transform:uppercase;letter-spacing:.5px}
+
+/* home hub */
+.progstrip{
+  display:block;width:100%;text-align:left;background:var(--panel);
+  border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px;
+}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tile{
+  background:var(--orange);color:#fff;border-radius:12px;padding:16px 14px;
+  display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:14px;
+  min-height:104px;font-family:var(--cond);font-weight:700;font-size:17px;
+  text-transform:uppercase;letter-spacing:.7px;line-height:1.05;text-align:left;
+}
+.tile:active{transform:translateY(1px)}
+.tile svg{width:26px;height:26px}
+.tile.wide{grid-column:1/-1;flex-direction:row;align-items:center;justify-content:flex-start;min-height:0;gap:12px;padding:15px 16px}
+
+/* mini heatmap */
+.mini{display:grid;gap:1px;aspect-ratio:1;margin:4px 0 2px}
+.mini i{background:var(--panel-2);border-radius:1px}
+.mini i.w{background:var(--win)}
+.mini i.l{background:var(--loss)}
+.mini i.d{outline:1px solid var(--orange);outline-offset:-1px}
+
+/* list rows */
+.list{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--panel)}
+.item{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  padding:11px 14px;border-bottom:1px solid var(--line);background:none;
+}
+.item:last-child{border-bottom:0}
+.item:active{background:var(--panel-2)}
+.item .name{font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip{font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px;white-space:nowrap;text-transform:uppercase;letter-spacing:.4px}
+.chip.w{background:rgba(87,169,123,.16);color:var(--win)}
+.chip.l{background:rgba(196,84,74,.16);color:var(--loss)}
+.chip.n{background:var(--panel-2);color:var(--muted)}
+.bar{width:54px;height:5px;background:var(--panel-2);border-radius:99px;overflow:hidden;flex:none}
+.bar i{display:block;height:100%;background:var(--orange)}
+.setlabel{font-family:var(--cond);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);padding:12px 14px 6px;background:var(--panel);border-bottom:1px solid var(--line)}
+
+/* sort chips */
+.sortbar{display:flex;gap:7px;overflow-x:auto;margin-bottom:12px;padding-bottom:2px;scrollbar-width:none}
+.sortbar::-webkit-scrollbar{display:none}
+.sortbar button{
+  flex:none;border:1px solid var(--line);background:var(--panel);color:var(--muted);
+  border-radius:99px;padding:7px 13px;font-size:12px;font-weight:600;white-space:nowrap;
+  text-transform:uppercase;letter-spacing:.5px;
+}
+.sortbar button.on{background:var(--orange);border-color:var(--orange);color:#fff;font-weight:700}
+
+/* matrix */
+.mwrap{overflow:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);max-height:74vh;overscroll-behavior:contain}
+.grid{display:grid;width:max-content}
+.gh{
+  position:sticky;top:0;z-index:3;background:var(--panel-2);
+  writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);
+  font-size:10px;font-weight:500;color:var(--muted);padding:6px 2px;height:104px;
+  border-left:1px solid var(--line);overflow:hidden;white-space:nowrap;
+}
+.rh{
+  position:sticky;left:0;z-index:2;background:var(--panel-2);
+  font-size:11px;font-weight:500;padding:0 8px;display:flex;align-items:center;
+  border-top:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:104px;
+}
+.corner{position:sticky;top:0;left:0;z-index:4;background:var(--panel-2);height:104px;width:104px;color:var(--muted);font-family:var(--cond);line-height:0}
+.cell{width:30px;height:30px;border-top:1px solid var(--line);border-left:1px solid var(--line);background:transparent;padding:0}
+.cell.w{background:rgba(87,169,123,.55)}
+.cell.l{background:rgba(196,84,74,.55)}
+.cell.diag{background:rgba(242,107,43,.12)}
+.cell.diag.w{background:rgba(87,169,123,.55)}
+.cell.diag.l{background:rgba(196,84,74,.55)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--muted);align-items:center}
+.sw{width:12px;height:12px;border-radius:3px;display:inline-block;vertical-align:-2px;margin-right:5px}
+
+/* avatars */
+.av{
+  position:relative;flex:none;display:inline-flex;align-items:center;justify-content:center;
+  border-radius:50%;overflow:hidden;background:var(--c,#8A85A8);color:#14121F;
+  font-family:var(--cond);font-weight:700;letter-spacing:.5px;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);
+}
+.av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.av.xs{width:26px;height:26px;font-size:11px}
+.av.s{width:34px;height:34px;font-size:13px}
+.av.m{width:42px;height:42px;font-size:15px}
+.av.l{width:64px;height:64px;font-size:22px}
+.av.p{width:58px;height:58px;font-size:18px}
+.av.xl{width:118px;height:118px;font-size:40px}
+
+/* draw */
+.pickgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:11px;justify-items:center;padding:12px 10px}
+.pick{border:0;background:none;padding:0;line-height:0;border-radius:50%}
+.pick .av{transition:filter .15s,opacity .15s,box-shadow .15s}
+.pick.off .av{filter:grayscale(1) brightness(.34);opacity:.5}
+.pick.on .av{box-shadow:inset 0 0 0 1px rgba(255,255,255,.12), 0 0 0 2px var(--orange)}
+.poolhead{display:flex;align-items:center;gap:8px;padding:12px 14px 2px}
+.poolhead h3{font-size:15px;flex:1}
+.rollname{font-family:var(--cond);font-weight:700;font-size:19px;text-transform:uppercase;letter-spacing:.8px;text-align:center;margin-top:12px;min-height:26px}
+.spin{animation:pulse .5s ease-in-out infinite alternate}
+@keyframes pulse{from{transform:scale(.97)}to{transform:scale(1.03)}}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(8,6,18,.72);z-index:60;display:none}
+.scrim.on{display:block}
+.sheet{
+  position:fixed;left:0;right:0;bottom:0;z-index:61;
+  background:var(--panel);border-top:1px solid var(--line);
+  border-radius:16px 16px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom));
+  max-height:92vh;overflow:auto;display:none;
+}
+.sheet.on{display:block;animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+.grab{width:38px;height:4px;background:var(--line);border-radius:99px;margin:0 auto 14px}
+label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:13px 0 5px}
+input,select,textarea{width:100%;background:var(--ink);border:1px solid var(--line);border-radius:8px;padding:11px 12px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--orange)}
+.seg,.toggles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg button,.toggles button{
+  border:1px solid var(--line);background:var(--ink);color:var(--muted);border-radius:8px;
+  padding:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;font-size:13px;
+}
+.seg button.on,.toggles button.on{background:var(--orange);border-color:var(--orange);color:#fff;font-weight:700}
+.vs{font-family:var(--cond);font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;text-align:center;margin-bottom:2px}
+
+.empty{text-align:center;color:var(--muted);padding:26px 12px;font-size:14px}
+.die{display:inline-block;vertical-align:-0.22em;border-radius:3px;margin-left:2px}
+.ult{color:var(--orange);font-size:11px;font-weight:700;flex:none;letter-spacing:.4px}
+.toast{
+  position:fixed;bottom:calc(var(--tab-h) + 18px + env(safe-area-inset-bottom));left:0;right:0;margin:0 auto;
+  width:max-content;max-width:88%;background:var(--panel-2);border:1px solid var(--line);
+  border-radius:99px;padding:9px 18px;font-size:13px;z-index:70;opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.toast.on{opacity:1}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px;text-align:left;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>Dice Throne Trak</h1>
+  <span class="sub" id="topSub"></span>
+</div>
+
+<main>
+  <!-- ========== HOME ========== -->
+  <section class="screen on" id="s-home">
+    <button class="progstrip" onclick="go('matrix');setMatrixView('map')">
+      <div class="spread">
+        <span class="count" style="font-size:32px"><span id="hDone">0</span><small> / <span id="hTotal">0</span></small></span>
+        <span class="small muted"><span id="hPct">0%</span> complete</span>
+      </div>
+      <div class="meterwrap"><div class="meter" id="hMeter" style="width:0%"></div></div>
+      <div class="tiny muted" style="margin-top:9px">Battles logged — tap for the full map</div>
+    </button>
+
+    <div class="tiles">
+      <button class="tile wide" onclick="openBattle()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M12 5v14M5 12h14"/></svg>
+        Log a battle
+      </button>
+      <button class="tile" onclick="go('draw')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><circle cx="8.5" cy="8.5" r="1.4" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/></svg>
+        Draw heroes
+      </button>
+      <button class="tile" onclick="randomBattle()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7M21 16v5h-5M14 14l7 7M3 8V3h5M10 10 3 3"/></svg>
+        Random matchup
+      </button>
+      <button class="tile" onclick="go('matrix')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>
+        Matchup matrix
+      </button>
+      <button class="tile" onclick="go('heroes')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20v-1a6 6 0 0 1 12 0v1"/><circle cx="10" cy="7" r="3.4"/><path d="M17 20v-1a5 5 0 0 0-2-4"/></svg>
+        Hero roster
+      </button>
+      <button class="tile" onclick="go('stats')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+        Stats
+      </button>
+      <button class="tile" onclick="go('set')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></svg>
+        Setup
+      </button>
+    </div>
+  </section>
+
+  <!-- ========== MATRIX ========== -->
+  <section class="screen" id="s-matrix">
+    <div class="seg" style="margin-bottom:12px">
+      <button id="mvGrid" onclick="setMatrixView('grid')">Full grid</button>
+      <button id="mvMap" onclick="setMatrixView('map')">Overview</button>
+    </div>
+
+    <div id="matGrid">
+      <div class="mwrap"><div class="grid" id="grid"></div></div>
+      <div class="legend">
+        <span><i class="sw" style="background:rgba(87,169,123,.55)"></i>Won</span>
+        <span><i class="sw" style="background:rgba(196,84,74,.55)"></i>Lost</span>
+        <span><i class="sw" style="background:rgba(242,107,43,.12);outline:1px solid var(--orange)"></i>Diagonal = mirror</span>
+      </div>
+    </div>
+
+    <div id="matMap" style="display:none">
+      <div class="card">
+        <div class="spread" style="margin-bottom:10px">
+          <span class="count" style="font-size:30px"><span id="mDone">0</span><small> / <span id="mTotal">0</span></small></span>
+          <span class="small muted"><span id="mPct">0%</span> complete</span>
+        </div>
+        <div class="mini" id="mini"></div>
+        <div class="legend">
+          <span><i class="sw" style="background:var(--win)"></i>Won</span>
+          <span><i class="sw" style="background:var(--loss)"></i>Lost</span>
+          <span><i class="sw" style="background:var(--panel-2)"></i>Not played</span>
+          <span><i class="sw" style="outline:1px solid var(--orange)"></i>Mirror</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== HEROES ========== -->
+  <section class="screen" id="s-heroes">
+    <div class="sortbar" id="sortHeroes"></div>
+    <div id="heroList"></div>
+  </section>
+
+  <!-- ========== HERO DETAIL ========== -->
+  <section class="screen" id="s-hero">
+    <button class="link" style="margin-bottom:10px" onclick="go('heroes')">‹ All heroes</button>
+    <div class="card">
+      <div class="row" style="gap:13px">
+        <span id="dAv"></span>
+        <span>
+          <h2 id="dName" style="font-size:24px"></h2>
+          <div class="small muted" id="dSet" style="margin-top:2px"></div>
+        </span>
+      </div>
+      <div class="spread" style="margin-top:14px">
+        <div class="count" style="font-size:30px"><span id="dDone">0</span><small> / <span id="dTotal">0</span></small></div>
+        <div class="small muted" id="dRec"></div>
+      </div>
+      <div class="meterwrap"><div class="meter" id="dMeter"></div></div>
+    </div>
+    <div id="dList"></div>
+  </section>
+
+  <!-- ========== DRAW ========== -->
+  <section class="screen" id="s-draw">
+    <div class="seg" style="margin-bottom:14px">
+      <button id="dmMe" onclick="setDrawMode('me')">Just for me</button>
+      <button id="dmBoth" onclick="setDrawMode('both')">Both players</button>
+    </div>
+
+    <div class="card">
+      <div class="row" id="faces" style="justify-content:center;gap:18px"></div>
+      <div class="rollname" id="rollName"></div>
+      <button class="btn block" id="rollBtn" style="margin-top:14px" onclick="startRoll()">Roll</button>
+      <button class="btn block" id="rollLog" style="margin-top:10px;display:none" onclick="logDraw()">Log this battle</button>
+    </div>
+
+    <div class="sortbar" id="sortDraw"></div>
+    <div id="poolMine"></div>
+    <div id="poolOpp"></div>
+  </section>
+
+  <!-- ========== STATS ========== -->
+  <section class="screen" id="s-stats">
+    <div class="card">
+      <div class="spread">
+        <div><div class="count" style="font-size:32px" id="stRemain">0</div><div class="tiny muted">Battles left</div></div>
+        <div><div class="count" style="font-size:32px" id="stW">0</div><div class="tiny muted">Wins</div></div>
+        <div><div class="count" style="font-size:32px" id="stL">0</div><div class="tiny muted">Losses</div></div>
+      </div>
+    </div>
+    <div class="sortbar" id="sortStats"></div>
+    <h3 style="font-size:16px;margin:0 0 8px">Recent battles</h3>
+    <div id="recent" style="margin-bottom:18px"></div>
+    <h3 style="font-size:16px;margin:0 0 8px">By hero</h3>
+    <div class="card" style="padding:6px 10px">
+      <table>
+        <thead><tr><th>Hero</th><th class="num">Progress</th><th class="num">W</th><th class="num">L</th><th class="num">Rate</th></tr></thead>
+        <tbody id="stBody"></tbody>
+      </table>
+    </div>
+    <div class="tiny muted" style="text-align:center">W / L = your record when playing that hero</div>
+  </section>
+
+  <!-- ========== SETTINGS ========== -->
+  <section class="screen" id="s-set">
+    <div class="card">
+      <h3 style="font-size:17px;margin-bottom:6px">Backup</h3>
+      <p class="small muted" style="margin:0 0 12px">Your data lives in this browser only. Export a file now and then so you never lose it.</p>
+      <div class="btnrow">
+        <button class="btn" onclick="exportData()">Export file</button>
+        <button class="btn" onclick="$('#imp').click()">Import file</button>
+      </div>
+      <input type="file" id="imp" accept="application/json" style="display:none" onchange="importData(this)">
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:17px;margin-bottom:6px">Artwork</h3>
+      <p class="small muted" style="margin:0 0 12px">
+        Put a folder named <code>img</code> next to this file, with one file per hero named to match.
+        <code>.webp</code>, <code>.png</code> and <code>.jpg</code> all work. Any hero without a file keeps
+        its initials badge, so you can add artwork at your own pace. 256×256 is the sweet spot.
+      </p>
+      <div class="btnrow">
+        <button class="btn" onclick="copyNames()">Copy file names</button>
+        <button class="btn" onclick="downloadNames()">Download list</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:17px;margin-bottom:6px">Add a hero</h3>
+      <p class="small muted" style="margin:0 0 4px">New release? Add it here and the matrix grows on its own.</p>
+      <label for="nhName">Name</label>
+      <input id="nhName" placeholder="Hero name">
+      <label for="nhSet">Set</label>
+      <input id="nhSet" placeholder="Season 3" value="New">
+      <label for="nhDiff">Difficulty (1-6)</label>
+      <input id="nhDiff" type="number" min="1" max="6" inputmode="numeric" placeholder="3">
+      <button class="btn block" style="margin-top:16px" onclick="addHero()">Add hero</button>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:17px;margin-bottom:10px">Heroes (<span id="cnt">0</span>)</h3>
+      <div id="manage"></div>
+    </div>
+
+    <button class="btn block" onclick="wipe()">Erase all data</button>
+    <div class="tiny muted" style="text-align:center;margin-top:14px">v0.4 · offline ready</div>
+  </section>
+</main>
+
+<nav class="tabs">
+  <button id="t-home" class="on" onclick="go('home')"><svg class="pip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5 12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+  <button id="t-matrix" onclick="go('matrix')"><svg class="pip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>Matrix</button>
+  <button id="t-heroes" onclick="go('heroes')"><svg class="pip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20v-1a6 6 0 0 1 12 0v1"/><circle cx="10" cy="7" r="3.4"/><path d="M17 20v-1a5 5 0 0 0-2-4"/></svg>Heroes</button>
+  <button id="t-draw" onclick="go('draw')"><svg class="pip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><circle cx="8.5" cy="8.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/></svg>Draw</button>
+  <button id="t-stats" onclick="go('stats')"><svg class="pip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Stats</button>
+  <button id="t-set" onclick="go('set')"><svg class="pip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></svg>Setup</button>
+</nav>
+
+<div class="scrim" id="scrim" onclick="closeSheet()"></div>
+
+<div class="sheet" id="sheet">
+  <div class="grab"></div>
+  <div class="row" id="shAvs" style="justify-content:center;gap:12px;margin-bottom:10px"></div>
+  <div class="vs" id="shTitle">Battle</div>
+  <div class="tiny muted" style="text-align:center;margin-bottom:6px">Row = you · Column = opponent</div>
+
+  <label for="fMine">You played</label>
+  <select id="fMine" onchange="syncTitle()"></select>
+
+  <label for="fOpp">Against</label>
+  <select id="fOpp" onchange="syncTitle()"></select>
+
+  <label>Winner</label>
+  <div class="seg">
+    <button id="wMe" onclick="setWinner('me')">Me</button>
+    <button id="wOpp" onclick="setWinner('opp')">Opponent</button>
+  </div>
+
+  <div class="seg">
+    <div><label for="fMyHP">My HP left</label><input id="fMyHP" type="number" inputmode="numeric" min="0" placeholder="0"></div>
+    <div><label for="fOppHP">Their HP left</label><input id="fOppHP" type="number" inputmode="numeric" min="0" placeholder="0"></div>
+  </div>
+
+  <label>Ultimate used</label>
+  <div class="toggles">
+    <button id="uMe" onclick="toggleUlt('me')">Me</button>
+    <button id="uOpp" onclick="toggleUlt('opp')">Opponent</button>
+  </div>
+
+  <label for="fVs">Played against</label>
+  <input id="fVs" placeholder="Player name">
+
+  <label for="fDate">Date</label>
+  <input id="fDate" type="date">
+
+  <label for="fNote">Notes</label>
+  <textarea id="fNote" rows="2" placeholder="Big roll, clutch moment, anything"></textarea>
+
+  <div class="btnrow" style="margin-top:18px">
+    <button class="btn" onclick="saveBattle()">Save battle</button>
+    <button class="btn" onclick="closeSheet()">Cancel</button>
+  </div>
+  <button class="btn block" id="delBtn" style="margin-top:10px;display:none" onclick="deleteBattle()">Delete this battle</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------------- storage ---------------- */
+const KEY = 'dt-tracker-v1';
+const Store = {
+  async get(){
+    if (window.storage) { try { const r = await window.storage.get(KEY); if (r && r.value) return r.value; } catch(e){} }
+    try { return localStorage.getItem(KEY); } catch(e){ return null; }
+  },
+  async set(v){
+    if (window.storage) { try { await window.storage.set(KEY, v); } catch(e){} }
+    try { localStorage.setItem(KEY, v); } catch(e){}
+  }
+};
+
+/* ---------------- seed roster (45, editable) ---------------- */
+const SEED = [
+  ['Barbarian','Season 1',1],['Monk','Season 1',4],['Moon Elf','Season 1',2],['Ninja','Season 1',2],
+  ['Paladin','Season 1',5],['Pyromancer','Season 1',3],['Shadow Thief','Season 1',5],['Treant','Season 1',6],
+  ['Artificer','Season 2',6],['Cursed Pirate','Season 2',4],['Gunslinger','Season 2',2],['Huntress','Season 2',5],
+  ['Samurai','Season 2',3],['Seraph','Season 2',3],['Tactician','Season 2',5],['Vampire Lord','Season 2',4],
+  ['Black Panther','Marvel',2],['Black Widow','Marvel',4],['Captain Marvel','Marvel',2],['Doctor Strange','Marvel',5],
+  ['Loki','Marvel',4],['Miles Morales Spider-Man','Marvel',2],['Scarlet Witch','Marvel',4],['Thor','Marvel',3],
+  ['Cyclops','X-Men',4],['Gambit','X-Men',6],['Iceman','X-Men',4],['Jean Grey','X-Men',6],
+  ['Psylocke','X-Men',3],['Rogue','X-Men',3],['Storm','X-Men',4],['Wolverine','X-Men',2],
+  ['Headless Horseman','Outcasts',4],['Necromancer','Outcasts',6],['Pale Lady','Outcasts',3],['Raveness','Outcasts',3],
+  ['Druid','Vanguard',4],['Duelist','Vanguard',3],['Forgemaster','Vanguard',4],['Sun Elf','Vanguard',3],
+  ['Santa','Santa v Krampus',2],['Krampus','Santa v Krampus',4],
+  ['Alchemist','Singles',5],['Mystic Brawler','Singles',3],['Deadpool','Singles',3]
+].map(([name,set,diff])=>({name,set,diff}));
+
+const DIFF = {};
+SEED.forEach(h => DIFF[h.name] = h.diff);
+const diffOf = h => (h && h.diff) ?? DIFF[h && h.name] ?? null;
+
+const SET_ORDER = {};
+SEED.forEach(h => { if (!(h.set in SET_ORDER)) SET_ORDER[h.set] = Object.keys(SET_ORDER).length; });
+
+const SET_COLOR = {
+  'Season 1':'#B07A3C', 'Season 2':'#4C8FB5', 'Marvel':'#C4544A', 'X-Men':'#5A6FD1',
+  'Outcasts':'#7A4BA8', 'Vanguard':'#3F9A82', 'Santa v Krampus':'#4C9A5A', 'Singles':'#8A85A8'
+};
+
+const DICE = [
+  'data:image/webp;base64,UklGRjoBAABXRUJQVlA4WAoAAAAQAAAAHwAAHwAAQUxQSEAAAAABN6CQbQQI49TP9ZtGRAQQGagJAKRh6b0KUMEQmsAAs38MeD0j+j8BD8GcRiSbrgrORh6F708erZ4WyaZroi11VlA4INQAAADQBQCdASogACAAPm0uk0WkIqGYBABABsSzAE6ZaqAX2YAwjx1ikJxY4HbFXOFIUmKgyalZLxuAAP73O4dDKZK2rHIaP589bSpwo3mcUsKQOo3TwvM//hWgakpq4vYUA33kFvlzbE8MhFHp/Xg8bY7P/UDO7BBnrPVJ3yIbQpMK7OYnAW7Kdv9cl2EF/JCKndLRrA+01Od6Q3PBnrY4hBgTqvuEr7kB35zIuAhQCE0YmlFLPvT1xRlj3KDAQwBgUthOBjXOsNqCyHHxdN3MT9W2s0oAAA==',
+  'data:image/webp;base64,UklGRkwBAABXRUJQVlA4WAoAAAAQAAAAHwAAHwAAQUxQSD4AAAABN6CQbQQI49TP9ZtGRAQQGagJAKRh344CVCAEDQhg/yDwekb0fwIKob3SqOfvwjBo4vD9aeJ3EkY9f4W9lVZQOCDoAAAAEAYAnQEqIAAgAD5tLpJFpCKhmAwGAEAGxLIATplCMkn03EbQfHwhd7GiuJyxOaiS7AGccvxITMwAAP75loBnnv3KyAFaeE5ppp//Owfs3+6fBnrmmVrT7N5X+xkO6H19p4xnkCSr/25ZXzU3bgGL0Ny0bEgJ+WIqR7roSPxgE4wYJ3DJRg07eIAYqitG0UCN5K6qNSA1MklZIym+AHc+ybrUJ5MW39asP2Vfl/5WtZiPomEM34J5LuE1neyDMmdtKhSdOx8IYKjwSFtmRspOnbcZzNbVmqqRcCClPF+feFLe7vPbSegAAA==',
+  'data:image/webp;base64,UklGRrABAABXRUJQVlA4WAoAAAAQAAAAHwAAHwAAQUxQSEAAAAABN6CQbQQI49TP9ZtGRAQQGagJAKRh6b0KUMEQmsAAs38MeD0j+j8BD8GcRiSbrgrORh6F708erZ4WyaZroi11VlA4IEoBAABwBwCdASogACAAPm0qkUWkIqGYBABABsS2AE6ZQiQC9lxgG8YftmRsPkl9UlWrUi+xKS58YoghNd0y8AKzGg/LuOBigAD+/tz5euIAKgJRpuURb/Qaf877v+EOqKJ39Iv2K7Gomz//Oxv87G/0TX/ys60Pz23/HuhP+4GsRISRDKSfr381miepPzSGKgLwqKYKxLeJVnW4KATmIXAKnQAL2TCJvH/Q592wuvFMIutSD2+ndt+dXJoIiFFQdDv/x4A3niKyIkkCgAr0v3d7d0LPArZCKgxNUO3lLoowGpPe0XWTF18X/0VoLxHId2XIJiI9/q5HxLOpMxnvnbfUgZ29Z1OCAyzfcpx4f1rp7iy7iBNdMbe/Lhr5cckI71b3BaYN+5Pnp+aJD/b8CIK/QYk/j+hpB+ali6M3rgKaxq7bArtpGaDZ9h4AAAA=',
+  'data:image/webp;base64,UklGRhoCAABXRUJQVlA4WAoAAAAQAAAAHwAAHwAAQUxQSEAAAAABN6CQbQQI49TP9ZtGRAQQGagJAKRh6b0KUMEQmsAAs38MeD0j+j8BD8GcRiSbrgrORh6F708erZ4WyaZroi11VlA4ILQBAACwCgCdASogACAAPm0ulUakIqIhKAqogA2JbACdMoRwMIK4BMAvQL4inAeKB0gPMBugHSY7yN+x/7eMYEyA/QCQj/YDfVhlxEArV4RXMQzCK8R/k0jp2rjvI3z7QfhAAP74C6fk/t+8sClGvfXyOIhV4+XgkfIxYDiVWLApmn18HdNW17Tujmii2LNRec74AST/5/IaOL/r6ZUN/+jVFFxtpClSUH8TVhVrpbJ+lj3wzia0gH+h//Sw+RfqWf/+0fZ0+so/nUdExdO3AtIPbxffSV+U1ESWmr+nnuyzN6Xf/LqyTEVSV2NJjv2goZP9QMKB/yTbH/Ov4pI764gDiSUfcf6IsopD32r7K3xLHr3FhZBpRtc0tbXJbcGXry/0DCBAefK7D6U8KZCYfLZ1yZKkMv4zydLGhm8KJuuKHRTgOuSrcDbjnww3FPYqBttTAE5wwMgBfCVqtpCEITty0T/if5rYkS+/84hdo0fao9zJuUkHYy4zrFOYPj3lkI8ACay78QiLyZ9/+Vdgvmku8SXzGgxkGdndAxcwQPKqmjB2JY7wsW6n+AIDpu8Tfct7+wOFMAAA',
+  'data:image/webp;base64,UklGRjACAABXRUJQVlA4WAoAAAAQAAAAHwAAHwAAQUxQSD4AAAABN6CQbQQI49TP9ZtGRAQQGagJAKRh344CVCAEDQhg/yDwekb0fwIKob3SqOfvwjBo4vD9aeJ3EkY9f4W9lVZQOCDMAQAAkAoAnQEqIAAgAD5pKpBFpCKhm/qsAEAGhLYATplCPa/QPxVug7QQYDbAeYDdHP591B28g/rz+zKBAR0f7L+wB0XA3fzp+JHBqItaz92qB1AXMxv2Oq7PsvCRmowAAP7x60ND2Dx/nAZct/hn0BqsupmK+bfBPw+GYaN8itZ8g7di4WzV8rRgX05b9F9HW/ByOuTmRgKP/+YucDl+TJpRfDHaRvAZOxMj/+NfNdu4kNp/Y4Md/a2Ax0wJ37keAvpi8Pqb9palrTElXCQbA7yRTL1nt0Kh4c0KbfBg1J9AqicAnC7mG7Ttr8vXqujZnFweJxOcgHk1JNEtPXWhwV+KvuzpF9G9Zid8n0xVcH+vSr/mBQN9WEYpH7+fZ3t2cK/uxnfZlT97obfK78/GcDkcwBnY2TIeEr32rE5uQnLiHL/E6J0WOdOPsP2xN095XiXZJFpyLqEmPSGnk7j910jXzQDFBxx8P4frN5mozJz6iQ3vS4nZ8AfybYTFe7cpAjDrrucjSrfBIWdFPFfsQLaWcEJm7JIxxAsEz8Y7o+9eaad4s6XCthgk2sp0tQDXqhLIicCwlg6Q8PwnygB7eQYxR4aHTQ8XzdePPx8AAA==',
+  'data:image/webp;base64,UklGRjACAABXRUJQVlA4WAoAAAAQAAAAHwAAHwAAQUxQSEAAAAABN6CQbQQI49TP9ZtGRAQQGagJAKRh6b0KUMEQmsAAs38MeD0j+j8BD8GcRiSbrgrORh6F708erZ4WyaZroi11VlA4IMoBAABQCgCdASogACAAPmUqkUWkIqGYBgBABkS2AE6ZQjgb2vhzHA6onqA2wHmAxwD0AOki/a8/jXcA4KGoB0iBuyZWw1tE1o7/TvNEzGqWdYdxwuQqqzC/wlZVEJ+AAP5epN3QKOaxmhAy/dmBLuKt8eoubVa9ILn2ZORgYGt189uKarpF1Tve1lfLwkaXoGPCJ0RuSXk/+Yp0Q+oAJ1G1T//0qrR1c7o4t7WqrafUU3gZV050V2cjZz+7PFOqvW+8ZPmvL2haJP9rMXgByuVXl5UA/jDnb06Qbt9GCeb4hxoG8Mm/WgUW1XZ2EtVeugux0wRKs55aycf53n5pZDegh/oB+bW9ut+ZWfHLQzEdnMK5O6XSfvaZ9xVdLlNFPvGTUfTd7kZqwltRNvTE7VKRK3LdbfuTQlWYtEaqc/032BEywGLlx5A33LkPehveuLS9M1UHC403y/xOW76nF2SwlPqPJWoA3NHn/x6lOxuq5Fu8EhawdX99vNkTKSLeZ99H3myUNSjFwuI16xFcYEOdquyepEHVmJNelQ/JLnK4pvkB2dwNochOxp8D2y0ZIS31P3xqe2DKb/M337SUOAH5XgtAgdtojPmUGPgwAA==',
+];
+
+/* difficulty die icon, embedded so it needs no image folder */
+function die(n, px){
+  if (!n || n < 1 || n > 6) return '';
+  return '<img class="die" src="' + DICE[n-1] + '" alt="Difficulty ' + n + '" ' +
+    'style="width:' + (px||18) + 'px;height:' + (px||18) + 'px">';
+}
+function diffHTML(n, px){
+  return n ? 'Difficulty level ' + die(n, px) : 'Unrated';
+}
+
+const SORTS = [
+  ['abc',    'A-Z'],
+  ['set',    'By set'],
+  ['diff',   'By difficulty'],
+  ['wins',   'Most wins'],
+  ['losses', 'Most losses']
+];
+const DRAW_SORTS = [['set','By set'],['diff','By difficulty'],['abc','A-Z']];
+
+let S = { heroes: SEED.slice(), battles: {}, sort: 'abc' };
+let editing = null, winner = 'me', current = null, ult = { me:false, opp:false };
+let rolling = false, lastDraw = null;
+
+const $  = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const kk = (a,b) => a + '||' + b;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const jq = s => JSON.stringify(s).replace(/"/g,'&quot;');
+const byName = (a,b) => a.name.localeCompare(b.name, 'en');
+
+async function save(){ await Store.set(JSON.stringify(S)); }
+function total(){ return S.heroes.length * S.heroes.length; }
+function played(){ return Object.keys(S.battles).length; }
+function get(a,b){ return S.battles[kk(a,b)]; }
+function hero(name){ return S.heroes.find(h => h.name === name); }
+
+function toast(msg){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('on'), 1900);
+}
+
+/* ---------------- artwork ---------------- */
+const IMG_EXT = ['webp','png','jpg','jpeg'];
+const slug = n => n.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+
+function initials(n){
+  const w = n.split(/[\s-]+/).filter(Boolean);
+  return (w.length > 1 ? w[0][0] + w[1][0] : n.slice(0,2)).toUpperCase();
+}
+
+function nextImg(el){
+  const i = +el.dataset.i + 1;
+  if (i >= IMG_EXT.length) return el.remove();
+  el.dataset.i = i;
+  el.src = 'img/' + el.dataset.slug + '.' + IMG_EXT[i];
+}
+
+function av(name, size){
+  const h = hero(name);
+  if (!h) return '<span class="av ' + (size || 's') + '" style="--c:#8A85A8">?</span>';
+  const c = SET_COLOR[h.set] || '#8A85A8';
+  const s = slug(name);
+  return '<span class="av ' + (size || 's') + '" style="--c:' + c + '">' + initials(name) +
+    '<img src="img/' + s + '.' + IMG_EXT[0] + '" data-slug="' + s + '" data-i="0" alt="" loading="lazy" onerror="nextImg(this)"></span>';
+}
+
+function copyNames(){
+  const txt = abcHeroes().map(h => slug(h.name)).join('\n');
+  navigator.clipboard.writeText(txt).then(
+    () => toast('Copied ' + S.heroes.length + ' file names'),
+    () => toast('Clipboard blocked — try Download')
+  );
+}
+
+function downloadNames(){
+  const txt = abcHeroes().map(h => slug(h.name) + '  <-  ' + h.name).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([txt], { type:'text/plain' }));
+  a.download = 'dice-throne-image-names.txt';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* ---------------- ordering ---------------- */
+function abcHeroes(){ return S.heroes.slice().sort(byName); }
+
+function sortedHeroes(){
+  const list = S.heroes.slice();
+  if (S.sort === 'set') return list.sort((a,b) =>
+    (SET_ORDER[a.set] ?? 99) - (SET_ORDER[b.set] ?? 99) || a.set.localeCompare(b.set) || byName(a,b));
+  if (S.sort === 'diff')   return list.sort((a,b) => (diffOf(a) ?? 9) - (diffOf(b) ?? 9) || byName(a,b));
+  if (S.sort === 'wins')   return list.sort((a,b) => heroStats(b.name).w - heroStats(a.name).w || byName(a,b));
+  if (S.sort === 'losses') return list.sort((a,b) => heroStats(b.name).l - heroStats(a.name).l || byName(a,b));
+  return list.sort(byName);
+}
+
+function groupOf(h){
+  if (S.sort === 'set')  return h.set;
+  if (S.sort === 'diff') return diffOf(h) ? 'Difficulty ' + diffOf(h) : 'Unrated';
+  return null;
+}
+
+function groupDisplay(h){
+  return S.sort === 'diff' ? diffHTML(diffOf(h), 19) : esc(h.set);
+}
+
+function renderSortBars(){
+  const html = SORTS.map(([k,l]) =>
+    '<button class="' + (S.sort === k ? 'on' : '') + '" onclick="setSort(\'' + k + '\')">' + l + '</button>').join('');
+  $('#sortHeroes').innerHTML = html;
+  $('#sortStats').innerHTML  = html;
+}
+
+async function setSort(k){ S.sort = k; await save(); renderSortBars(); refresh(); }
+
+/* ---------------- navigation ---------------- */
+function go(id){
+  $$('.screen').forEach(s => s.classList.remove('on'));
+  $('#s-' + id).classList.add('on');
+  $$('.tabs button').forEach(b => b.classList.remove('on'));
+  const tab = $('#t-' + id); if (tab) tab.classList.add('on');
+  window.scrollTo(0,0);
+  if (id === 'matrix') setMatrixView(S.matView || 'grid');
+  if (id === 'heroes') renderHeroes();
+  if (id === 'stats')  renderStats();
+  if (id === 'draw')   renderDraw();
+  if (id === 'set')    renderManage();
+  if (id === 'home')   renderHome();
+}
+
+/* ---------------- home ---------------- */
+function ultMark(b){
+  if (!b.ult || (!b.ult.me && !b.ult.opp)) return '';
+  const who = b.ult.me && b.ult.opp ? 'both' : b.ult.me ? 'me' : 'opp';
+  return '<span class="ult">ULT · ' + who + '</span>';
+}
+
+function renderHome(){
+  const d = played(), t = total(), pct = t ? (d/t*100) : 0;
+  $('#hDone').textContent  = d.toLocaleString('en-US');
+  $('#hTotal').textContent = t.toLocaleString('en-US');
+  $('#hPct').textContent   = pct.toFixed(1) + '%';
+  $('#hMeter').style.width = pct + '%';
+  $('#topSub').textContent = d + ' / ' + t;
+}
+
+function setMatrixView(v){
+  S.matView = v;
+  save();
+  $('#mvGrid').classList.toggle('on', v !== 'map');
+  $('#mvMap').classList.toggle('on', v === 'map');
+  $('#matGrid').style.display = v === 'map' ? 'none' : 'block';
+  $('#matMap').style.display  = v === 'map' ? 'block' : 'none';
+  v === 'map' ? renderOverview() : renderMatrix();
+}
+
+function renderOverview(){
+  const d = played(), t = total(), pct = t ? (d/t*100) : 0;
+  $('#mDone').textContent  = d.toLocaleString('en-US');
+  $('#mTotal').textContent = t.toLocaleString('en-US');
+  $('#mPct').textContent   = pct.toFixed(1) + '%';
+
+  const H = abcHeroes(), n = H.length, mini = $('#mini');
+  mini.style.gridTemplateColumns = 'repeat(' + n + ',1fr)';
+  let html = '';
+  for (let r = 0; r < n; r++){
+    for (let c = 0; c < n; c++){
+      const b = get(H[r].name, H[c].name);
+      html += '<i class="' + (b ? (b.w === 'me' ? 'w' : 'l') : '') + (r === c ? ' d' : '') + '"></i>';
+    }
+  }
+  mini.innerHTML = html;
+}
+
+function renderRecent(){
+  const recent = Object.entries(S.battles)
+    .sort((a,b) => (b[1].date || '').localeCompare(a[1].date || ''))
+    .slice(0,6);
+  $('#recent').innerHTML = recent.length
+    ? '<div class="list">' + recent.map(([k,b]) => {
+        const [a,o] = k.split('||');
+        return '<button class="item" onclick="openBattle(' + jq(a) + ',' + jq(o) + ')">' +
+          '<span class="row" style="gap:0;flex:none">' + av(a) + '<span style="margin-left:-11px">' + av(o) + '</span></span>' +
+          '<span class="name">' + esc(a) + ' <span class="muted">vs</span> ' + esc(o) + '</span>' +
+          ultMark(b) +
+          '<span class="tiny muted">' + esc(b.date || '') + '</span>' +
+          '<span class="chip ' + (b.w === 'me' ? 'w' : 'l') + '">' + (b.w === 'me' ? 'Won' : 'Lost') + '</span></button>';
+      }).join('') + '</div>'
+    : '<div class="card empty">No battles yet. Log your first one and watch the board fill in.</div>';
+}
+
+/* ---------------- matrix ---------------- */
+function renderMatrix(){
+  const H = abcHeroes(), n = H.length, g = $('#grid');
+  g.style.gridTemplateColumns = '104px repeat(' + n + ',30px)';
+  const corner =
+    '<div class="corner"><svg viewBox="0 0 104 104" width="104" height="104" aria-label="Rows are the hero you played, columns are the opponent">' +
+    '<line x1="4" y1="4" x2="100" y2="100" stroke="currentColor" stroke-width="1.5" opacity=".45"/>' +
+    '<text x="99" y="27" text-anchor="end" font-size="11" font-weight="700" letter-spacing="0.6" fill="currentColor">OPPONENT</text>' +
+    '<text x="7" y="88" text-anchor="start" font-size="11" font-weight="700" letter-spacing="0.6" fill="currentColor">YOU</text>' +
+    '</svg></div>';
+  const p = [corner];
+  H.forEach(h => p.push('<div class="gh">' + esc(h.name) + '</div>'));
+  H.forEach(r => {
+    p.push('<div class="rh">' + esc(r.name) + '</div>');
+    H.forEach(c => {
+      const b = get(r.name, c.name);
+      const cls = 'cell' + (r.name === c.name ? ' diag' : '') + (b ? (b.w === 'me' ? ' w' : ' l') : '');
+      p.push('<button class="' + cls + '" data-r="' + esc(r.name) + '" data-c="' + esc(c.name) + '"></button>');
+    });
+  });
+  g.innerHTML = p.join('');
+  g.onclick = e => {
+    const cell = e.target.closest('.cell');
+    if (cell) openBattle(cell.dataset.r, cell.dataset.c);
+  };
+}
+
+/* ---------------- heroes ---------------- */
+function heroStats(name){
+  let done = 0, w = 0, l = 0;
+  S.heroes.forEach(o => {
+    const b = get(name, o.name);
+    if (b){ done++; b.w === 'me' ? w++ : l++; }
+  });
+  return { done, w, l, total: S.heroes.length };
+}
+
+function heroRow(h){
+  const s = heroStats(h.name), pct = s.total ? s.done / s.total * 100 : 0;
+  const tail = S.sort === 'wins'   ? '<span class="tiny" style="color:var(--win);min-width:32px;text-align:right">' + s.w + ' W</span>'
+             : S.sort === 'losses' ? '<span class="tiny" style="color:var(--loss);min-width:32px;text-align:right">' + s.l + ' L</span>' : '';
+  return '<button class="item" onclick="openHero(' + jq(h.name) + ')">' +
+    av(h.name) + '<span class="name">' + esc(h.name) + '</span>' + tail +
+    '<span class="bar"><i style="width:' + pct + '%"></i></span>' +
+    '<span class="tiny muted" style="min-width:44px;text-align:right">' + s.done + '/' + s.total + '</span></button>';
+}
+
+function renderHeroes(){
+  const H = sortedHeroes();
+  let html = '';
+  if (S.sort === 'set' || S.sort === 'diff'){
+    let cur = null;
+    H.forEach(h => {
+      const g = groupOf(h);
+      if (g !== cur){
+        if (cur !== null) html += '</div>';
+        html += '<div class="list" style="margin-bottom:14px"><div class="setlabel">' + groupDisplay(h) + '</div>';
+        cur = g;
+      }
+      html += heroRow(h);
+    });
+    if (cur !== null) html += '</div>';
+  } else {
+    html = '<div class="list">' + H.map(heroRow).join('') + '</div>';
+  }
+  $('#heroList').innerHTML = html;
+}
+
+function openHero(name){
+  current = name;
+  const s = heroStats(name), h = hero(name);
+  $('#dAv').innerHTML = av(name, 'l');
+  $('#dName').textContent = name;
+  $('#dSet').innerHTML = h ? (esc(h.set) + (diffOf(h) ? ' · ' + diffHTML(diffOf(h), 19) : '')) : '';
+  $('#dDone').textContent = s.done;
+  $('#dTotal').textContent = s.total;
+  $('#dRec').textContent  = s.w + ' wins · ' + s.l + ' losses';
+  $('#dMeter').style.width = (s.total ? s.done / s.total * 100 : 0) + '%';
+
+  $('#dList').innerHTML = '<div class="list">' + abcHeroes().map(o => {
+    const b = get(name, o.name);
+    const chip = b
+      ? '<span class="chip ' + (b.w === 'me' ? 'w' : 'l') + '">' + (b.w === 'me' ? 'Won' : 'Lost') + '</span>'
+      : '<span class="chip n">Not yet</span>';
+    const hp = b ? '<span class="tiny muted">' + (b.myHP ?? '–') + ':' + (b.oppHP ?? '–') + '</span>' : '';
+    return '<button class="item" onclick="openBattle(' + jq(name) + ',' + jq(o.name) + ')">' +
+      av(o.name) + '<span class="name">' + esc(o.name) + (o.name === name ? ' <span class="muted tiny">Mirror</span>' : '') + '</span>' +
+      (b ? ultMark(b) : '') + hp + chip + '</button>';
+  }).join('') + '</div>';
+
+  go('hero');
+  $$('.tabs button').forEach(b => b.classList.remove('on'));
+  $('#t-heroes').classList.add('on');
+}
+
+/* ---------------- stats ---------------- */
+function renderStats(){
+  renderRecent();
+  let w = 0, l = 0;
+  Object.values(S.battles).forEach(b => b.w === 'me' ? w++ : l++);
+  $('#stW').textContent = w;
+  $('#stL').textContent = l;
+  $('#stRemain').textContent = (total() - played()).toLocaleString('en-US');
+
+  let cur = null, html = '';
+  sortedHeroes().forEach(h => {
+    const g = groupOf(h);
+    if (g && g !== cur){
+      cur = g;
+      html += '<tr><td colspan="5" class="setlabel" style="padding:10px 8px 4px">' + groupDisplay(h) + '</td></tr>';
+    }
+    const r = heroStats(h.name), n = r.w + r.l;
+    const rate = n ? Math.round(r.w / n * 100) + '%' : '–';
+    html += '<tr><td><span class="row" style="gap:8px">' + av(h.name, 'xs') +
+      '<span>' + esc(h.name) + '</span></span></td><td class="num muted">' + r.done + '/' + r.total +
+      '</td><td class="num" style="color:var(--win)">' + r.w + '</td><td class="num" style="color:var(--loss)">' + r.l +
+      '</td><td class="num">' + rate + '</td></tr>';
+  });
+  $('#stBody').innerHTML = html;
+}
+
+/* ---------------- battle sheet ---------------- */
+function fillSelects(){
+  const opts = abcHeroes().map(h => '<option value="' + esc(h.name) + '">' + esc(h.name) + '</option>').join('');
+  $('#fMine').innerHTML = opts;
+  $('#fOpp').innerHTML  = opts;
+}
+
+function setWinner(v){
+  winner = v;
+  $('#wMe').classList.toggle('on', v === 'me');
+  $('#wOpp').classList.toggle('on', v === 'opp');
+}
+
+function toggleUlt(who){
+  ult[who] = !ult[who];
+  $(who === 'me' ? '#uMe' : '#uOpp').classList.toggle('on', ult[who]);
+}
+
+function syncTitle(){
+  const a = $('#fMine').value, b = $('#fOpp').value;
+  $('#shTitle').textContent = a + ' vs ' + b;
+  $('#shAvs').innerHTML = av(a,'m') + '<span class="muted small">vs</span>' + av(b,'m');
+}
+
+function today(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function openBattle(mine, opp){
+  fillSelects();
+  mine = mine || S.heroes[0].name;
+  opp  = opp  || S.heroes[0].name;
+  $('#fMine').value = mine;
+  $('#fOpp').value  = opp;
+  const b = get(mine, opp);
+  editing = b ? kk(mine, opp) : null;
+  setWinner(b ? b.w : 'me');
+  ult = { me: !!(b && b.ult && b.ult.me), opp: !!(b && b.ult && b.ult.opp) };
+  $('#uMe').classList.toggle('on', ult.me);
+  $('#uOpp').classList.toggle('on', ult.opp);
+  $('#fMyHP').value  = b ? (b.myHP ?? '') : '';
+  $('#fOppHP').value = b ? (b.oppHP ?? '') : '';
+  $('#fVs').value    = b ? (b.vs || '') : '';
+  $('#fNote').value  = b ? (b.note || '') : '';
+  $('#fDate').value  = b ? (b.date || today()) : today();
+  $('#delBtn').style.display = b ? 'block' : 'none';
+  syncTitle();
+  $('#scrim').classList.add('on');
+  $('#sheet').classList.add('on');
+}
+
+function closeSheet(){
+  $('#scrim').classList.remove('on');
+  $('#sheet').classList.remove('on');
+}
+
+async function saveBattle(){
+  const mine = $('#fMine').value, opp = $('#fOpp').value;
+  if (editing && editing !== kk(mine, opp)) delete S.battles[editing];
+  S.battles[kk(mine, opp)] = {
+    w: winner,
+    myHP:  $('#fMyHP').value  === '' ? null : +$('#fMyHP').value,
+    oppHP: $('#fOppHP').value === '' ? null : +$('#fOppHP').value,
+    ult:   { me: ult.me, opp: ult.opp },
+    vs:    $('#fVs').value.trim(),
+    date:  $('#fDate').value,
+    note:  $('#fNote').value.trim()
+  };
+  await save();
+  closeSheet();
+  refresh();
+  toast(mine + ' vs ' + opp + ' saved');
+}
+
+async function deleteBattle(){
+  const k = kk($('#fMine').value, $('#fOpp').value);
+  if (!S.battles[k]) return closeSheet();
+  if (!confirm('Delete this battle record?')) return;
+  delete S.battles[k];
+  await save();
+  closeSheet();
+  refresh();
+  toast('Battle deleted');
+}
+
+function randomBattle(){
+  const open = [];
+  S.heroes.forEach(a => S.heroes.forEach(b => { if (!get(a.name, b.name)) open.push([a.name, b.name]); }));
+  if (!open.length) return toast('100% complete — nothing left to play');
+  const [a,b] = open[Math.floor(Math.random() * open.length)];
+  openBattle(a, b);
+}
+
+/* ---------------- draw ---------------- */
+function pool(which){
+  if (!S.pools) S.pools = {};
+  if (!S.pools[which]) S.pools[which] = S.heroes.map(h => h.name);
+  return S.pools[which];
+}
+function picked(which, name){ return pool(which).includes(name); }
+function pickList(which){ return pool(which).filter(n => hero(n)); }
+
+function drawOrder(){
+  const list = S.heroes.slice();
+  if (S.drawSort === 'diff') return list.sort((a,b) => (diffOf(a) ?? 9) - (diffOf(b) ?? 9) || byName(a,b));
+  if (S.drawSort === 'abc')  return list.sort(byName);
+  return list.sort((a,b) => (SET_ORDER[a.set] ?? 99) - (SET_ORDER[b.set] ?? 99) || a.set.localeCompare(b.set) || byName(a,b));
+}
+function drawGroup(h){
+  if (S.drawSort === 'diff') return diffOf(h) ? 'Difficulty ' + diffOf(h) : 'Unrated';
+  if (S.drawSort === 'abc')  return null;
+  return h.set;
+}
+
+function poolHTML(which, title){
+  let html = '<div class="card" style="padding:0;margin-bottom:14px">' +
+    '<div class="poolhead"><h3>' + title + '</h3>' +
+    '<span class="tiny muted">' + pickList(which).length + '/' + S.heroes.length + '</span>' +
+    '<button class="btn sm" onclick="pickAll(\'' + which + '\',true)">All</button>' +
+    '<button class="btn sm" onclick="pickAll(\'' + which + '\',false)">None</button></div>';
+  let cur = null, open = false;
+  drawOrder().forEach(h => {
+    const g = drawGroup(h);
+    if (g !== cur){
+      if (open) html += '</div>';
+      cur = g;
+      if (g) html += '<div class="setlabel" style="border:0;background:none">' +
+        (S.drawSort === 'diff' ? diffHTML(diffOf(h), 19) : esc(h.set)) + '</div>';
+      html += '<div class="pickgrid">'; open = true;
+    }
+    html += '<button class="pick ' + (picked(which, h.name) ? 'on' : 'off') + '" aria-label="' + esc(h.name) +
+      '" onclick="togglePick(\'' + which + '\',' + jq(h.name) + ')">' + av(h.name, 'p') + '</button>';
+  });
+  if (open) html += '</div>';
+  return html + '</div>';
+}
+
+function renderDraw(){
+  if (!S.drawSort) S.drawSort = 'set';
+  if (!S.drawMode) S.drawMode = 'both';
+  $('#dmMe').classList.toggle('on', S.drawMode === 'me');
+  $('#dmBoth').classList.toggle('on', S.drawMode === 'both');
+  $('#sortDraw').innerHTML = DRAW_SORTS.map(([k,l]) =>
+    '<button class="' + (S.drawSort === k ? 'on' : '') + '" onclick="setDrawSort(\'' + k + '\')">' + l + '</button>').join('');
+  $('#poolMine').innerHTML = poolHTML('mine', 'My heroes');
+  $('#poolOpp').innerHTML  = S.drawMode === 'both' ? poolHTML('opp', "Opponent's heroes") : '';
+  if (!rolling && !lastDraw) resetFaces();
+}
+
+function resetFaces(){
+  const both = S.drawMode === 'both';
+  $('#faces').innerHTML = '<span id="f1">' + av('?', 'xl') + '</span>' +
+    (both ? '<span class="muted small">vs</span><span id="f2">' + av('?', 'xl') + '</span>' : '');
+  $('#rollName').textContent = '';
+  $('#rollLog').style.display = 'none';
+}
+
+async function setDrawMode(m){ S.drawMode = m; lastDraw = null; await save(); renderDraw(); resetFaces(); }
+async function setDrawSort(k){ S.drawSort = k; await save(); renderDraw(); }
+
+async function togglePick(which, name){
+  const p = pool(which), i = p.indexOf(name);
+  i < 0 ? p.push(name) : p.splice(i,1);
+  await save();
+  renderDraw();
+}
+
+async function pickAll(which, on){
+  S.pools[which] = on ? S.heroes.map(h => h.name) : [];
+  await save();
+  renderDraw();
+}
+
+function spin(sel, list, dur, done){
+  const el = $(sel);
+  el.classList.add('spin');
+  const t0 = performance.now();
+  (function tick(){
+    const t = performance.now() - t0;
+    if (t >= dur){
+      const win = list[Math.floor(Math.random() * list.length)];
+      el.classList.remove('spin');
+      el.innerHTML = av(win, 'xl');
+      return done(win);
+    }
+    el.innerHTML = av(list[Math.floor(Math.random() * list.length)], 'xl');
+    setTimeout(tick, 55 + 330 * Math.pow(t / dur, 3));
+  })();
+}
+
+function startRoll(){
+  if (rolling) return;
+  const both = S.drawMode === 'both';
+  const mine = pickList('mine');
+  if (!mine.length) return toast('No heroes selected');
+  const opp = both ? pickList('opp') : [];
+  if (both && !opp.length) return toast('No heroes selected for the opponent');
+
+  rolling = true; lastDraw = null;
+  $('#rollBtn').textContent = 'Rolling…';
+  $('#rollBtn').disabled = true;
+  resetFaces();
+
+  let a = null, b = null;
+  const label = n => {
+    const h = hero(n) || {};
+    const bits = [esc(h.set || ''), diffOf(h) ? diffHTML(diffOf(h), 20) : ''].filter(Boolean);
+    return n + (bits.length ? '<div class="muted small" style="font-family:var(--sans);font-weight:400;text-transform:none;letter-spacing:0;margin-top:2px">' + bits.join(' · ') + '</div>' : '');
+  };
+  const finish = () => {
+    rolling = false;
+    $('#rollBtn').textContent = 'Roll again';
+    $('#rollBtn').disabled = false;
+    lastDraw = [a, b];
+    $('#rollName').innerHTML = both
+      ? label(a) + '<div class="muted small" style="margin:6px 0">vs</div>' + label(b)
+      : label(a);
+    if (both) $('#rollLog').style.display = 'block';
+  };
+
+  spin('#f1', mine, 5000, w => { a = w; if (!both) finish(); });
+  if (both) spin('#f2', opp, 5600, w => { b = w; finish(); });
+}
+
+function logDraw(){
+  if (lastDraw && lastDraw[1]) openBattle(lastDraw[0], lastDraw[1]);
+}
+
+/* ---------------- roster management ---------------- */
+function renderManage(){
+  $('#cnt').textContent = S.heroes.length;
+  $('#manage').innerHTML = '<div class="list">' + abcHeroes().map(h =>
+    '<div class="item">' + av(h.name) + '<span class="name">' + esc(h.name) + '</span>' +
+    '<span class="tiny muted">' + esc(h.set) + '</span>' + (diffOf(h) ? die(diffOf(h), 17) : '') +
+    '<button class="btn sm" onclick="delHero(' + jq(h.name) + ')">Remove</button></div>'
+  ).join('') + '</div>';
+}
+
+async function addHero(){
+  const name = $('#nhName').value.trim(), set = $('#nhSet').value.trim() || 'New';
+  const diff = $('#nhDiff').value === '' ? null : Math.min(6, Math.max(1, +$('#nhDiff').value));
+  if (!name) return toast('Name required');
+  if (S.heroes.some(h => h.name.toLowerCase() === name.toLowerCase())) return toast('That hero is already listed');
+  S.heroes.push({ name, set, diff });
+  await save();
+  $('#nhName').value = ''; $('#nhDiff').value = '';
+  renderManage(); refresh();
+  toast(name + ' added · ' + total().toLocaleString('en-US') + ' battles total');
+}
+
+async function delHero(name){
+  const i = S.heroes.findIndex(x => x.name === name);
+  if (i < 0) return;
+  const n = Object.keys(S.battles).filter(k => k.split('||').includes(name)).length;
+  if (!confirm('Remove ' + name + '?' + (n ? '\n' + n + ' logged battles will be deleted.' : ''))) return;
+  Object.keys(S.battles).forEach(k => { if (k.split('||').includes(name)) delete S.battles[k]; });
+  S.heroes.splice(i,1);
+  await save();
+  renderManage(); refresh();
+  toast(name + ' removed');
+}
+
+/* ---------------- backup ---------------- */
+function exportData(){
+  const blob = new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'dice-throne-tracker-' + today() + '.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('File exported');
+}
+
+function importData(input){
+  const f = input.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = async () => {
+    try {
+      const d = JSON.parse(r.result);
+      if (!d.heroes || !d.battles) throw 0;
+      if (!confirm('Importing replaces everything currently stored. Continue?')) return;
+      S = d;
+      if (!S.sort) S.sort = 'abc';
+      await save();
+      renderSortBars(); fillSelects();
+      refresh(); renderManage();
+      toast('Imported ' + Object.keys(S.battles).length + ' battles');
+    } catch(e){ toast('That file is not valid') }
+    input.value = '';
+  };
+  r.readAsText(f);
+}
+
+async function wipe(){
+  if (!confirm('Erase every battle and reset to the original 45 heroes?')) return;
+  S = { heroes: SEED.slice(), battles: {}, sort: S.sort || 'abc' };
+  await save();
+  refresh(); renderManage();
+  toast('Everything reset');
+}
+
+/* ---------------- offline support ---------------- */
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      /* a newer version was published: take it as soon as it is ready */
+      reg.addEventListener('updatefound', () => {
+        const sw = reg.installing;
+        if (!sw) return;
+        sw.addEventListener('statechange', () => {
+          if (sw.state === 'installed' && navigator.serviceWorker.controller) sw.postMessage('skipWaiting');
+        });
+      });
+    }).catch(() => {});
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (reloaded) return;
+      reloaded = true;
+      location.reload();
+    });
+  });
+}
+
+/* ---------------- boot ---------------- */
+function refresh(){
+  fillSelects();
+  renderHome();
+  if ($('#s-matrix').classList.contains('on')) S.matView === 'map' ? renderOverview() : renderMatrix();
+  if ($('#s-heroes').classList.contains('on')) renderHeroes();
+  if ($('#s-stats').classList.contains('on'))  renderStats();
+  if ($('#s-draw').classList.contains('on') && !rolling) renderDraw();
+  if ($('#s-hero').classList.contains('on') && current) openHero(current);
+}
+
+(async function init(){
+  const raw = await Store.get();
+  if (raw){
+    try {
+      const d = JSON.parse(raw);
+      if (d.heroes && d.battles) S = d;
+    } catch(e){}
+  }
+  if (!S.sort) S.sort = 'abc';
+  S.heroes.forEach(h => { if (h.set === 'בודדים') h.set = 'Singles'; });
+  renderSortBars();
+  fillSelects();
+  renderHome();
+})();
+</script>
+</body>
+</html>
