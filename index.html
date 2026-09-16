@@ -437,7 +437,7 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
     </div>
 
     <button class="btn block" onclick="wipe()">Erase all data</button>
-    <div class="tiny muted" style="text-align:center;margin-top:14px">v0.4 · offline ready</div>
+    <div class="tiny muted" style="text-align:center;margin-top:14px">v0.5 · offline ready</div>
   </section>
 </main>
 
@@ -1036,24 +1036,47 @@ async function pickAll(which, on){
   renderDraw();
 }
 
-function spin(sel, list, dur, done){
+/* Build every face up front and hide them. Swapping visibility costs nothing,
+   while rebuilding an <img> each frame makes the initials flash through. */
+function buildReel(sel, list){
+  const el = $(sel);
+  el.innerHTML = list.map(n => '<span style="display:none">' + av(n, 'xl') + '</span>').join('');
+  return [...el.children];
+}
+
+function preload(frames){
+  const imgs = frames.flatMap(f => [...f.querySelectorAll('img')]);
+  return Promise.race([
+    Promise.all(imgs.map(i => (i.decode ? i.decode() : Promise.resolve()).catch(() => {}))),
+    new Promise(r => setTimeout(r, 1500))
+  ]);
+}
+
+/* Spins through pre-built frames, slowing down, then lands on one. */
+function spin(sel, frames, dur, done){
   const el = $(sel);
   el.classList.add('spin');
   const t0 = performance.now();
+  let shown = -1;
+  const show = i => {
+    if (shown >= 0) frames[shown].style.display = 'none';
+    frames[i].style.display = '';
+    shown = i;
+  };
   (function tick(){
     const t = performance.now() - t0;
     if (t >= dur){
-      const win = list[Math.floor(Math.random() * list.length)];
+      const i = Math.floor(Math.random() * frames.length);
+      show(i);
       el.classList.remove('spin');
-      el.innerHTML = av(win, 'xl');
-      return done(win);
+      return done(i);
     }
-    el.innerHTML = av(list[Math.floor(Math.random() * list.length)], 'xl');
+    show(Math.floor(Math.random() * frames.length));
     setTimeout(tick, 55 + 330 * Math.pow(t / dur, 3));
   })();
 }
 
-function startRoll(){
+async function startRoll(){
   if (rolling) return;
   const both = S.drawMode === 'both';
   const mine = pickList('mine');
@@ -1065,6 +1088,10 @@ function startRoll(){
   $('#rollBtn').textContent = 'Rolling…';
   $('#rollBtn').disabled = true;
   resetFaces();
+
+  const f1 = buildReel('#f1', mine);
+  const f2 = both ? buildReel('#f2', opp) : null;
+  await preload(f2 ? f1.concat(f2) : f1);
 
   let a = null, b = null;
   const label = n => {
@@ -1083,8 +1110,8 @@ function startRoll(){
     if (both) $('#rollLog').style.display = 'block';
   };
 
-  spin('#f1', mine, 5000, w => { a = w; if (!both) finish(); });
-  if (both) spin('#f2', opp, 5600, w => { b = w; finish(); });
+  spin('#f1', f1, 5000, i => { a = mine[i]; if (!both) finish(); });
+  if (both) spin('#f2', f2, 5600, i => { b = opp[i]; finish(); });
 }
 
 function logDraw(){
