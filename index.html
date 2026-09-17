@@ -407,7 +407,10 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
   <section class="screen" id="s-set">
     <div class="card">
       <h3 style="font-size:17px;margin-bottom:6px">Backup</h3>
-      <p class="small muted" style="margin:0 0 12px">Your data lives in this browser only. Export a file now and then so you never lose it.</p>
+      <p class="small muted" style="margin:0 0 12px">
+        Your battles live in this browser and nowhere else — not on the server, not in the repo.
+        Clearing browser data wipes them. Export a file now and then.
+      </p>
       <div class="btnrow">
         <button class="btn" onclick="exportData()">Export file</button>
         <button class="btn" onclick="$('#imp').click()">Import file</button>
@@ -418,9 +421,8 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
     <div class="card">
       <h3 style="font-size:17px;margin-bottom:6px">Artwork</h3>
       <p class="small muted" style="margin:0 0 12px">
-        Put a folder named <code>img</code> next to this file, with one file per hero named to match.
-        <code>.webp</code>, <code>.png</code> and <code>.jpg</code> all work. Any hero without a file keeps
-        its initials badge, so you can add artwork at your own pace. 256×256 is the sweet spot.
+        Artwork lives in the <code>img</code> folder, one square file per hero. Grab the exact
+        file names when you add someone new — anyone without a file just keeps an initials badge.
       </p>
       <div class="btnrow">
         <button class="btn" onclick="copyNames()">Copy file names</button>
@@ -430,7 +432,10 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
 
     <div class="card">
       <h3 style="font-size:17px;margin-bottom:6px">Add a hero</h3>
-      <p class="small muted" style="margin:0 0 4px">New release? Add it here and the matrix grows on its own.</p>
+      <p class="small muted" style="margin:0 0 4px">
+        Added here, a hero exists on this device only. For an official release, better to add it
+        to the code so every device gets it.
+      </p>
       <label for="nhName">Name</label>
       <input id="nhName" placeholder="Hero name">
       <label for="nhSet">Set</label>
@@ -446,7 +451,7 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
     </div>
 
     <button class="btn block" onclick="wipe()">Erase all data</button>
-    <div class="tiny muted" style="text-align:center;margin-top:14px">v0.6 · offline ready</div>
+    <div class="tiny muted" style="text-align:center;margin-top:14px">v0.7 · offline ready</div>
   </section>
 </main>
 
@@ -541,6 +546,12 @@ const SEED = [
 const DIFF = {};
 SEED.forEach(h => DIFF[h.name] = h.diff);
 const diffOf = h => (h && h.diff) ?? DIFF[h && h.name] ?? null;
+
+/* Heroes that ship in the code are "official": they cannot be deleted, and a
+   code update adds or corrects them on every device. Anything you add yourself
+   in Setup is custom and lives only in this browser. */
+const SEED_NAMES = new Set(SEED.map(h => h.name));
+const isSeed = name => SEED_NAMES.has(name);
 
 const SET_ORDER = {};
 SEED.forEach(h => { if (!(h.set in SET_ORDER)) SET_ORDER[h.set] = Object.keys(SET_ORDER).length; });
@@ -1187,8 +1198,8 @@ function renderManage(){
   $('#cnt').textContent = S.heroes.length;
   $('#manage').innerHTML = '<div class="list">' + abcHeroes().map(h =>
     '<div class="item">' + av(h.name) + '<span class="name">' + esc(h.name) + '</span>' +
-    '<span class="tiny muted">' + esc(h.set) + '</span>' + (diffOf(h) ? die(diffOf(h), 17) : '') +
-    '<button class="btn sm" onclick="delHero(' + jq(h.name) + ')">Remove</button></div>'
+    '<span class="tiny muted">' + esc(h.set) + (isSeed(h.name) ? '' : ' · custom') + '</span>' + (diffOf(h) ? die(diffOf(h), 17) : '') +
+    (isSeed(h.name) ? '' : '<button class="btn sm" onclick="delHero(' + jq(h.name) + ')">Remove</button>') + '</div>'
   ).join('') + '</div>';
 }
 
@@ -1205,6 +1216,7 @@ async function addHero(){
 }
 
 async function delHero(name){
+  if (isSeed(name)) return toast('Official heroes cannot be removed');
   const i = S.heroes.findIndex(x => x.name === name);
   if (i < 0) return;
   const n = Object.keys(S.battles).filter(k => k.split('||').includes(name)).length;
@@ -1278,6 +1290,20 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')){
   });
 }
 
+/* Pull in official heroes added or corrected in the code since last time.
+   Custom heroes and every logged battle are left untouched. */
+function mergeSeed(){
+  let changed = false;
+  SEED.forEach(seed => {
+    const h = hero(seed.name);
+    if (!h){ S.heroes.push({ ...seed }); changed = true; return; }
+    if (h.set !== seed.set || h.diff !== seed.diff){
+      h.set = seed.set; h.diff = seed.diff; changed = true;
+    }
+  });
+  if (changed) save();
+}
+
 /* ---------------- boot ---------------- */
 function refresh(){
   fillSelects();
@@ -1299,6 +1325,7 @@ function refresh(){
   }
   if (!S.sort) S.sort = 'abc';
   S.heroes.forEach(h => { if (h.set === 'בודדים') h.set = 'Singles'; });
+  mergeSeed();
   renderSortBars();
   fillSelects();
   renderHome();
