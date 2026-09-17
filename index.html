@@ -231,6 +231,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--orange)}
 }
 .seg button.on,.toggles button.on{background:var(--orange);border-color:var(--orange);color:#fff;font-weight:700}
 .vs{font-family:var(--cond);font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;text-align:center;margin-bottom:2px}
+.vsmark{color:var(--orange);font-size:14px;font-weight:600;letter-spacing:1.2px;margin:0 9px;vertical-align:1px}
 
 .empty{text-align:center;color:var(--muted);padding:26px 12px;font-size:14px}
 .die{display:inline-block;vertical-align:-0.22em;border-radius:3px;margin-left:2px}
@@ -431,26 +432,6 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
     </div>
 
     <div class="card">
-      <h3 style="font-size:17px;margin-bottom:6px">Add a hero</h3>
-      <p class="small muted" style="margin:0 0 4px">
-        Added here, a hero exists on this device only. For an official release, better to add it
-        to the code so every device gets it.
-      </p>
-      <label for="nhName">Name</label>
-      <input id="nhName" placeholder="Hero name">
-      <label for="nhSet">Set</label>
-      <input id="nhSet" placeholder="Season 3" value="New">
-      <label for="nhDiff">Difficulty (1-6)</label>
-      <input id="nhDiff" type="number" min="1" max="6" inputmode="numeric" placeholder="3">
-      <button class="btn block" style="margin-top:16px" onclick="addHero()">Add hero</button>
-    </div>
-
-    <div class="card">
-      <h3 style="font-size:17px;margin-bottom:10px">Heroes (<span id="cnt">0</span>)</h3>
-      <div id="manage"></div>
-    </div>
-
-    <div class="card">
       <h3 style="font-size:17px;margin-bottom:6px">Version</h3>
       <p class="small muted" style="margin:0 0 12px">
         Running <b id="verNum">—</b>. Updates install themselves, usually within a minute
@@ -479,7 +460,6 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
   <div class="grab"></div>
   <div class="row" id="shAvs" style="justify-content:center;gap:12px;margin-bottom:10px"></div>
   <div class="vs" id="shTitle">Battle</div>
-  <div class="tiny muted" style="text-align:center;margin-bottom:6px">Row = you · Column = opponent</div>
 
   <label for="fMine">You played</label>
   <select id="fMine" onchange="syncTitle()"></select>
@@ -495,7 +475,7 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
 
   <div class="seg">
     <div><label for="fMyHP">My HP left</label><input id="fMyHP" type="number" inputmode="numeric" min="0" placeholder="0"></div>
-    <div><label for="fOppHP">Their HP left</label><input id="fOppHP" type="number" inputmode="numeric" min="0" placeholder="0"></div>
+    <div><label for="fOppHP">Opponent HP left</label><input id="fOppHP" type="number" inputmode="numeric" min="0" placeholder="0"></div>
   </div>
 
   <label>Ultimate used</label>
@@ -543,7 +523,7 @@ const SEED = [
   ['Artificer','Season 2',6],['Cursed Pirate','Season 2',4],['Gunslinger','Season 2',2],['Huntress','Season 2',5],
   ['Samurai','Season 2',3],['Seraph','Season 2',3],['Tactician','Season 2',5],['Vampire Lord','Season 2',4],
   ['Black Panther','Marvel',2],['Black Widow','Marvel',4],['Captain Marvel','Marvel',2],['Doctor Strange','Marvel',5],
-  ['Loki','Marvel',4],['Miles Morales Spider-Man','Marvel',2],['Scarlet Witch','Marvel',4],['Thor','Marvel',3],
+  ['Loki','Marvel',4],['Spider-Man','Marvel',2],['Scarlet Witch','Marvel',4],['Thor','Marvel',3],
   ['Cyclops','X-Men',4],['Gambit','X-Men',6],['Iceman','X-Men',4],['Jean Grey','X-Men',6],
   ['Psylocke','X-Men',3],['Rogue','X-Men',3],['Storm','X-Men',4],['Wolverine','X-Men',2],
   ['Headless Horseman','Outcasts',4],['Necromancer','Outcasts',6],['Pale Lady','Outcasts',3],['Raveness','Outcasts',3],
@@ -555,12 +535,6 @@ const SEED = [
 const DIFF = {};
 SEED.forEach(h => DIFF[h.name] = h.diff);
 const diffOf = h => (h && h.diff) ?? DIFF[h && h.name] ?? null;
-
-/* Heroes that ship in the code are "official": they cannot be deleted, and a
-   code update adds or corrects them on every device. Anything you add yourself
-   in Setup is custom and lives only in this browser. */
-const SEED_NAMES = new Set(SEED.map(h => h.name));
-const isSeed = name => SEED_NAMES.has(name);
 
 const SET_ORDER = {};
 SEED.forEach(h => { if (!(h.set in SET_ORDER)) SET_ORDER[h.set] = Object.keys(SET_ORDER).length; });
@@ -706,7 +680,6 @@ function go(id){
   if (id === 'heroes') renderHeroes();
   if (id === 'stats')  renderStats();
   if (id === 'draw')   renderDraw();
-  if (id === 'set')    renderManage();
   if (id === 'home')   renderHome();
 }
 
@@ -912,7 +885,7 @@ function toggleUlt(who){
 
 function syncTitle(){
   const a = $('#fMine').value, b = $('#fOpp').value;
-  $('#shTitle').textContent = a + ' vs ' + b;
+  $('#shTitle').innerHTML = esc(a) + '<span class="vsmark">vs</span>' + esc(b);
   $('#shAvs').innerHTML = av(a,'m') + '<span class="muted small">vs</span>' + av(b,'m');
 }
 
@@ -1202,41 +1175,6 @@ function logDraw(){
   if (lastDraw && lastDraw[1]) openBattle(lastDraw[0], lastDraw[1]);
 }
 
-/* ---------------- roster management ---------------- */
-function renderManage(){
-  $('#cnt').textContent = S.heroes.length;
-  $('#manage').innerHTML = '<div class="list">' + abcHeroes().map(h =>
-    '<div class="item">' + av(h.name) + '<span class="name">' + esc(h.name) + '</span>' +
-    '<span class="tiny muted">' + esc(h.set) + (isSeed(h.name) ? '' : ' · custom') + '</span>' + (diffOf(h) ? die(diffOf(h), 17) : '') +
-    (isSeed(h.name) ? '' : '<button class="btn sm" onclick="delHero(' + jq(h.name) + ')">Remove</button>') + '</div>'
-  ).join('') + '</div>';
-}
-
-async function addHero(){
-  const name = $('#nhName').value.trim(), set = $('#nhSet').value.trim() || 'New';
-  const diff = $('#nhDiff').value === '' ? null : Math.min(6, Math.max(1, +$('#nhDiff').value));
-  if (!name) return toast('Name required');
-  if (S.heroes.some(h => h.name.toLowerCase() === name.toLowerCase())) return toast('That hero is already listed');
-  S.heroes.push({ name, set, diff });
-  await save();
-  $('#nhName').value = ''; $('#nhDiff').value = '';
-  renderManage(); refresh();
-  toast(name + ' added · ' + total().toLocaleString('en-US') + ' battles total');
-}
-
-async function delHero(name){
-  if (isSeed(name)) return toast('Official heroes cannot be removed');
-  const i = S.heroes.findIndex(x => x.name === name);
-  if (i < 0) return;
-  const n = Object.keys(S.battles).filter(k => k.split('||').includes(name)).length;
-  if (!confirm('Remove ' + name + '?' + (n ? '\n' + n + ' logged battles will be deleted.' : ''))) return;
-  Object.keys(S.battles).forEach(k => { if (k.split('||').includes(name)) delete S.battles[k]; });
-  S.heroes.splice(i,1);
-  await save();
-  renderManage(); refresh();
-  toast(name + ' removed');
-}
-
 /* ---------------- backup ---------------- */
 function exportData(){
   const blob = new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' });
@@ -1261,7 +1199,7 @@ function importData(input){
       if (!S.sort) S.sort = 'abc';
       await save();
       renderSortBars(); fillSelects();
-      refresh(); renderManage();
+      refresh();
       toast('Imported ' + Object.keys(S.battles).length + ' battles');
     } catch(e){ toast('That file is not valid') }
     input.value = '';
@@ -1273,12 +1211,12 @@ async function wipe(){
   if (!confirm('Erase every battle and reset to the original 45 heroes?')) return;
   S = { heroes: SEED.slice(), battles: {}, sort: S.sort || 'abc' };
   await save();
-  refresh(); renderManage();
+  refresh();
   toast('Everything reset');
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '0.8';
+const APP_VERSION = '1.0';
 let swReg = null;
 
 function takeOver(sw){
@@ -1339,6 +1277,36 @@ async function checkUpdate(){
   $('#updBtn').textContent = 'Check for updates';
 }
 
+/* Heroes renamed in the code. Stored battles, pools and the roster are moved
+   over on load, so nothing is lost and no duplicate appears. */
+const RENAMES = { 'Miles Morales Spider-Man': 'Spider-Man' };
+
+function migrateNames(){
+  let changed = false;
+  for (const [from, to] of Object.entries(RENAMES)){
+    if (hero(from)){
+      S.heroes = hero(to) ? S.heroes.filter(h => h.name !== from)
+                          : S.heroes.map(h => h.name === from ? { ...h, name: to } : h);
+      changed = true;
+    }
+    Object.keys(S.battles).forEach(k => {
+      const [a, b] = k.split('||');
+      if (a !== from && b !== from) return;
+      S.battles[(a === from ? to : a) + '||' + (b === from ? to : b)] = S.battles[k];
+      delete S.battles[k];
+      changed = true;
+    });
+    if (S.pools) ['mine','opp'].forEach(w => {
+      if (!S.pools[w]) return;
+      const i = S.pools[w].indexOf(from);
+      if (i < 0) return;
+      S.pools[w][i] = to;
+      changed = true;
+    });
+  }
+  if (changed) save();
+}
+
 /* Pull in official heroes added or corrected in the code since last time.
    Custom heroes and every logged battle are left untouched. */
 function mergeSeed(){
@@ -1374,6 +1342,7 @@ function refresh(){
   }
   if (!S.sort) S.sort = 'abc';
   S.heroes.forEach(h => { if (h.set === 'בודדים') h.set = 'Singles'; });
+  migrateNames();
   mergeSeed();
   renderSortBars();
   fillSelects();

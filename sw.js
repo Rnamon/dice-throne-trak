@@ -1,6 +1,6 @@
 /* Dice Throne Battle Log — service worker
    Bump VERSION on every release: it wipes the old cache and forces a refresh. */
-const VERSION = 'v6';
+const VERSION = 'v9';
 const CACHE   = 'dt-' + VERSION;
 
 /* The app shell: without these the app cannot start offline. */
@@ -37,7 +37,7 @@ const HEROES = [
   'jean-grey',
   'krampus',
   'loki',
-  'miles-morales-spider-man',
+  'spider-man',
   'monk',
   'moon-elf',
   'mystic-brawler',
