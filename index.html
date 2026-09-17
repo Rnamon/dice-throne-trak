@@ -450,8 +450,17 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
       <div id="manage"></div>
     </div>
 
+    <div class="card">
+      <h3 style="font-size:17px;margin-bottom:6px">Version</h3>
+      <p class="small muted" style="margin:0 0 12px">
+        Running <b id="verNum">—</b>. Updates install themselves, usually within a minute
+        of reopening the app. Impatient? Check now.
+      </p>
+      <button class="btn block" id="updBtn" onclick="checkUpdate()">Check for updates</button>
+    </div>
+
     <button class="btn block" onclick="wipe()">Erase all data</button>
-    <div class="tiny muted" style="text-align:center;margin-top:14px">v0.7 · offline ready</div>
+    <div class="tiny muted" style="text-align:center;margin-top:14px" id="verLine"></div>
   </section>
 </main>
 
@@ -1269,18 +1278,36 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
+const APP_VERSION = '0.8';
+let swReg = null;
+
+function takeOver(sw){
+  if (!sw) return false;
+  sw.postMessage('skipWaiting');
+  return true;
+}
+
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')){
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').then(reg => {
-      /* a newer version was published: take it as soon as it is ready */
+    /* updateViaCache:'none' stops the browser serving a stale sw.js when it
+       checks for updates — otherwise it compares against its own old copy. */
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => {
+      swReg = reg;
+      takeOver(reg.waiting);            // a new version installed but parked
       reg.addEventListener('updatefound', () => {
         const sw = reg.installing;
         if (!sw) return;
         sw.addEventListener('statechange', () => {
-          if (sw.state === 'installed' && navigator.serviceWorker.controller) sw.postMessage('skipWaiting');
+          if (sw.state === 'installed' && navigator.serviceWorker.controller) takeOver(sw);
         });
       });
+      reg.update();
+      /* check again whenever the app comes back to the foreground */
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) reg.update().catch(() => {});
+      });
     }).catch(() => {});
+
     let reloaded = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
       if (reloaded) return;
@@ -1288,6 +1315,28 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')){
       location.reload();
     });
   });
+}
+
+async function checkUpdate(){
+  if (!('serviceWorker' in navigator)) return toast('Not supported in this browser');
+  const reg = swReg || await navigator.serviceWorker.getRegistration();
+  if (!reg) return toast('Offline mode is not active here');
+  $('#updBtn').disabled = true;
+  $('#updBtn').textContent = 'Checking…';
+  try {
+    await reg.update();
+    await new Promise(r => setTimeout(r, 900));   // give install a moment
+    if (reg.waiting || reg.installing){
+      toast('New version found — reloading');
+      takeOver(reg.waiting || reg.installing);
+    } else {
+      toast('You are on the latest version');
+    }
+  } catch(e){
+    toast('Could not reach the server');
+  }
+  $('#updBtn').disabled = false;
+  $('#updBtn').textContent = 'Check for updates';
 }
 
 /* Pull in official heroes added or corrected in the code since last time.
@@ -1329,6 +1378,8 @@ function refresh(){
   renderSortBars();
   fillSelects();
   renderHome();
+  $('#verNum').textContent  = 'v' + APP_VERSION;
+  $('#verLine').textContent = 'v' + APP_VERSION + ' · offline ready';
 })();
 </script>
 </body>
