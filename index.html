@@ -450,10 +450,10 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
         <div><div class="count" style="font-size:32px" id="stL">0</div><div class="tiny muted">Losses</div></div>
       </div>
     </div>
-    <div class="sortbar" id="sortStats"></div>
     <h3 style="font-size:16px;margin:0 0 8px">Recent battles</h3>
     <div id="recent" style="margin-bottom:18px"></div>
     <h3 style="font-size:16px;margin:0 0 8px">By hero</h3>
+    <div class="sortbar" id="sortStats"></div>
     <div class="card" style="padding:6px 10px">
       <table>
         <thead><tr><th>Hero</th><th class="num">Progress</th><th class="num">W</th><th class="num">L</th><th class="num">Rate</th></tr></thead>
@@ -898,9 +898,13 @@ function renderOverview(){
 }
 
 function renderRecent(){
+  /* Newest date first. When two battles share a date the later-saved one wins,
+     which is what the insertion index tracks — entries are appended in order. */
   const recent = Object.entries(S.battles)
-    .sort((a,b) => (b[1].date || '').localeCompare(a[1].date || ''))
-    .slice(0,6);
+    .map((e,i) => ({e,i}))
+    .sort((x,y) => (y.e[1].date || '').localeCompare(x.e[1].date || '') || y.i - x.i)
+    .slice(0,6)
+    .map(o => o.e);
   $('#recent').innerHTML = recent.length
     ? '<div class="list">' + recent.map(([k,b]) => {
         const [a,o] = k.split('||');
@@ -908,7 +912,7 @@ function renderRecent(){
           '<span class="row" style="gap:0;flex:none">' + av(a) + '<span style="margin-left:-11px">' + av(o) + '</span></span>' +
           '<span class="name">' + esc(a) + ' <span class="muted">vs</span> ' + esc(o) + '</span>' +
           ultMark(b) +
-          '<span class="tiny muted">' + esc(b.date || '') + '</span>' +
+          '<span class="tiny muted">' + esc(fmtDate(b.date)) + '</span>' +
           '<span class="chip ' + (b.w === 'me' ? 'w' : 'l') + '">' + (b.w === 'me' ? 'Won' : 'Lost') + '</span></button>';
       }).join('') + '</div>'
     : '<div class="card empty">No battles yet. Log your first one and watch the board fill in.</div>';
@@ -1149,6 +1153,13 @@ function syncTitle(){
   const a = $('#fMine').value, b = $('#fOpp').value;
   $('#shTitle').innerHTML = esc(a) + '<span class="vsmark">vs</span>' + esc(b);
   $('#shAvs').innerHTML = av(a,'m') + '<span class="muted small">vs</span>' + av(b,'m');
+}
+
+/* Stored dates stay YYYY-MM-DD — sorting and <input type="date"> both need it.
+   Only the display is reformatted. */
+function fmtDate(s){
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || '');
+  return m ? m[3] + '/' + m[2] + '/' + m[1] : (s || '');
 }
 
 function today(){
@@ -1513,7 +1524,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '1.6';
+const APP_VERSION = '1.7';
 let swReg = null;
 
 function takeOver(sw){
