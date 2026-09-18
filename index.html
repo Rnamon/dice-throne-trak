@@ -233,6 +233,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--orange)}
 .vs{font-family:var(--cond);font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;text-align:center;margin-bottom:2px}
 .vsmark{color:var(--orange);font-size:14px;font-weight:600;letter-spacing:1.2px;margin:0 9px;vertical-align:1px}
 
+.cr{margin-bottom:12px}
+.cr span{display:block;font-family:var(--cond);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--orange);margin-bottom:2px}
+.cr p{margin:0;font-size:13px;line-height:1.55}
 .empty{text-align:center;color:var(--muted);padding:26px 12px;font-size:14px}
 .die{display:inline-block;vertical-align:-0.22em;border-radius:3px;margin-left:2px}
 .ult{color:var(--orange);font-size:11px;font-weight:700;flex:none;letter-spacing:.4px}
@@ -420,18 +423,6 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
     </div>
 
     <div class="card">
-      <h3 style="font-size:17px;margin-bottom:6px">Artwork</h3>
-      <p class="small muted" style="margin:0 0 12px">
-        Artwork lives in the <code>img</code> folder, one square file per hero. Grab the exact
-        file names when you add someone new — anyone without a file just keeps an initials badge.
-      </p>
-      <div class="btnrow">
-        <button class="btn" onclick="copyNames()">Copy file names</button>
-        <button class="btn" onclick="downloadNames()">Download list</button>
-      </div>
-    </div>
-
-    <div class="card">
       <h3 style="font-size:17px;margin-bottom:6px">Version</h3>
       <p class="small muted" style="margin:0 0 12px">
         Running <b id="verNum">—</b>. Updates install themselves, usually within a minute
@@ -440,8 +431,42 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
       <button class="btn block" id="updBtn" onclick="checkUpdate()">Check for updates</button>
     </div>
 
+    <button class="btn block" style="margin-bottom:14px" onclick="go('credits')">Credits</button>
+
     <button class="btn block" onclick="wipe()">Erase all data</button>
     <div class="tiny muted" style="text-align:center;margin-top:14px" id="verLine"></div>
+  </section>
+
+  <!-- ========== CREDITS ========== -->
+  <section class="screen" id="s-credits">
+    <button class="link" style="margin-bottom:10px" onclick="go('set')">&lsaquo; Setup</button>
+
+    <div class="card">
+      <h3 style="font-size:17px;margin-bottom:8px">Dice Throne Trak</h3>
+      <p class="small" style="margin:0 0 6px">App developed by <b>Gad Freund</b>.</p>
+      <p class="tiny muted" style="margin:0">
+        An unofficial personal tracker, non-commercial and made purely out of love for the game.
+        Not affiliated with or endorsed by Roxley Games. Dice Throne and all related names belong
+        to their respective owners.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:17px;margin-bottom:10px">Dice Throne</h3>
+
+      <div class="cr"><span>Game design</span><p>Nate Chatellier, Manny Trembley, Gavan Brown</p></div>
+      <div class="cr"><span>Game development</span><p>Nate Chatellier, John Heidrich</p></div>
+      <div class="cr"><span>Graphic design</span><p>Gavan Brown, Gui Landgraf, Britt Anderson, Nick Malara</p></div>
+      <div class="cr"><span>Illustration</span><p>Manny Trembley, Nick Malara, Britt Anderson</p></div>
+      <div class="cr"><span>Operations</span><p>Aaron Waltmann, Jeff Beal</p></div>
+      <div class="cr"><span>Community Development Director</span><p>Jonathan Herrera-Thomas</p></div>
+      <div class="cr"><span>Media and Marketing</span><p>Josh Vett</p></div>
+      <div class="cr"><span>Trays &amp; Storage</span><p>TrayForge, GameTrayz</p></div>
+      <div class="cr"><span>Main rulebook editors</span><p>John Heidrich and many others who helped</p></div>
+      <div class="cr"><span>Playtesters</span><p>John Heidrich, Noah Burke, Jonathan Westfall, Heather Hash, Michael Hash, Nick Lem, Kevin Heidrich, Christopher Peterson, Jacob Adams, Rex Edward Custorio, Grace Galayda, Rick May, Chris Petkidis, Patrick Woodward, Cam Roberts, Josh Hou, Derick Gilkeson, Dustin Millican, Devin Elie, Drake Finney, Eric Bouma, Kasey Schertenleib, Dino Pathoummahong, David Jacobson, Daniel Dar, Luke Pinyerd, Corey Cook, Todd Daniels, Justin Nguyen, Ryan Muehlberg, Brandt Arganbright, Danny Jacobson, Tomer Rosenbaum, Jeffrey Jacobson, Ashton Jacobson, Veronica Elie, Dylan Chin, Liam Fairley, Sammi Roberts, Sarah Slyman and the rest of the beta team.</p></div>
+
+      <p class="small muted" style="margin:16px 0 0">For Hero specific credits, see Hero Leaflets.</p>
+    </div>
   </section>
 </main>
 
@@ -620,23 +645,6 @@ function av(name, size, eager){
     (eager ? 'eager' : 'lazy') + '" onerror="nextImg(this)"></span>';
 }
 
-function copyNames(){
-  const txt = abcHeroes().map(h => slug(h.name)).join('\n');
-  navigator.clipboard.writeText(txt).then(
-    () => toast('Copied ' + S.heroes.length + ' file names'),
-    () => toast('Clipboard blocked — try Download')
-  );
-}
-
-function downloadNames(){
-  const txt = abcHeroes().map(h => slug(h.name) + '  <-  ' + h.name).join('\n');
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([txt], { type:'text/plain' }));
-  a.download = 'dice-throne-image-names.txt';
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
-
 /* ---------------- ordering ---------------- */
 function abcHeroes(){ return S.heroes.slice().sort(byName); }
 
@@ -681,6 +689,7 @@ function go(id){
   if (id === 'stats')  renderStats();
   if (id === 'draw')   renderDraw();
   if (id === 'home')   renderHome();
+  if (id === 'credits') $('#t-set').classList.add('on');
 }
 
 /* ---------------- home ---------------- */
