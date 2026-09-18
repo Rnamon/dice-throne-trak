@@ -261,25 +261,6 @@ input:focus,select:focus,textarea:focus{border-color:var(--orange)}
 .themerow .theme{border-radius:8px;text-align:center;padding:11px 10px}
 .theme.on{background:var(--orange);border-color:var(--orange);color:#fff;font-weight:700}
 
-.mock{position:relative;width:236px;height:420px;border-radius:16px;overflow:hidden;background:var(--ink)}
-.mockbg{position:absolute;inset:0;background-size:cover;background-position:center}
-.mockscrim{position:absolute;inset:0;background:var(--ink);opacity:.84}
-.mockui{position:absolute;inset:0;padding:10px;font-size:10px}
-.mtop{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:7px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:9px}
-.mtop b{font-family:var(--cond);font-size:13px;text-transform:uppercase;letter-spacing:.5px}
-.mtop span{color:var(--muted)}
-.mcard{background:rgba(31,27,58,.72);border:1px solid rgba(255,255,255,.09);border-radius:9px;padding:9px;margin-bottom:8px}
-.mbig{font-family:var(--cond);font-size:22px;font-weight:700}
-.mbig small{font-size:11px;color:var(--muted)}
-.msub{color:var(--muted);margin-top:1px}
-.mmeter{height:5px;background:rgba(255,255,255,.12);border-radius:99px;margin-top:7px;overflow:hidden}
-.mmeter i{display:block;width:16%;height:100%;background:var(--orange)}
-.mtiles{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px}
-.mtile{background:var(--orange);color:#fff;border-radius:9px;padding:11px 8px;font-family:var(--cond);font-weight:700;text-transform:uppercase;letter-spacing:.5px;min-height:42px;display:flex;align-items:flex-end}
-.mtile.wide{grid-column:1/-1;min-height:0;align-items:center}
-.mrow{display:flex;align-items:center;gap:7px;padding:7px 9px;border-bottom:1px solid rgba(255,255,255,.08)}
-.mrow:last-child{border:0}
-.mav{width:20px;height:20px;border-radius:50%;background:#B07A3C;display:flex;align-items:center;justify-content:center;font-family:var(--cond);font-size:9px;font-weight:700;color:#14121F}
 .cr{margin-bottom:12px}
 .cr span{display:block;font-family:var(--cond);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--orange);margin-bottom:2px}
 .cr p{margin:0;font-size:13px;line-height:1.55}
@@ -359,7 +340,7 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
 
     <div id="matGrid">
       <div class="mwrap"><div class="grid" id="grid"></div></div>
-      <div class="legend">
+      <div class="card legend" style="margin-top:12px">
         <span><i class="sw" style="background:rgba(87,169,123,.55)"></i>Won</span>
         <span><i class="sw" style="background:rgba(196,84,74,.55)"></i>Lost</span>
         <span><i class="sw" style="background:rgba(242,107,43,.12);outline:1px solid var(--orange)"></i>Diagonal = mirror</span>
@@ -451,7 +432,6 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
         <tbody id="stBody"></tbody>
       </table>
     </div>
-    <div class="tiny muted" style="text-align:center">W / L = your record when playing that hero</div>
   </section>
 
   <!-- ========== SETTINGS ========== -->
@@ -483,7 +463,6 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
     <button class="btn block" style="margin-bottom:14px" onclick="go('credits')">Credits</button>
 
     <button class="btn block" onclick="wipe()">Erase all data</button>
-    <div class="tiny muted" style="text-align:center;margin-top:14px" id="verLine"></div>
   </section>
 
   <!-- ========== CREDITS ========== -->
@@ -529,36 +508,11 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
     </div>
 
     <div class="card">
-      <label for="scrimRange" style="margin-top:0">Darkening &middot; <span id="scrimVal">84%</span></label>
-      <input type="range" id="scrimRange" min="40" max="95" step="1" value="84"
+      <label for="scrimRange" style="margin-top:0">Darkening &middot; <span id="scrimVal">40%</span></label>
+      <input type="range" id="scrimRange" min="40" max="95" step="1" value="40"
              oninput="setScrim(this.value)" style="padding:0">
-      <p class="tiny muted" style="margin:8px 0 0">Lower shows more artwork. Higher keeps the text easiest to read.</p>
     </div>
 
-    <h3 style="font-size:16px;margin:0 0 8px">Preview</h3>
-    <div class="card" style="display:flex;justify-content:center">
-      <div class="mock">
-        <div class="mockbg" id="mockBg"></div>
-        <div class="mockscrim" id="mockScrim"></div>
-        <div class="mockui">
-          <div class="mtop"><b>Dice Throne Trak</b><span>327 / 2025</span></div>
-          <div class="mcard">
-            <div class="mbig">327 <small>/ 2025</small></div>
-            <div class="msub">Battles logged</div>
-            <div class="mmeter"><i></i></div>
-          </div>
-          <div class="mtiles">
-            <div class="mtile wide">Log a battle</div>
-            <div class="mtile">Draw heroes</div>
-            <div class="mtile">Random matchup</div>
-          </div>
-          <div class="mcard" style="padding:0">
-            <div class="mrow"><span class="mav">BA</span>Barbarian vs Iceman</div>
-            <div class="mrow"><span class="mav" style="background:#4C8FB5">SE</span>Seraph vs Loki</div>
-          </div>
-        </div>
-      </div>
-    </div>
   </section>
 </main>
 
@@ -757,14 +711,14 @@ const THEMES = [
   { id:'treant', label:'Treant' },
   { id:'vampire-lord', label:'Vampire Lord' }
 ];
-const DEFAULT_SCRIM = 84;
+const DEFAULT_SCRIM = 40;
 
 /* 'random' picks a new wallpaper each time the app starts and keeps it for the
    whole session, so it never changes under you mid-use. */
 let sessionTheme = null;
 
 function activeTheme(){
-  const id = S.theme || 'none';
+  const id = S.theme || 'random';   /* a fresh wallpaper each launch, until you pick one */
   if (id === 'random'){
     if (!sessionTheme) sessionTheme = THEMES[Math.floor(Math.random() * THEMES.length)].id;
     return sessionTheme;
@@ -780,19 +734,10 @@ function applyTheme(){
   document.body.classList.toggle('hasbkg', on);
   document.body.style.setProperty('--bkg',   on ? 'url(bkg/' + id + '.webp)' : 'none');
   document.body.style.setProperty('--scrim', on ? scrimVal() / 100 : 0);
-  paintMock();
-}
-
-function paintMock(){
-  const bg = $('#mockBg');
-  if (!bg) return;
-  const id = activeTheme();
-  bg.style.backgroundImage = id === 'none' ? 'none' : 'url(bkg/' + id + '.webp)';
-  $('#mockScrim').style.opacity = id === 'none' ? 1 : scrimVal() / 100;
 }
 
 function renderThemes(){
-  const cur = S.theme || 'none';
+  const cur = S.theme || 'random';
   const chip = (id, label) =>
     '<button class="theme ' + (cur === id ? 'on' : '') + '" onclick="setTheme(&quot;' + id + '&quot;)">' +
     label + '</button>';
@@ -1403,7 +1348,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '1.3';
+const APP_VERSION = '1.4';
 let swReg = null;
 
 function takeOver(sw){
@@ -1535,8 +1480,7 @@ function refresh(){
   renderSortBars();
   fillSelects();
   renderHome();
-  $('#verNum').textContent  = 'v' + APP_VERSION;
-  $('#verLine').textContent = 'v' + APP_VERSION + ' · offline ready';
+  $('#verNum').textContent = 'v' + APP_VERSION;
 })();
 </script>
 </body>
