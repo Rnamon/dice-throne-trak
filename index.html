@@ -264,6 +264,33 @@ input:focus,select:focus,textarea:focus{border-color:var(--orange)}
 .cr{margin-bottom:12px}
 .cr span{display:block;font-family:var(--cond);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--orange);margin-bottom:2px}
 .cr p{margin:0;font-size:13px;line-height:1.55}
+/* tokens */
+.tokgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:14px 10px;margin-top:14px;justify-items:center}
+.tok{display:flex;flex-direction:column;align-items:center;gap:8px;padding:0;background:none;border:0}
+.tok img{width:64px;height:64px;object-fit:contain;transition:transform .12s}
+.tok:active img{transform:scale(.94)}
+.tokname{font-size:12px;font-weight:600;text-align:center;line-height:1.2}
+.pop{
+  position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:61;
+  width:min(348px,92vw);max-height:86vh;overflow:auto;display:none;
+  background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 20px 20px;
+}
+.pop.on{display:block;animation:up .2s ease-out}
+.x{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:50%;
+   display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:22px;line-height:1}
+.pophead{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;margin-bottom:6px}
+.pophead img{width:88px;height:88px;object-fit:contain}
+.pophead h2{font-size:22px}
+.kind{font-size:12px;color:var(--muted);text-align:center;margin-bottom:14px}
+.kind b{color:var(--bone);font-weight:700}
+.trigger{font-weight:700;color:var(--orange);font-size:14px;margin:0 0 6px}
+.poptext{font-size:14px;line-height:1.7;margin:0}
+.inlinetok{height:1.25em;width:auto;vertical-align:-.28em;margin:0 1px}
+.usedby{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+.usedby h3{font-size:12px;color:var(--orange);margin-bottom:9px}
+.heroes{display:flex;flex-wrap:wrap;gap:7px}
+.hero{display:flex;align-items:center;gap:7px;background:var(--panel-2);border-radius:99px;padding:4px 12px 4px 4px;font-size:12px;font-weight:500}
+.av.xxs{width:22px;height:22px;font-size:9px}
 .empty{text-align:center;color:var(--muted);padding:26px 12px;font-size:14px}
 .die{display:inline-block;vertical-align:-0.22em;border-radius:3px;margin-left:2px}
 .ult{color:var(--orange);font-size:11px;font-weight:700;flex:none;letter-spacing:.4px}
@@ -387,6 +414,7 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
       </div>
       <div class="meterwrap"><div class="meter" id="dMeter"></div></div>
     </div>
+    <div id="tokCard"></div>
     <div id="dList"></div>
   </section>
 
@@ -526,6 +554,8 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
 </nav>
 
 <div class="scrim" id="scrim" onclick="closeSheet()"></div>
+<div class="scrim" id="tokScrim" onclick="closeToken()"></div>
+<div class="pop" id="tokPop"></div>
 
 <div class="sheet" id="sheet">
   <div class="grab"></div>
@@ -800,7 +830,15 @@ function renderSortBars(){
 async function setSort(k){ S.sort = k; await save(); renderSortBars(); refresh(); }
 
 /* ---------------- navigation ---------------- */
-function go(id){
+let screenNow = 'home';
+let navStack = [];
+
+function go(id, back){
+  if (!back && id !== screenNow){
+    navStack.push(screenNow);
+    if (navStack.length > 20) navStack.shift();
+  }
+  screenNow = id;
   $$('.screen').forEach(s => s.classList.remove('on'));
   $('#s-' + id).classList.add('on');
   $$('.tabs button').forEach(b => b.classList.remove('on'));
@@ -955,6 +993,8 @@ function openHero(name){
   $('#dRec').textContent  = s.w + ' wins · ' + s.l + ' losses';
   $('#dMeter').style.width = (s.total ? s.done / s.total * 100 : 0) + '%';
 
+  renderTokens(name);
+
   $('#dList').innerHTML = '<div class="list">' + abcHeroes().map(o => {
     const b = get(name, o.name);
     const chip = b
@@ -969,6 +1009,96 @@ function openHero(name){
   go('hero');
   $$('.tabs button').forEach(b => b.classList.remove('on'));
   $('#t-heroes').classList.add('on');
+}
+
+/* ---------------- tokens ----------------
+   One entry per token. A hero's token list is derived from the `heroes`
+   array here, so each token is written once and never mapped twice.
+
+   name    display name
+   kind    e.g. 'Negative Status Effect'   (shown white)
+   stack   stack limit as text, or null    (number shown white)
+   trigger the bold activation line, or null
+   text    body copy. Write [[slug]] anywhere to drop in a small inline
+           token icon, e.g. "the player who inflicted Stun [[stun]] removes it"
+   heroes  every hero that uses this token, exactly as named in SEED
+   Artwork: tok/<slug>.png, transparent, 100x100.                          */
+const TOKENS = {
+  concussion: {
+    name: 'Concussion',
+    kind: 'Negative Status Effect',
+    stack: '1',
+    trigger: 'Skip Income Phase:',
+    text: 'A player afflicted with this token must skip their Income Phase and then remove this token.',
+    heroes: ['Barbarian', 'Mystic Brawler']
+  },
+  stun: {
+    name: 'Stun',
+    kind: 'Negative Status Effect',
+    stack: '1',
+    trigger: 'Perform another Offensive Roll Phase:',
+    text: 'A player afflicted with this token may take no actions of any kind (i.e. no cards may be played, no defense may be made, no status effect tokens or Passive Abilities may be used, etc). After the Attack concludes, the player who inflicted Stun [[stun]] removes the token and then immediately targets the same opponent with an additional Offensive Roll Phase (if your opponent is defeated, the additional Offensive Roll Phase is forfeited).',
+    heroes: ['Barbarian', 'Pyromancer']
+  }
+};
+
+/* tokens belonging to a hero, alphabetical */
+function tokensOf(heroName){
+  return Object.keys(TOKENS)
+    .filter(k => (TOKENS[k].heroes || []).includes(heroName))
+    .sort((a, b) => TOKENS[a].name.localeCompare(TOKENS[b].name, 'en'));
+}
+
+/* [[slug]] -> small inline icon */
+function tokenText(txt){
+  return esc(txt).replace(/\[\[([a-z0-9-]+)\]\]/g, (m, id) =>
+    TOKENS[id] ? '<img class="inlinetok" src="tok/' + id + '.png" alt="' + esc(TOKENS[id].name) + '">' : m);
+}
+
+function renderTokens(heroName){
+  const ids = tokensOf(heroName);
+  const card = $('#tokCard');
+  if (!ids.length){ card.innerHTML = ''; return; }
+  card.innerHTML =
+    '<div class="card"><div class="spread"><h3 style="font-size:16px">Tokens</h3>' +
+    '<span class="tiny muted">Tap for information</span></div>' +
+    '<div class="tokgrid">' +
+    ids.map(id =>
+      '<button class="tok" onclick="openToken(' + jq(id) + ')">' +
+      '<img src="tok/' + id + '.png" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' +
+      '<span class="tokname">' + esc(TOKENS[id].name) + '</span></button>'
+    ).join('') +
+    '</div></div>';
+}
+
+function openToken(id){
+  const t = TOKENS[id];
+  if (!t) return;
+  const meta = [
+    t.kind ? '<b>' + esc(t.kind) + '</b>' : '',
+    t.stack ? 'Stack limit: <b>' + esc(t.stack) + '</b>' : ''
+  ].filter(Boolean).join(' &nbsp;|&nbsp; ');
+
+  $('#tokPop').innerHTML =
+    '<button class="x" onclick="closeToken()" aria-label="Close">&times;</button>' +
+    '<div class="pophead"><img src="tok/' + id + '.png" alt="" onerror="this.style.visibility=\'hidden\'">' +
+    '<h2>' + esc(t.name) + '</h2></div>' +
+    (meta ? '<div class="kind">' + meta + '</div>' : '') +
+    (t.trigger ? '<p class="trigger">' + esc(t.trigger) + '</p>' : '') +
+    '<p class="poptext">' + tokenText(t.text || '') + '</p>' +
+    (t.heroes && t.heroes.length
+      ? '<div class="usedby"><h3>Used by</h3><div class="heroes">' +
+        t.heroes.map(h => '<span class="hero">' + av(h, 'xxs') + esc(h) + '</span>').join('') +
+        '</div></div>'
+      : '');
+
+  $('#tokScrim').classList.add('on');
+  $('#tokPop').classList.add('on');
+}
+
+function closeToken(){
+  $('#tokScrim').classList.remove('on');
+  $('#tokPop').classList.remove('on');
 }
 
 /* ---------------- stats ---------------- */
@@ -1052,6 +1182,41 @@ function openBattle(mine, opp){
 function closeSheet(){
   $('#scrim').classList.remove('on');
   $('#sheet').classList.remove('on');
+}
+
+function anyOverlayOpen(){
+  return $('#sheet').classList.contains('on') || $('#tokPop').classList.contains('on');
+}
+function closeOverlays(){
+  closeSheet();
+  closeToken();
+}
+
+/* ---------------- device back button ----------------
+   A guard entry sits on top of the browser history at all times. Pressing
+   back pops it, we decide what should actually happen, and then put it
+   straight back so the next press lands here too. */
+function reTrap(){ history.pushState({ dt: 'view' }, ''); }
+
+function initBackButton(){
+  history.replaceState({ dt: 'guard' }, '');
+  reTrap();
+
+  window.addEventListener('popstate', () => {
+    /* 1. an open sheet or popup closes first */
+    if (anyOverlayOpen()){ closeOverlays(); return reTrap(); }
+
+    /* 2. anywhere but Home: step back to where you came from */
+    if (screenNow !== 'home'){
+      const prev = navStack.pop() || 'home';
+      go(prev, true);
+      return reTrap();
+    }
+
+    /* 3. on Home: confirm before leaving the app */
+    if (confirm('Leave Dice Throne Trak?')) history.back();
+    else reTrap();
+  });
 }
 
 async function saveBattle(){
@@ -1348,7 +1513,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '1.4';
+const APP_VERSION = '1.6';
 let swReg = null;
 
 function takeOver(sw){
@@ -1477,6 +1642,7 @@ function refresh(){
   migrateNames();
   mergeSeed();
   applyTheme();
+  initBackButton();
   renderSortBars();
   fillSelects();
   renderHome();

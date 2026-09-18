@@ -1,6 +1,6 @@
 /* Dice Throne Battle Log — service worker
    Bump VERSION on every release: it wipes the old cache and forces a refresh. */
-const VERSION = 'v16';
+const VERSION = 'v18';
 const CACHE   = 'dt-' + VERSION;
 
 /* The app shell: without these the app cannot start offline. */
@@ -64,6 +64,9 @@ const HEROES = [
 ];
 const EXT = ['webp', 'png', 'jpg', 'jpeg'];
 
+/* Token artwork — add a slug here whenever a token is added to the app. */
+const TOKEN_ART = ['concussion', 'stun'];
+
 /* Optional background artwork — skipped quietly when a file is absent. */
 const BACKGROUNDS = [
   'artificer',
@@ -107,6 +110,7 @@ self.addEventListener('install', e => {
     await cache.addAll(SHELL);                       // must succeed
     await Promise.all(HEROES.map(s => cacheHero(cache, s)));  // best effort
     await Promise.all(BACKGROUNDS.map(b => tryCache(cache, './bkg/' + b + '.webp')));
+    await Promise.all(TOKEN_ART.map(t => tryCache(cache, './tok/' + t + '.png')));
     self.skipWaiting();
   })());
 });
