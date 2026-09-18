@@ -32,6 +32,24 @@
   --cond:"Barlow Condensed","Barlow",system-ui,Arial,sans-serif;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+/* Wallpaper sits behind everything, with a scrim so text stays readable.
+   A fixed pseudo-element is used instead of background-attachment:fixed,
+   which misbehaves on mobile Safari. */
+body::before{
+  content:'';position:fixed;inset:0;z-index:-2;
+  background:var(--bkg,none) center/cover no-repeat;
+}
+body::after{
+  content:'';position:fixed;inset:0;z-index:-1;
+  background:var(--ink);opacity:var(--scrim,0);
+}
+body.hasbkg{background:transparent}
+body.hasbkg .card,
+body.hasbkg .list,
+body.hasbkg .mwrap{background:rgba(31,27,58,.72);backdrop-filter:blur(7px)}
+body.hasbkg .topbar,
+body.hasbkg .tabs{background:rgba(22,19,42,.82)}
+body.hasbkg .progstrip{background:rgba(31,27,58,.72);backdrop-filter:blur(7px)}
 html,body{margin:0;padding:0}
 body{
   background:var(--ink);
@@ -233,6 +251,35 @@ input:focus,select:focus,textarea:focus{border-color:var(--orange)}
 .vs{font-family:var(--cond);font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;text-align:center;margin-bottom:2px}
 .vsmark{color:var(--orange);font-size:14px;font-weight:600;letter-spacing:1.2px;margin:0 9px;vertical-align:1px}
 
+.themerow{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px}
+.themes{display:flex;flex-wrap:wrap;gap:8px}
+.theme{
+  border:1px solid var(--line);background:var(--panel-2);color:var(--muted);
+  border-radius:99px;padding:9px 14px;font-size:13px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;
+}
+.themerow .theme{border-radius:8px;text-align:center;padding:11px 10px}
+.theme.on{background:var(--orange);border-color:var(--orange);color:#fff;font-weight:700}
+
+.mock{position:relative;width:236px;height:420px;border-radius:16px;overflow:hidden;background:var(--ink)}
+.mockbg{position:absolute;inset:0;background-size:cover;background-position:center}
+.mockscrim{position:absolute;inset:0;background:var(--ink);opacity:.84}
+.mockui{position:absolute;inset:0;padding:10px;font-size:10px}
+.mtop{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:7px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:9px}
+.mtop b{font-family:var(--cond);font-size:13px;text-transform:uppercase;letter-spacing:.5px}
+.mtop span{color:var(--muted)}
+.mcard{background:rgba(31,27,58,.72);border:1px solid rgba(255,255,255,.09);border-radius:9px;padding:9px;margin-bottom:8px}
+.mbig{font-family:var(--cond);font-size:22px;font-weight:700}
+.mbig small{font-size:11px;color:var(--muted)}
+.msub{color:var(--muted);margin-top:1px}
+.mmeter{height:5px;background:rgba(255,255,255,.12);border-radius:99px;margin-top:7px;overflow:hidden}
+.mmeter i{display:block;width:16%;height:100%;background:var(--orange)}
+.mtiles{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px}
+.mtile{background:var(--orange);color:#fff;border-radius:9px;padding:11px 8px;font-family:var(--cond);font-weight:700;text-transform:uppercase;letter-spacing:.5px;min-height:42px;display:flex;align-items:flex-end}
+.mtile.wide{grid-column:1/-1;min-height:0;align-items:center}
+.mrow{display:flex;align-items:center;gap:7px;padding:7px 9px;border-bottom:1px solid rgba(255,255,255,.08)}
+.mrow:last-child{border:0}
+.mav{width:20px;height:20px;border-radius:50%;background:#B07A3C;display:flex;align-items:center;justify-content:center;font-family:var(--cond);font-size:9px;font-weight:700;color:#14121F}
 .cr{margin-bottom:12px}
 .cr span{display:block;font-family:var(--cond);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--orange);margin-bottom:2px}
 .cr p{margin:0;font-size:13px;line-height:1.55}
@@ -431,6 +478,8 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
       <button class="btn block" id="updBtn" onclick="checkUpdate()">Check for updates</button>
     </div>
 
+    <button class="btn block" style="margin-bottom:14px" onclick="go('bkg')">Backgrounds</button>
+
     <button class="btn block" style="margin-bottom:14px" onclick="go('credits')">Credits</button>
 
     <button class="btn block" onclick="wipe()">Erase all data</button>
@@ -466,6 +515,49 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
       <div class="cr"><span>Playtesters</span><p>John Heidrich, Noah Burke, Jonathan Westfall, Heather Hash, Michael Hash, Nick Lem, Kevin Heidrich, Christopher Peterson, Jacob Adams, Rex Edward Custorio, Grace Galayda, Rick May, Chris Petkidis, Patrick Woodward, Cam Roberts, Josh Hou, Derick Gilkeson, Dustin Millican, Devin Elie, Drake Finney, Eric Bouma, Kasey Schertenleib, Dino Pathoummahong, David Jacobson, Daniel Dar, Luke Pinyerd, Corey Cook, Todd Daniels, Justin Nguyen, Ryan Muehlberg, Brandt Arganbright, Danny Jacobson, Tomer Rosenbaum, Jeffrey Jacobson, Ashton Jacobson, Veronica Elie, Dylan Chin, Liam Fairley, Sammi Roberts, Sarah Slyman and the rest of the beta team.</p></div>
 
       <p class="small muted" style="margin:16px 0 0">For Hero specific credits, see Hero Leaflets.</p>
+    </div>
+  </section>
+
+  <!-- ========== BACKGROUNDS ========== -->
+  <section class="screen" id="s-bkg">
+    <button class="link" style="margin-bottom:10px" onclick="go('set')">&lsaquo; Setup</button>
+
+    <div class="card">
+      <h3 style="font-size:17px;margin-bottom:10px">Choose a background</h3>
+      <div class="themerow" id="themeRow"></div>
+      <div class="themes" id="themes"></div>
+    </div>
+
+    <div class="card">
+      <label for="scrimRange" style="margin-top:0">Darkening &middot; <span id="scrimVal">84%</span></label>
+      <input type="range" id="scrimRange" min="40" max="95" step="1" value="84"
+             oninput="setScrim(this.value)" style="padding:0">
+      <p class="tiny muted" style="margin:8px 0 0">Lower shows more artwork. Higher keeps the text easiest to read.</p>
+    </div>
+
+    <h3 style="font-size:16px;margin:0 0 8px">Preview</h3>
+    <div class="card" style="display:flex;justify-content:center">
+      <div class="mock">
+        <div class="mockbg" id="mockBg"></div>
+        <div class="mockscrim" id="mockScrim"></div>
+        <div class="mockui">
+          <div class="mtop"><b>Dice Throne Trak</b><span>327 / 2025</span></div>
+          <div class="mcard">
+            <div class="mbig">327 <small>/ 2025</small></div>
+            <div class="msub">Battles logged</div>
+            <div class="mmeter"><i></i></div>
+          </div>
+          <div class="mtiles">
+            <div class="mtile wide">Log a battle</div>
+            <div class="mtile">Draw heroes</div>
+            <div class="mtile">Random matchup</div>
+          </div>
+          <div class="mcard" style="padding:0">
+            <div class="mrow"><span class="mav">BA</span>Barbarian vs Iceman</div>
+            <div class="mrow"><span class="mav" style="background:#4C8FB5">SE</span>Seraph vs Loki</div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 </main>
@@ -645,6 +737,91 @@ function av(name, size, eager){
     (eager ? 'eager' : 'lazy') + '" onerror="nextImg(this)"></span>';
 }
 
+/* ---------------- background themes ---------------- */
+const THEMES = [
+  { id:'artificer', label:'Artificer' },
+  { id:'barbarian', label:'Barbarian' },
+  { id:'cursed-pirate', label:'Cursed Pirate' },
+  { id:'gunslinger', label:'Gunslinger' },
+  { id:'huntress', label:'Huntress' },
+  { id:'marvel', label:'Marvel' },
+  { id:'monk', label:'Monk' },
+  { id:'moon-elf', label:'Moon Elf' },
+  { id:'ninja', label:'Ninja' },
+  { id:'paladin', label:'Paladin' },
+  { id:'pyromancer', label:'Pyromancer' },
+  { id:'samurai', label:'Samurai' },
+  { id:'seraph', label:'Seraph' },
+  { id:'shadow-thief', label:'Shadow Thief' },
+  { id:'tactician', label:'Tactician' },
+  { id:'treant', label:'Treant' },
+  { id:'vampire-lord', label:'Vampire Lord' }
+];
+const DEFAULT_SCRIM = 84;
+
+/* 'random' picks a new wallpaper each time the app starts and keeps it for the
+   whole session, so it never changes under you mid-use. */
+let sessionTheme = null;
+
+function activeTheme(){
+  const id = S.theme || 'none';
+  if (id === 'random'){
+    if (!sessionTheme) sessionTheme = THEMES[Math.floor(Math.random() * THEMES.length)].id;
+    return sessionTheme;
+  }
+  return THEMES.some(t => t.id === id) ? id : 'none';
+}
+
+function scrimVal(){ return S.scrim == null ? DEFAULT_SCRIM : S.scrim; }
+
+function applyTheme(){
+  const id = activeTheme();
+  const on = id !== 'none';
+  document.body.classList.toggle('hasbkg', on);
+  document.body.style.setProperty('--bkg',   on ? 'url(bkg/' + id + '.webp)' : 'none');
+  document.body.style.setProperty('--scrim', on ? scrimVal() / 100 : 0);
+  paintMock();
+}
+
+function paintMock(){
+  const bg = $('#mockBg');
+  if (!bg) return;
+  const id = activeTheme();
+  bg.style.backgroundImage = id === 'none' ? 'none' : 'url(bkg/' + id + '.webp)';
+  $('#mockScrim').style.opacity = id === 'none' ? 1 : scrimVal() / 100;
+}
+
+function renderThemes(){
+  const cur = S.theme || 'none';
+  const chip = (id, label) =>
+    '<button class="theme ' + (cur === id ? 'on' : '') + '" onclick="setTheme(&quot;' + id + '&quot;)">' +
+    label + '</button>';
+
+  $('#themeRow').innerHTML = chip('none', 'None') + chip('random', 'Random');
+  $('#themes').innerHTML   = THEMES.map(t => chip(t.id, t.label)).join('');
+
+  const v = scrimVal();
+  $('#scrimRange').value = v;
+  $('#scrimVal').textContent = v + '%';
+}
+
+async function setTheme(id){
+  S.theme = id;
+  if (id === 'random') sessionTheme = null;
+  await save();
+  applyTheme();
+  renderThemes();
+}
+
+let scrimTimer = null;
+function setScrim(v){
+  S.scrim = +v;
+  $('#scrimVal').textContent = v + '%';
+  applyTheme();
+  clearTimeout(scrimTimer);
+  scrimTimer = setTimeout(save, 400);
+}
+
 /* ---------------- ordering ---------------- */
 function abcHeroes(){ return S.heroes.slice().sort(byName); }
 
@@ -689,7 +866,8 @@ function go(id){
   if (id === 'stats')  renderStats();
   if (id === 'draw')   renderDraw();
   if (id === 'home')   renderHome();
-  if (id === 'credits') $('#t-set').classList.add('on');
+  if (id === 'bkg')     renderThemes();
+  if (id === 'bkg' || id === 'credits') $('#t-set').classList.add('on');
 }
 
 /* ---------------- home ---------------- */
@@ -1225,7 +1403,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '1.0';
+const APP_VERSION = '1.3';
 let swReg = null;
 
 function takeOver(sw){
@@ -1353,6 +1531,7 @@ function refresh(){
   S.heroes.forEach(h => { if (h.set === 'בודדים') h.set = 'Singles'; });
   migrateNames();
   mergeSeed();
+  applyTheme();
   renderSortBars();
   fillSelects();
   renderHome();

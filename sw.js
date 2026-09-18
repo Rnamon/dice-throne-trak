@@ -1,6 +1,6 @@
 /* Dice Throne Battle Log — service worker
    Bump VERSION on every release: it wipes the old cache and forces a refresh. */
-const VERSION = 'v12';
+const VERSION = 'v15';
 const CACHE   = 'dt-' + VERSION;
 
 /* The app shell: without these the app cannot start offline. */
@@ -64,6 +64,27 @@ const HEROES = [
 ];
 const EXT = ['webp', 'png', 'jpg', 'jpeg'];
 
+/* Optional background artwork — skipped quietly when a file is absent. */
+const BACKGROUNDS = [
+  'artificer',
+  'barbarian',
+  'cursed-pirate',
+  'gunslinger',
+  'huntress',
+  'marvel',
+  'monk',
+  'moon-elf',
+  'ninja',
+  'paladin',
+  'pyromancer',
+  'samurai',
+  'seraph',
+  'shadow-thief',
+  'tactician',
+  'treant',
+  'vampire-lord',
+];
+
 /* Cache one URL, ignoring failures. */
 async function tryCache(cache, url){
   try {
@@ -85,6 +106,7 @@ self.addEventListener('install', e => {
     const cache = await caches.open(CACHE);
     await cache.addAll(SHELL);                       // must succeed
     await Promise.all(HEROES.map(s => cacheHero(cache, s)));  // best effort
+    await Promise.all(BACKGROUNDS.map(b => tryCache(cache, './bkg/' + b + '.webp')));
     self.skipWaiting();
   })());
 });
