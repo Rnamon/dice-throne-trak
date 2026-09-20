@@ -6,11 +6,11 @@
 <meta name="theme-color" content="#16132A">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="DT TRAK">
+<meta name="apple-mobile-web-app-title" content="DT MATRIX">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
-<title>DICE THRONE TRAK</title>
+<title>DICE THRONE MATRIX</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
@@ -310,7 +310,7 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
 <body>
 
 <div class="topbar">
-  <h1>Dice Throne Trak</h1>
+  <h1>Dice Throne Matrix</h1>
   <span class="sub" id="topSub"></span>
 </div>
 
@@ -498,7 +498,7 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
     <button class="link" style="margin-bottom:10px" onclick="go('set')">&lsaquo; Setup</button>
 
     <div class="card">
-      <h3 style="font-size:17px;margin-bottom:8px">Dice Throne Trak</h3>
+      <h3 style="font-size:17px;margin-bottom:8px">Dice Throne Matrix</h3>
       <p class="small" style="margin:0 0 6px">App developed by <b>Gad Freund</b>.</p>
       <p class="tiny muted" style="margin:0">
         An unofficial personal tracker, non-commercial and made purely out of love for the game.
@@ -2331,7 +2331,7 @@ function initBackButton(){
     }
 
     /* 3. on Home: confirm before leaving the app */
-    if (confirm('Leave Dice Throne Trak?')) history.back();
+    if (confirm('Leave Dice Throne Matrix?')) history.back();
     else reTrap();
   });
 }
@@ -2594,7 +2594,7 @@ function exportData(){
   const blob = new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'dice-throne-tracker-' + today() + '.json';
+  a.download = 'dice-throne-matrix-' + today() + '.json';
   a.click();
   URL.revokeObjectURL(a.href);
   toast('File exported');
@@ -2630,7 +2630,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '1.9';
+const APP_VERSION = '2.0';
 let swReg = null;
 
 function takeOver(sw){

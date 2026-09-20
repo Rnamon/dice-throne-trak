@@ -1,7 +1,7 @@
 {
-  "name": "DICE THRONE TRAK",
-  "short_name": "DT TRAK",
-  "description": "Personal matchup tracker for Dice Throne.",
+  "name": "DICE THRONE MATRIX",
+  "short_name": "DT MATRIX",
+  "description": "Personal matchup matrix and battle log for Dice Throne.",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",

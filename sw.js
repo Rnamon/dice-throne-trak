@@ -1,6 +1,6 @@
-/* Dice Throne Battle Log — service worker
+/* Dice Throne Matrix — service worker
    Bump VERSION on every release: it wipes the old cache and forces a refresh. */
-const VERSION = 'v21';
+const VERSION = 'v22';
 const CACHE   = 'dt-' + VERSION;
 
 /* The app shell: without these the app cannot start offline. */
