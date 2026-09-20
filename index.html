@@ -1329,7 +1329,7 @@ const TOKENS = {
     kind: 'Negative Status Effect',
     stack: '1',
     trigger: 'Lose [[1CP]] or else receive [[2UD]] dmg:',
-    text: 'During their Upkeep Phase, a player afflicted with this token may choose to lose [[1CP]]. If they do not (or cannot), they receive [[2UD]] dmg instead. Then remove this token.\n\nLike other status effects that affect [[CP]], Henchmen and Bosses are immune to this status effect token because they are considered to have infinite [[CP]].',
+    text: 'During their Upkeep Phase, a player afflicted with this token may choose to lose [[1CP]]. If they do not (or cannot), they receive [[2UD]] dmg instead. Then remove this token.',
     heroes: ['Gambit']
   },
   dissolution: {
@@ -1401,7 +1401,7 @@ const TOKENS = {
     kind: 'Positive Status Effect',
     stack: '3',
     trigger: 'Spend & roll 1–2 to avoid damage:',
-    text: 'When a player with this token has incoming damage (from any source), they may choose to spend it. If spent, roll 1 [[d6]]. If the outcome is 1–2, no dmg is received (although other associated effects may still apply).\n\nMultiple tokens may be spent in an attempt to prevent the same source of damage.\n\nHenchmen and Bosses will spend all Evasive [[evasive.png]] tokens necessary to prevent a source dealing 4+ dmg or to prevent lethal dmg.',
+    text: 'When a player with this token has incoming damage (from any source), they may choose to spend it. If spent, roll 1 [[d6]]. If the outcome is 1–2, no dmg is received (although other associated effects may still apply).\n\nMultiple tokens may be spent in an attempt to prevent the same source of damage.',
     heroes: ['Gunslinger', 'Monk', 'Moon Elf']
   },
   feather: {
@@ -1433,7 +1433,7 @@ const TOKENS = {
     kind: 'Positive Status Effect',
     stack: '3',
     trigger: 'Roll 2 [[d6]] to dodge or make undefendable:',
-    text: 'A player with this token may spend it at any time during the Roll Phase. Once spent, roll 2 [[d6]]. If a 6 was rolled, Activate this token. If Activated during the Offensive Roll Phase, this player’s Attack becomes undefendable. If Activated during the Defensive Roll Phase, ignore all incoming damage.\n\nHenchmen and Bosses will spend 1 Flight [[flight.png]] token if they successfully activate a defendable Attack, only affecting the first Attacked Hero. They will spend all Flight [[flight.png]] tokens necessary during their Defensive Roll Phase to prevent a source dealing 4+ dmg or to prevent lethal dmg.',
+    text: 'A player with this token may spend it at any time during the Roll Phase. Once spent, roll 2 [[d6]]. If a 6 was rolled, Activate this token. If Activated during the Offensive Roll Phase, this player’s Attack becomes undefendable. If Activated during the Defensive Roll Phase, ignore all incoming damage.',
     heroes: ['Seraph']
   },
   "focus-fire": {
@@ -1514,7 +1514,7 @@ const TOKENS = {
     stack: '1',
     trigger: '6’s are considered blank:',
     text: 'A player afflicted with this token must treat all of their die faces with a 6 as if those faces are completely blank instead. At the conclusion of their turn, remove this token.\n\nThis token may not be transferred by any means (but can be removed).',
-    heroes: []
+    heroes: ['Raveness']
   },
   "holy-presence": {
     name: 'Holy Presence',
@@ -1593,7 +1593,7 @@ const TOKENS = {
     kind: 'Negative Status Effect',
     stack: '1',
     trigger: 'Spend [[2CP]] or skip Offensive Roll Phase:',
-    text: 'To remove this token, a player afflicted with it must spend [[2CP]] before the start of their Offensive Roll Phase. If the player does not, they must skip their Offensive Roll Phase and then remove this token.\n\nLike other status effects that affect [[CP]], Henchmen and Bosses are immune to this status effect token because they are considered to have infinite [[CP]].',
+    text: 'To remove this token, a player afflicted with it must spend [[2CP]] before the start of their Offensive Roll Phase. If the player does not, they must skip their Offensive Roll Phase and then remove this token.',
     heroes: ['Gunslinger', 'Monk', 'Pyromancer']
   },
   lightning: {
@@ -2142,11 +2142,27 @@ function tokensOf(heroName){
 }
 
 /* [[slug]] -> small inline icon */
+/* [[something.png]] becomes a small icon sized to the surrounding text.
+   Other [[...]] tags are left alone for now. */
 function tokenText(txt){
   return esc(txt)
-    .replace(/\[\[([a-z0-9-]+)\]\]/g, (m, id) =>
-      TOKENS[id] ? '<img class="inlinetok" src="tok/' + id + '.png" alt="' + esc(TOKENS[id].name) + '">' : m)
+    .replace(/\[\[([A-Za-z0-9._-]+)\.png\]\]/g, (m, id) => {
+      const slug = id.toLowerCase();
+      const t = TOKENS[slug];
+      return '<img class="inlinetok" src="tok/' + slug + '.png" alt="' +
+             esc(t ? t.name : slug) + '" onerror="this.remove()">';
+    })
     .replace(/\n/g, '<br>');   /* the sheet's line breaks and bullet lists */
+}
+
+/* A plain number keeps the "Stack limit:" label. Anything else carries its
+   own wording, so the label is dropped and its trailing value is highlighted. */
+function stackLine(v){
+  if (/^\d+$/.test(v)) return 'Stack limit: <b>' + esc(v) + '</b>';
+  const i = v.lastIndexOf(':');
+  return i > -1
+    ? esc(v.slice(0, i + 1)) + ' <b>' + esc(v.slice(i + 1).trim()) + '</b>'
+    : '<b>' + esc(v) + '</b>';
 }
 
 function renderTokens(heroName){
@@ -2170,7 +2186,7 @@ function openToken(id){
   if (!t) return;
   const meta = [
     t.kind ? '<b>' + esc(t.kind) + '</b>' : '',
-    t.stack ? 'Stack limit: <b>' + esc(t.stack) + '</b>' : ''
+    t.stack ? stackLine(t.stack) : ''
   ].filter(Boolean).join(' &nbsp;|&nbsp; ');
 
   $('#tokPop').innerHTML =
@@ -2614,7 +2630,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '1.8';
+const APP_VERSION = '1.9';
 let swReg = null;
 
 function takeOver(sw){
