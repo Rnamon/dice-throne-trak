@@ -289,9 +289,16 @@ input:focus,select:focus,textarea:focus{border-color:var(--orange)}
 .trigger{font-weight:700;color:var(--orange);font-size:14px;margin:0 0 6px}
 .poptext{font-size:14px;line-height:1.7;margin:0}
 .inlinetok{height:1.25em;width:auto;vertical-align:-.28em;margin:0 1px}
-.toklink{display:inline;padding:0;margin:0;background:none;border:0;line-height:inherit;vertical-align:baseline}
-.toklink .inlinetok{filter:drop-shadow(0 0 2.5px var(--orange));transition:transform .12s}
-.toklink:active .inlinetok{transform:scale(1.25)}
+/* a link keeps the colour and weight of its line — orange bold in a heading,
+   white in body text — and only gains an orange underline */
+.toklink{display:inline;padding:0;margin:0;background:none;border:0;cursor:pointer;
+         font:inherit;color:inherit;letter-spacing:inherit;text-transform:inherit;
+         line-height:inherit;vertical-align:baseline;text-align:inherit}
+.tokword{text-decoration:underline;text-decoration-color:var(--orange);
+         text-decoration-thickness:1.5px;text-underline-offset:3px}
+.toklink .inlinetok{filter:drop-shadow(0 0 1.5px rgba(242,107,43,.7));transition:transform .12s}
+.toklink:active .inlinetok{transform:scale(1.2)}
+.toklink:active .tokword{text-decoration-thickness:2.5px}
 .usedby{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
 .usedby h3{font-size:12px;color:var(--orange);margin-bottom:9px}
 .heroes{display:flex;flex-wrap:wrap;gap:7px}
@@ -2151,20 +2158,44 @@ function tokensOf(heroName){
 /* [[slug]] -> small inline icon */
 /* [[something.png]] becomes a small icon sized to the surrounding text.
    Other [[...]] tags are left alone for now. */
-/* selfId: the token whose popup this text belongs to. An icon pointing at
-   another token becomes a link to it; an icon pointing at itself stays plain. */
+/* selfId: the token whose popup this text belongs to.
+   An icon pointing at another token becomes a link. If the token's name sits
+   right before the icon (plural forms included), that phrase is underlined
+   and joins the link, so "Glide [icon]" is one tappable unit. An icon
+   pointing at the popup's own token stays plain. */
+const reEsc = x => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 function tokenText(txt, selfId){
-  return esc(txt)
-    .replace(/\[\[([A-Za-z0-9._-]+)\.png\]\]/g, (m, id) => {
-      const slug = id.toLowerCase();
-      const t = TOKENS[slug];
-      const img = '<img class="inlinetok" src="tok/' + slug + '.png" alt="' +
-                  esc(t ? t.name : slug) + '" onerror="this.remove()">';
-      return (t && slug !== selfId)
-        ? '<button class="toklink" onclick="openToken(' + jq(slug) + ')" aria-label="' + esc(t.name) + '">' + img + '</button>'
-        : img;
-    })
-    .replace(/\n/g, '<br>');   /* the sheet's line breaks and bullet lists */
+  const tag = /\[\[([A-Za-z0-9._-]+)\.png\]\]/g;
+  let out = '', cursor = 0, m;
+
+  while ((m = tag.exec(txt))){
+    const slug = m[1].toLowerCase();
+    const t = TOKENS[slug];
+    const img = '<img class="inlinetok" src="tok/' + slug + '.png" alt="' +
+                esc(t ? t.name : slug) + '" onerror="this.remove()">';
+    let before = txt.slice(cursor, m.index);
+
+    if (t && slug !== selfId){
+      const n = t.name;
+      const nameRe = new RegExp('(' + reEsc(n) + '(?:es|s)?' +
+                     (n.length > 2 && /y$/i.test(n) ? '|' + reEsc(n.slice(0, -1)) + 'ies' : '') +
+                     ')(\\s*)$', 'i');
+      const hit = before.match(nameRe);
+      const open = '<button class="toklink" onclick="openToken(' + jq(slug) + ')" aria-label="' + esc(n) + '">';
+      if (hit){
+        out += esc(before.slice(0, hit.index)) + open +
+               '<span class="tokword">' + esc(hit[1]) + '</span>' + esc(hit[2]) + img + '</button>';
+      } else {
+        out += esc(before) + open + img + '</button>';
+      }
+    } else {
+      out += esc(before) + img;
+    }
+    cursor = m.index + m[0].length;
+  }
+  out += esc(txt.slice(cursor));
+  return out.replace(/\n/g, '<br>');   /* the sheet's line breaks and bullet lists */
 }
 
 /* A plain number keeps the "Stack limit:" label. Anything else carries its
@@ -2702,7 +2733,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '2.2';
+const APP_VERSION = '2.3';
 let swReg = null;
 
 function takeOver(sw){
