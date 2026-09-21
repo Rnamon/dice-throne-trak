@@ -289,6 +289,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--orange)}
 .trigger{font-weight:700;color:var(--orange);font-size:14px;margin:0 0 6px}
 .poptext{font-size:14px;line-height:1.7;margin:0}
 .inlinetok{height:1.25em;width:auto;vertical-align:-.28em;margin:0 1px}
+.toklink{display:inline;padding:0;margin:0;background:none;border:0;line-height:inherit;vertical-align:baseline}
+.toklink .inlinetok{filter:drop-shadow(0 0 2.5px var(--orange));transition:transform .12s}
+.toklink:active .inlinetok{transform:scale(1.25)}
 .usedby{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
 .usedby h3{font-size:12px;color:var(--orange);margin-bottom:9px}
 .heroes{display:flex;flex-wrap:wrap;gap:7px}
@@ -2148,13 +2151,18 @@ function tokensOf(heroName){
 /* [[slug]] -> small inline icon */
 /* [[something.png]] becomes a small icon sized to the surrounding text.
    Other [[...]] tags are left alone for now. */
-function tokenText(txt){
+/* selfId: the token whose popup this text belongs to. An icon pointing at
+   another token becomes a link to it; an icon pointing at itself stays plain. */
+function tokenText(txt, selfId){
   return esc(txt)
     .replace(/\[\[([A-Za-z0-9._-]+)\.png\]\]/g, (m, id) => {
       const slug = id.toLowerCase();
       const t = TOKENS[slug];
-      return '<img class="inlinetok" src="tok/' + slug + '.png" alt="' +
-             esc(t ? t.name : slug) + '" onerror="this.remove()">';
+      const img = '<img class="inlinetok" src="tok/' + slug + '.png" alt="' +
+                  esc(t ? t.name : slug) + '" onerror="this.remove()">';
+      return (t && slug !== selfId)
+        ? '<button class="toklink" onclick="openToken(' + jq(slug) + ')" aria-label="' + esc(t.name) + '">' + img + '</button>'
+        : img;
     })
     .replace(/\n/g, '<br>');   /* the sheet's line breaks and bullet lists */
 }
@@ -2185,7 +2193,7 @@ function renderTokens(heroName){
     '</div></div>';
 }
 
-function openToken(id){
+function openToken(id, fromPop){
   const t = TOKENS[id];
   if (!t) return;
   const meta = [
@@ -2198,8 +2206,8 @@ function openToken(id){
     '<div class="pophead"><img src="tok/' + id + '.png" alt="" onerror="this.style.visibility=\'hidden\'">' +
     '<h2>' + esc(t.name) + '</h2></div>' +
     (meta ? '<div class="kind">' + meta + '</div>' : '') +
-    (t.trigger ? '<p class="trigger">' + esc(t.trigger) + '</p>' : '') +
-    '<p class="poptext">' + tokenText(t.text || '') + '</p>' +
+    (t.trigger ? '<p class="trigger">' + tokenText(t.trigger, id) + '</p>' : '') +
+    '<p class="poptext">' + tokenText(t.text || '', id) + '</p>' +
     (t.heroes && t.heroes.length
       ? '<div class="usedby"><h3>Used by</h3><div class="heroes">' +
         t.heroes.map(h => '<span class="hero">' + av(h, 'xxs') + esc(h) + '</span>').join('') +
@@ -2208,7 +2216,15 @@ function openToken(id){
 
   $('#tokScrim').classList.add('on');
   $('#tokPop').classList.add('on');
-  if (!(history.state && history.state.dt === 'o')) history.pushState({ dt: 'o' }, '');
+  $('#tokPop').scrollTop = 0;
+
+  /* Following a link from one token to another is a step Back can undo.
+     d counts how deep the chain goes, so X can close all of it at once. */
+  if (!fromPop){
+    const st = history.state;
+    const prev = (st && st.dt === 'o' && st.tok) ? st.d : 0;
+    history.pushState({ dt: 'o', tok: id, d: prev + 1 }, '');
+  }
 }
 
 function hideToken(){
@@ -2216,7 +2232,8 @@ function hideToken(){
   $('#tokPop').classList.remove('on');
 }
 function closeToken(){
-  if (history.state && history.state.dt === 'o') history.back();
+  const st = history.state;
+  if (st && st.dt === 'o' && st.tok) history.go(-(st.d || 1));
   else hideToken();
 }
 
@@ -2349,6 +2366,9 @@ function initBackButton(){
 
   window.addEventListener('popstate', e => {
     const st = e.state || {};
+
+    /* stepping back through a chain of linked tokens */
+    if (st.dt === 'o' && st.tok){ hideSheet(); openToken(st.tok, true); return; }
 
     /* an open sheet or popup just closes */
     if (anyOverlayOpen()) hideOverlays();
@@ -2682,7 +2702,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '2.1';
+const APP_VERSION = '2.2';
 let swReg = null;
 
 function takeOver(sw){
