@@ -219,6 +219,9 @@ main{padding:16px 16px 24px;max-width:760px;margin:0 auto}
 .poolhead{display:flex;align-items:center;gap:8px;padding:12px 14px 2px}
 .poolhead h3{font-size:15px;flex:1}
 .reelwrap{position:relative;width:118px;height:118px;flex:none}
+.reelwrap.tappable{cursor:pointer;border-radius:50%;box-shadow:0 0 0 2px var(--orange)}
+.reelwrap.tappable:active{transform:scale(.96)}
+.rollhero{display:block;width:100%;padding:2px 0;font:inherit;color:inherit;text-transform:inherit;letter-spacing:inherit}
 .frame{position:absolute;inset:0;opacity:0}
 .frame.on{opacity:1}
 .prep{margin-top:10px}
@@ -428,6 +431,7 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
     <div class="card">
       <div class="row" id="faces" style="justify-content:center;gap:18px"></div>
       <div class="rollname" id="rollName"></div>
+      <div class="tiny muted" id="rollHint" style="display:none;text-align:center;margin-top:8px">Tap a hero for details</div>
       <div class="prep" id="prep" style="display:none">
         <div class="tiny muted" style="text-align:center" id="prepText"></div>
         <div class="meterwrap"><div class="meter" id="prepMeter" style="width:0%"></div></div>
@@ -831,13 +835,13 @@ async function setSort(k){ S.sort = k; await save(); renderSortBars(); refresh()
 
 /* ---------------- navigation ---------------- */
 let screenNow = 'home';
-let navStack = [];
 
+/* Every forward move is a real history entry, created during the tap that
+   caused it. Chrome ignores history entries a page adds on its own (no tap),
+   and skips straight past them on Back — which is what made the second Back
+   press leave the app. Entries made inside a tap are always honoured. */
 function go(id, back){
-  if (!back && id !== screenNow){
-    navStack.push(screenNow);
-    if (navStack.length > 20) navStack.shift();
-  }
+  if (!back && id !== screenNow) history.pushState({ dt: 's', id }, '');
   screenNow = id;
   $$('.screen').forEach(s => s.classList.remove('on'));
   $('#s-' + id).classList.add('on');
@@ -2204,11 +2208,16 @@ function openToken(id){
 
   $('#tokScrim').classList.add('on');
   $('#tokPop').classList.add('on');
+  if (!(history.state && history.state.dt === 'o')) history.pushState({ dt: 'o' }, '');
 }
 
-function closeToken(){
+function hideToken(){
   $('#tokScrim').classList.remove('on');
   $('#tokPop').classList.remove('on');
+}
+function closeToken(){
+  if (history.state && history.state.dt === 'o') history.back();
+  else hideToken();
 }
 
 /* ---------------- stats ---------------- */
@@ -2294,45 +2303,67 @@ function openBattle(mine, opp){
   syncTitle();
   $('#scrim').classList.add('on');
   $('#sheet').classList.add('on');
+  if (!(history.state && history.state.dt === 'o')) history.pushState({ dt: 'o' }, '');
 }
 
-function closeSheet(){
+function hideSheet(){
   $('#scrim').classList.remove('on');
   $('#sheet').classList.remove('on');
+}
+function closeSheet(){
+  if (history.state && history.state.dt === 'o') history.back();   /* popstate hides it */
+  else hideSheet();
 }
 
 function anyOverlayOpen(){
   return $('#sheet').classList.contains('on') || $('#tokPop').classList.contains('on');
 }
-function closeOverlays(){
-  closeSheet();
-  closeToken();
+function hideOverlays(){
+  hideSheet();
+  hideToken();
 }
 
 /* ---------------- device back button ----------------
-   A guard entry sits on top of the browser history at all times. Pressing
-   back pops it, we decide what should actually happen, and then put it
-   straight back so the next press lands here too. */
-function reTrap(){ history.pushState({ dt: 'view' }, ''); }
+   History holds: guard, then one entry per screen or open popup.
+   Back walks down that stack. Reaching the guard means you backed out of
+   Home, so we ask before leaving.
+
+   The entry sitting on top of the guard has to be created during a tap for
+   Chrome to respect it, so it is armed on the first touch rather than at
+   load, and re-armed after a cancelled exit. */
+let guardArmed = false;
+function armGuard(){
+  guardArmed = false;
+  const arm = () => {
+    if (guardArmed) return;
+    guardArmed = true;
+    history.pushState({ dt: 's', id: screenNow }, '');
+    window.removeEventListener('pointerdown', arm, true);
+  };
+  window.addEventListener('pointerdown', arm, true);
+}
 
 function initBackButton(){
   history.replaceState({ dt: 'guard' }, '');
-  reTrap();
+  armGuard();
 
-  window.addEventListener('popstate', () => {
-    /* 1. an open sheet or popup closes first */
-    if (anyOverlayOpen()){ closeOverlays(); return reTrap(); }
+  window.addEventListener('popstate', e => {
+    const st = e.state || {};
 
-    /* 2. anywhere but Home: step back to where you came from */
-    if (screenNow !== 'home'){
-      const prev = navStack.pop() || 'home';
-      go(prev, true);
-      return reTrap();
+    /* an open sheet or popup just closes */
+    if (anyOverlayOpen()) hideOverlays();
+
+    /* a screen entry: show that screen */
+    if (st.dt === 's'){
+      if (st.id !== screenNow) go(st.id, true);
+      return;
     }
+    if (st.dt === 'o') return;
 
-    /* 3. on Home: confirm before leaving the app */
+    /* the guard: we backed out of Home */
+    if (screenNow !== 'home') go('home', true);
     if (confirm('Leave Dice Throne Matrix?')) history.back();
-    else reTrap();
+    else armGuard();
   });
 }
 
@@ -2437,6 +2468,7 @@ function resetFaces(){
   $('#rollName').textContent = '';
   $('#rollLog').style.display = 'none';
   $('#prep').style.display = 'none';
+  $('#rollHint').style.display = 'none';
 }
 
 async function setDrawMode(m){ S.drawMode = m; lastDraw = null; reel.sig = ''; await save(); resetFaces(); renderDraw(); }
@@ -2541,6 +2573,22 @@ function spin(frames, dur, done){
   })();
 }
 
+/* After a roll, the landed faces link to their hero page. Coming back
+   with the device Back button returns here with the result untouched. */
+function makeTappable(sel, name){
+  const el = $(sel);
+  if (!el) return;
+  el.classList.add('tappable');
+  el.onclick = () => openHero(name);
+}
+function clearTappable(){
+  ['#f1', '#f2'].forEach(sel => {
+    const el = $(sel);
+    if (el){ el.classList.remove('tappable'); el.onclick = null; }
+  });
+  $('#rollHint').style.display = 'none';
+}
+
 async function startRoll(){
   if (rolling) return;
   const both = S.drawMode === 'both';
@@ -2550,6 +2598,7 @@ async function startRoll(){
   if (both && !opp.length) return toast('No heroes selected for the opponent');
 
   rolling = true; lastDraw = null;
+  clearTappable();
   $('#rollName').textContent = '';
   $('#rollLog').style.display = 'none';
   $('#rollBtn').disabled = true;
@@ -2575,10 +2624,13 @@ async function startRoll(){
     $('#rollBtn').textContent = 'Roll again';
     $('#rollBtn').disabled = false;
     lastDraw = [a, b];
+    const pick = n => '<button class="rollhero" onclick="openHero(' + jq(n) + ')">' + label(n) + '</button>';
     $('#rollName').innerHTML = both
-      ? label(a) + '<div class="muted small" style="margin:6px 0">vs</div>' + label(b)
-      : label(a);
-    if (both) $('#rollLog').style.display = 'block';
+      ? pick(a) + '<div class="muted small" style="margin:6px 0">vs</div>' + pick(b)
+      : pick(a);
+    makeTappable('#f1', a);
+    if (both){ makeTappable('#f2', b); $('#rollLog').style.display = 'block'; }
+    $('#rollHint').style.display = 'block';
   };
 
   spin(reel.f1, 5000, i => { a = mine[i]; if (!both) finish(); });
@@ -2630,7 +2682,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '2.0';
+const APP_VERSION = '2.1';
 let swReg = null;
 
 function takeOver(sw){
