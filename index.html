@@ -153,6 +153,9 @@ main{padding:16px 16px 24px;max-width:760px;margin:0 auto}
 .item:last-child{border-bottom:0}
 .item:active{background:var(--panel-2)}
 .item .name{font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .name.won{color:var(--win)}
+.item .name.lost{color:var(--loss)}
+.mirror{color:var(--orange);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.5px;flex:none}
 .chip{font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px;white-space:nowrap;text-transform:uppercase;letter-spacing:.4px}
 .chip.w{background:rgba(87,169,123,.16);color:var(--win)}
 .chip.l{background:rgba(196,84,74,.16);color:var(--loss)}
@@ -302,7 +305,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--orange)}
 .usedby{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
 .usedby h3{font-size:12px;color:var(--orange);margin-bottom:9px}
 .heroes{display:flex;flex-wrap:wrap;gap:7px}
-.hero{display:flex;align-items:center;gap:7px;background:var(--panel-2);border-radius:99px;padding:4px 12px 4px 4px;font-size:12px;font-weight:500}
+.hero{display:flex;align-items:center;gap:7px;background:var(--panel-2);border-radius:99px;padding:4px 12px 4px 4px;font-size:12px;font-weight:500;
+      border:0;color:inherit;font-family:inherit;cursor:pointer}
+.hero:active{background:var(--line)}
 .av.xxs{width:22px;height:22px;font-size:9px}
 .empty{text-align:center;color:var(--muted);padding:26px 12px;font-size:14px}
 .die{display:inline-block;vertical-align:-0.22em;border-radius:3px;margin-left:2px}
@@ -441,7 +446,7 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
     <div class="card">
       <div class="row" id="faces" style="justify-content:center;gap:18px"></div>
       <div class="rollname" id="rollName"></div>
-      <div class="tiny muted" id="rollHint" style="display:none;text-align:center;margin-top:8px">Tap a hero for details</div>
+      <div class="tiny" id="rollHint" style="display:none;text-align:center;margin-top:8px;font-weight:700;color:var(--bone)"></div>
       <div class="prep" id="prep" style="display:none">
         <div class="tiny muted" style="text-align:center" id="prepText"></div>
         <div class="meterwrap"><div class="meter" id="prepMeter" style="width:0%"></div></div>
@@ -1000,7 +1005,8 @@ function renderHeroes(){
   $('#heroList').innerHTML = html;
 }
 
-function openHero(name){
+function openHero(name, fromPop){
+  const prevHero = current, prevScreen = screenNow;
   current = name;
   const s = heroStats(name), h = hero(name);
   $('#dAv').innerHTML = av(name, 'l');
@@ -1020,11 +1026,16 @@ function openHero(name){
       : '<span class="chip n">Not yet</span>';
     const hp = b ? '<span class="tiny muted">' + (b.myHP ?? '–') + ':' + (b.oppHP ?? '–') + '</span>' : '';
     return '<button class="item" onclick="openBattle(' + jq(name) + ',' + jq(o.name) + ')">' +
-      av(o.name) + '<span class="name">' + esc(o.name) + (o.name === name ? ' <span class="muted tiny">Mirror</span>' : '') + '</span>' +
+      av(o.name) + '<span class="name' + (b ? (b.w === 'me' ? ' won' : ' lost') : '') + '">' + esc(o.name) + '</span>' +
+      (o.name === name ? '<span class="mirror">Mirror</span>' : '') +
       (b ? ultMark(b) : '') + hp + chip + '</button>';
   }).join('') + '</div>';
 
-  go('hero');
+  /* the hero page is one screen showing many heroes, so the hero's name
+     travels with the history entry — Back can then return hero to hero */
+  if (!fromPop && (prevScreen !== 'hero' || prevHero !== name))
+    history.pushState({ dt: 's', id: 'hero', hero: name }, '');
+  go('hero', true);
   $$('.tabs button').forEach(b => b.classList.remove('on'));
   $('#t-heroes').classList.add('on');
 }
@@ -2241,7 +2252,7 @@ function openToken(id, fromPop){
     '<p class="poptext">' + tokenText(t.text || '', id) + '</p>' +
     (t.heroes && t.heroes.length
       ? '<div class="usedby"><h3>Used by</h3><div class="heroes">' +
-        t.heroes.map(h => '<span class="hero">' + av(h, 'xxs') + esc(h) + '</span>').join('') +
+        t.heroes.map(h => '<button class="hero" onclick="tokHero(' + jq(h) + ')">' + av(h, 'xxs') + esc(h) + '</button>').join('') +
         '</div></div>'
       : '');
 
@@ -2254,7 +2265,7 @@ function openToken(id, fromPop){
   if (!fromPop){
     const st = history.state;
     const prev = (st && st.dt === 'o' && st.tok) ? st.d : 0;
-    history.pushState({ dt: 'o', tok: id, d: prev + 1 }, '');
+    history.pushState({ dt: 'o', tok: id, d: prev + 1, screen: screenNow, hero: current }, '');
   }
 }
 
@@ -2262,6 +2273,14 @@ function hideToken(){
   $('#tokScrim').classList.remove('on');
   $('#tokPop').classList.remove('on');
 }
+/* From a token's "Used by" list to that hero's page. Back returns to the
+   hero you came from, with this token open again. */
+function tokHero(name){
+  if (screenNow === 'hero' && current === name) return closeToken();
+  hideToken();
+  openHero(name);
+}
+
 function closeToken(){
   const st = history.state;
   if (st && st.dt === 'o' && st.tok) history.go(-(st.d || 1));
@@ -2399,14 +2418,22 @@ function initBackButton(){
     const st = e.state || {};
 
     /* stepping back through a chain of linked tokens */
-    if (st.dt === 'o' && st.tok){ hideSheet(); openToken(st.tok, true); return; }
+    if (st.dt === 'o' && st.tok){
+      hideSheet();
+      if (st.screen === 'hero' && st.hero && (screenNow !== 'hero' || current !== st.hero)) openHero(st.hero, true);
+      else if (st.screen && st.screen !== 'hero' && st.screen !== screenNow) go(st.screen, true);
+      openToken(st.tok, true);
+      return;
+    }
 
     /* an open sheet or popup just closes */
     if (anyOverlayOpen()) hideOverlays();
 
     /* a screen entry: show that screen */
     if (st.dt === 's'){
-      if (st.id !== screenNow) go(st.id, true);
+      if (st.id === 'hero' && st.hero){
+        if (screenNow !== 'hero' || current !== st.hero) openHero(st.hero, true);
+      } else if (st.id !== screenNow) go(st.id, true);
       return;
     }
     if (st.dt === 'o') return;
@@ -2681,6 +2708,7 @@ async function startRoll(){
       : pick(a);
     makeTappable('#f1', a);
     if (both){ makeTappable('#f2', b); $('#rollLog').style.display = 'block'; }
+    $('#rollHint').textContent = both ? 'Tap the heroes for details' : 'Tap the hero for details';
     $('#rollHint').style.display = 'block';
   };
 
@@ -2733,7 +2761,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '2.3';
+const APP_VERSION = '2.5';
 let swReg = null;
 
 function takeOver(sw){
