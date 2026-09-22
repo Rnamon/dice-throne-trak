@@ -293,6 +293,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--orange)}
 .poptext{font-size:14px;line-height:1.7;margin:0}
 .inlinetok{height:1.25em;width:auto;vertical-align:-.28em;margin:0 1px}
 .symmiss{font-weight:700;font-size:.85em;color:var(--muted);letter-spacing:.3px}
+/* the d6 is dark and gets lost on some backgrounds: a thin white contour
+   that follows its shape, plus a faint glow */
+.sym-d6{filter:drop-shadow(.7px 0 0 #fff) drop-shadow(-.7px 0 0 #fff)
+               drop-shadow(0 .7px 0 #fff) drop-shadow(0 -.7px 0 #fff)
+               drop-shadow(0 0 2px rgba(255,255,255,.45))}
 /* a link keeps the colour and weight of its line — orange bold in a heading,
    white in body text — and only gains an orange underline */
 .toklink{display:inline;padding:0;margin:0;background:none;border:0;cursor:pointer;
@@ -2233,7 +2238,7 @@ function tokenText(txt, selfId){
 
     /* symbol */
     if (!/\.png$/i.test(raw)){
-      out += esc(before) + '<img class="inlinetok sym" src="sym/' + esc(symFile(raw)) +
+      out += esc(before) + '<img class="inlinetok sym sym-' + esc(symFile(raw)) + '" src="sym/' + esc(symFile(raw)) +
              '.png" alt="' + esc(raw) + '" onerror="symMissing(this)">';
       continue;
     }
