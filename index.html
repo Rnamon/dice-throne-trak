@@ -311,6 +311,13 @@ input:focus,select:focus,textarea:focus{border-color:var(--orange)}
 .toklink:active .tokword{text-decoration-thickness:2.5px}
 .flavor{font-family:'Patrick Hand','Comic Sans MS',cursive;font-size:17px;line-height:1.45;
         color:var(--bone);margin:14px 0 0;padding-top:12px;border-top:1px dashed var(--line)}
+/* a sub-entry inside a token: art + name, its own label line, then text */
+.subs{margin-top:16px}
+.sub{padding-top:14px;margin-top:14px;border-top:1px solid var(--line)}
+.subhead{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.subhead img{width:38px;height:38px;object-fit:contain;flex:none}
+.subhead b{font-family:var(--cond);font-size:19px;font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+.sub-kind{text-align:left;margin:0 0 4px}
 .usedby{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
 .usedby h3{font-size:12px;color:var(--orange);margin-bottom:9px}
 .heroes{display:flex;flex-wrap:wrap;gap:7px}
@@ -2165,6 +2172,33 @@ const TOKENS = {
   }
 };
 
+/* ---------------- potions ----------------
+   The Alchemist's four potions, pulled out of the Potions token text into
+   rows: artwork, name, then the same label line the rest of the app uses.
+   Art lives in extraimg/, named after the potion. */
+const POTIONS = [
+  { id: 'punchify',     name: 'Punchify',     limit: '6',
+    text: 'May only be Attached to an Offensive Ability. When spent, add [[2dm]] dmg to your Attack. Attack Modifier.' },
+  { id: 'bolsterate',   name: 'Bolsterate',   limit: '2',
+    text: 'May only be Attached to a Defensive Ability. When spent, prevent [[2SLD]] incoming dmg.' },
+  { id: 'cleansitude',  name: 'Cleansitude',  limit: '3',
+    text: 'May be Attached to any Ability. When spent, the Alchemist chooses one: Remove 1 status effect from yourself or Heal [[1HP]].' },
+  { id: 'toxification', name: 'Toxification', limit: '1',
+    text: 'May be Attached to any Ability. When spent, inflict Poison [[poison.png]] on a chosen player.' }
+];
+
+function potionRows(){
+  return '<div class="subs">' + POTIONS.map(p =>
+    '<div class="sub">' +
+      '<div class="subhead">' +
+        '<img src="extraimg/' + p.id + '.png" alt="" onerror="this.remove()">' +
+        '<b>' + esc(p.name) + '</b>' +
+      '</div>' +
+      '<div class="kind sub-kind"><b>Potion</b> &nbsp;|&nbsp; Limit: <b>' + esc(p.limit) + '</b></div>' +
+      '<p class="poptext">' + tokenText(p.text, null) + '</p>' +
+    '</div>').join('') + '</div>';
+}
+
 /* ---------------- special cards ----------------
    Mechanics that belong to a single hero and sit above that hero's Tokens.
    Each entry is a list of cards, so a hero can have more than one. Text uses
@@ -2346,7 +2380,13 @@ function openToken(id, fromPop){
     (t.trigger ? '<p class="trigger">' + tokenText(t.trigger, id) + '</p>' : '') +
     (() => {
       const part = splitFlavor(id, t.text || '');
-      return '<p class="poptext">' + tokenText(part.main, id) + '</p>' +
+      let main = part.main, rows = '';
+      if (id === 'potions'){
+        const cut = main.indexOf('Punchify');
+        if (cut > -1) main = main.slice(0, cut).trim();
+        rows = potionRows();
+      }
+      return '<p class="poptext">' + tokenText(main, id) + '</p>' + rows +
              (part.flavor ? '<p class="flavor">' + tokenText(part.flavor, id) + '</p>' : '');
     })() +
     (t.heroes && t.heroes.length
@@ -2880,7 +2920,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '3.1';
+const APP_VERSION = '3.2';
 let swReg = null;
 
 function takeOver(sw){

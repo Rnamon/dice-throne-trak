@@ -1,6 +1,6 @@
 /* Dice Throne Matrix — service worker
    Bump VERSION on every release: it wipes the old cache and forces a refresh. */
-const VERSION = 'v36';
+const VERSION = 'v37';
 const CACHE   = 'dt-' + VERSION;
 
 /* The app shell: without these the app cannot start offline. */
@@ -252,6 +252,30 @@ const SYMBOLS = [
   'vitality',
 ];
 
+/* Extra artwork used by the special hero cards. */
+const EXTRA_ART = [
+  'bolsterate',
+  'bone-golem',
+  'card-illusion',
+  'cleansitude',
+  'diamond-helmet',
+  'diamond-ore',
+  'diamond-shield',
+  'druid-overlays',
+  'footwork-track',
+  'gold-helmet',
+  'gold-ore',
+  'gold-shield',
+  'prog-arrow',
+  'punchify',
+  'skeletal-mage',
+  'skeletal-warrior',
+  'toxification',
+  'ultimanium-helmet',
+  'ultimanium-ore',
+  'ultimanium-shield',
+];
+
 /* Optional background artwork — skipped quietly when a file is absent. */
 const BACKGROUNDS = [
   'artificer',
@@ -297,6 +321,7 @@ self.addEventListener('install', e => {
     await Promise.all(BACKGROUNDS.map(b => tryCache(cache, './bkg/' + b + '.webp')));
     await Promise.all(TOKEN_ART.map(t => tryCache(cache, './tok/' + t + '.png')));
     await Promise.all(SYMBOLS.map(x => tryCache(cache, './sym/' + x + '.png')));
+    await Promise.all(EXTRA_ART.map(x => tryCache(cache, './extraimg/' + x + '.png')));
     self.skipWaiting();
   })());
 });
