@@ -292,6 +292,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--orange)}
 .trigger{font-weight:700;color:var(--orange);font-size:14px;margin:0 0 6px}
 .poptext{font-size:14px;line-height:1.7;margin:0}
 .inlinetok{height:1.25em;width:auto;vertical-align:-.28em;margin:0 1px}
+.symmiss{font-weight:700;font-size:.85em;color:var(--muted);letter-spacing:.3px}
 /* a link keeps the colour and weight of its line — orange bold in a heading,
    white in body text — and only gains an orange underline */
 .toklink{display:inline;padding:0;margin:0;background:none;border:0;cursor:pointer;
@@ -1166,7 +1167,7 @@ const TOKENS = {
     kind: 'Positive Status Effect',
     stack: '5',
     trigger: 'A player with these tokens may spend them to activate each effect once per turn:',
-    text: '• 1 token: If your Offensive Roll Phase results in an Attack, add [[3UD]] dmg. This counts as an Attack Modifier.\n• 2 tokens: Remove a status effect from a chosen player. This effect may only be activated during your Main Phase.\n• 3 tokens: Draw [[2CARD]].\n• 4 tokens: Heal equal to the amount of damage your Attack successfully dealt. This effect may only be activated during your Roll Phase.\n\nIf your Attack successfully deals dmg to an opponent afflicted with 2 Bleed [[bleed.png]] tokens, gain Blood Power [[blood-power.png]] at the conclusion of your turn.',
+    text: '• 1 token: If your Offensive Roll Phase results in an Attack, add [[3dm]] dmg. This counts as an Attack Modifier.\n• 2 tokens: Remove a status effect from a chosen player. This effect may only be activated during your Main Phase.\n• 3 tokens: Draw [[2CARD]].\n• 4 tokens: Heal equal to the amount of damage your Attack successfully dealt. This effect may only be activated during your Roll Phase.\n\nIf your Attack successfully deals dmg to an opponent afflicted with 2 Bleed [[bleed.png]] tokens, gain Blood Power [[blood-power.png]] at the conclusion of your turn.',
     heroes: ['Vampire Lord']
   },
   bounty: {
@@ -1174,7 +1175,7 @@ const TOKENS = {
     kind: 'Negative Status Effect',
     stack: '1',
     trigger: 'Increase incoming Attack dmg by [[+1UD]] and the Attacker gains [[1CP]]:',
-    text: 'When a player afflicted with this token is Attacked by an opponent, the Attacker increases their dmg by [[1UD]] and gains [[1CP]]. Attack Modifier. Persistent.',
+    text: 'When a player afflicted with this token is Attacked by an opponent, the Attacker increases their dmg by [[1dm]] and gains [[1CP]]. Attack Modifier. Persistent.',
     heroes: ['Gunslinger']
   },
   burn: {
@@ -1206,7 +1207,7 @@ const TOKENS = {
     kind: 'Positive Status Effect',
     stack: '5',
     trigger: 'A player may spend these tokens to increase or reduce dmg:',
-    text: 'Chi tokens may be spent at any time to prevent [[1SLD]] incoming damage per token.\n\nAlternatively, you may spend Chi to increase Attack dmg by [[1UD]] per token spent. Chi may not be used to increase dmg the turn that it was gained.\n\nAttack Modifier.',
+    text: 'Chi tokens may be spent at any time to prevent [[1SLD]] incoming damage per token.\n\nAlternatively, you may spend Chi to increase Attack dmg by [[1dm]] per token spent. Chi may not be used to increase dmg the turn that it was gained.\n\nAttack Modifier.',
     heroes: ['Monk']
   },
   cleanse: {
@@ -1294,7 +1295,7 @@ const TOKENS = {
     kind: 'Positive Status Effect',
     stack: '3',
     trigger: 'Spend to add dmg for each status effect:',
-    text: 'If a player concludes their Offensive Roll Phase with an Attack, they may spend this token. If spent, add [[1UD]] dmg per Positive or Negative Status Effect on their Hero Board (excluding the Crackle [[crackle.png]] that was just spent), up to a maximum of [[3UD]]. Only two Crackle [[crackle.png]] may be spent per turn. Attack Modifier.',
+    text: 'If a player concludes their Offensive Roll Phase with an Attack, they may spend this token. If spent, add [[1dm]] dmg per Positive or Negative Status Effect on their Hero Board (excluding the Crackle [[crackle.png]] that was just spent), up to a maximum of [[3dm]]. Only two Crackle [[crackle.png]] may be spent per turn. Attack Modifier.',
     heroes: ['Scarlet Witch']
   },
   "crimson-bands": {
@@ -1310,7 +1311,7 @@ const TOKENS = {
     kind: 'Positive Status Effect',
     stack: '1',
     trigger: 'Spend to add [[4UD]] dmg to your Attack:',
-    text: 'If a player with this token is dealing at least [[5UD]] dmg as a result of their Offensive Roll Phase, this token may be spent to add [[4UD]] dmg. Attack Modifier.',
+    text: 'If a player with this token is dealing at least [[5dm]] dmg as a result of their Offensive Roll Phase, this token may be spent to add [[4dm]] dmg. Attack Modifier.',
     heroes: ['Paladin']
   },
   "cursed-doubloon": {
@@ -1326,7 +1327,7 @@ const TOKENS = {
     kind: 'Negative Status Effect',
     stack: '1',
     trigger: 'Roll Attempts and Attacks become weaker:',
-    text: 'During their next Offensive Roll Phase, a player afflicted with this token may only re-roll a maximum of 2 dice when performing any Roll Attempt after their first Roll Attempt.\n\nAdditionally, reduce any Attack dmg by [[1UD]]. Attack Modifier.\n\nAt the conclusion of the Roll Phase, remove this token.',
+    text: 'During their next Offensive Roll Phase, a player afflicted with this token may only re-roll a maximum of 2 dice when performing any Roll Attempt after their first Roll Attempt.\n\nAdditionally, reduce any Attack dmg by [[1dm]]. Attack Modifier.\n\nAt the conclusion of the Roll Phase, remove this token.',
     heroes: ['Necromancer']
   },
   "delayed-poison": {
@@ -1390,7 +1391,7 @@ const TOKENS = {
     kind: 'Companion',
     stack: '1',
     trigger: null,
-    text: '• Spend Dryad to add [[3D]] dmg. Attack Modifier.\n• If an opponent’s Attack would inflict a Negative Status Effect upon you, you may spend Dryad at the conclusion of their Offensive Roll Phase to prevent that incoming status effect.',
+    text: '• Spend Dryad to add [[3dm]] dmg. Attack Modifier.\n• If an opponent’s Attack would inflict a Negative Status Effect upon you, you may spend Dryad at the conclusion of their Offensive Roll Phase to prevent that incoming status effect.',
     heroes: ['Treant']
   },
   "deja-vu": {
@@ -1454,7 +1455,7 @@ const TOKENS = {
     kind: 'Positive Status Effect',
     stack: '5',
     trigger: 'Dark Phoenix may spend to increase Attack dmg:',
-    text: 'If Dark Phoenix is Active, she may spend Flame Blast [[flame-blast.png]] to increase her Attack dmg by [[1UD]] or spend 3 Flame Blast [[flame-blast.png]] to increase her Attack dmg by [[4UD]]. Attack Modifier.',
+    text: 'If Dark Phoenix is Active, she may spend Flame Blast [[flame-blast.png]] to increase her Attack dmg by [[1dm]] or spend 3 Flame Blast [[flame-blast.png]] to increase her Attack dmg by [[4dm]]. Attack Modifier.',
     heroes: ['Jean Grey']
   },
   flight: {
@@ -1470,7 +1471,7 @@ const TOKENS = {
     kind: 'Negative Status Effect',
     stack: '2',
     trigger: '+1 incoming Attack dmg:',
-    text: 'When a player with this token is Attacked by an opponent, the Attacker increases their damage by [[1UD]]. Attack Modifier. Persistent.',
+    text: 'When a player with this token is Attacked by an opponent, the Attacker increases their damage by [[1dm]]. Attack Modifier. Persistent.',
     heroes: ['Cyclops']
   },
   footwork: {
@@ -1510,7 +1511,7 @@ const TOKENS = {
     kind: 'Positive Status Effect',
     stack: '3',
     trigger: 'Increase Attack dmg or gain Roll Attempt:',
-    text: 'A player with this token may spend it to activate one of the following effects:\n\n• Perform an additional Roll Attempt during your Offensive Roll Phase.\n• After Attacking, roll 5 [[d6]]: add [[1UD]] × [[hhdhorseshoe]] dmg. Attack Modifier.\n\nEach effect may only be activated once per turn.',
+    text: 'A player with this token may spend it to activate one of the following effects:\n\n• Perform an additional Roll Attempt during your Offensive Roll Phase.\n• After Attacking, roll 5 [[d6]]: add [[1dm]] × [[hhdhorseshoe]] dmg. Attack Modifier.\n\nEach effect may only be activated once per turn.',
     heroes: ['Headless Horseman']
   },
   "guard-break": {
@@ -1534,7 +1535,7 @@ const TOKENS = {
     kind: 'Companion',
     stack: 'Activation limit: 2',
     trigger: null,
-    text: 'You may Activate this Bot up to two times after being Attacked with at least [[6UD]] dmg. Upon activation, roll 1 [[d6]]:\n\n• On [[adwrench]], Heal [[1HP]].\n• On [[adgear]] or [[adbolt]], Heal [[2HP]].',
+    text: 'You may Activate this Bot up to two times after being Attacked with at least [[6dm]] dmg. Upon activation, roll 1 [[d6]]:\n\n• On [[adwrench]], Heal [[1HP]].\n• On [[adgear]] or [[adbolt]], Heal [[2HP]].',
     heroes: ['Artificer']
   },
   hex: {
@@ -1558,7 +1559,7 @@ const TOKENS = {
     kind: 'Positive Status Effect',
     stack: '2',
     trigger: 'Spend to increase Attack dmg:',
-    text: 'Spend to increase your Attack dmg by [[1UD]] or spend 2 Honor [[honor.png]] to increase your Attack dmg by [[3UD]].\n\nAttack Modifier.',
+    text: 'Spend to increase your Attack dmg by [[1dm]] or spend 2 Honor [[honor.png]] to increase your Attack dmg by [[3dm]].\n\nAttack Modifier.',
     heroes: ['Samurai']
   },
   "ice-shard": {
@@ -1614,7 +1615,7 @@ const TOKENS = {
     kind: 'Positive Status Effect',
     stack: '8',
     trigger: 'Boosts damage & burst at Stack Limit:',
-    text: '• For every 2 Kinetic Energy [[kinetic-energy.png]], increase damage from your Attacks by [[1UD]]. Attack Modifier.\n• Upon reaching Kinetic Energy [[kinetic-energy.png]] Stack Limit, immediately remove all Kinetic Energy [[kinetic-energy.png]] tokens. Then gain [[2CP]], draw [[2CARD]], and deal [[5UD]] to a chosen opponent as an isolated source of undefendable dmg.',
+    text: '• For every 2 Kinetic Energy [[kinetic-energy.png]], increase damage from your Attacks by [[1dm]]. Attack Modifier.\n• Upon reaching Kinetic Energy [[kinetic-energy.png]] Stack Limit, immediately remove all Kinetic Energy [[kinetic-energy.png]] tokens. Then gain [[2CP]], draw [[2CARD]], and deal [[5UD]] to a chosen opponent as an isolated source of undefendable dmg.',
     heroes: ['Black Panther']
   },
   knockdown: {
@@ -1702,7 +1703,7 @@ const TOKENS = {
     kind: 'Positive Status Effect',
     stack: '3',
     trigger: 'Spend & roll to modify your Attack:',
-    text: 'After Attacking, a player with this token may spend it and roll 1 [[d6]]:\n\n• On 1–3, add [[1UD]] dmg.\n• On 4–5, add [[2UD]] dmg.\n• On 6, choose either to add [[2UD]] dmg, inflict Delayed Poison [[delayed-poison.png]], or make your Attack undefendable.\n\nAttack Modifier.',
+    text: 'After Attacking, a player with this token may spend it and roll 1 [[d6]]:\n\n• On 1–3, add [[1dm]] dmg.\n• On 4–5, add [[2dm]] dmg.\n• On 6, choose either to add [[2UD]] dmg, inflict Delayed Poison [[delayed-poison.png]], or make your Attack undefendable.\n\nAttack Modifier.',
     heroes: ['Ninja']
   },
   nyra: {
@@ -1710,7 +1711,7 @@ const TOKENS = {
     kind: 'Companion',
     stack: null,
     trigger: null,
-    text: '• If you are being Attacked while Nyra is Active, you may choose to pass the full amount of this damage to Nyra instead (unless the opponent is Attacking with their Ultimate Ability).\n• If Nyra receives damage, you may still use your Defensive Ability.\n• If Nyra is Active and your Offensive Roll Phase results in an Attack, increase that dmg by [[2UD]].\n• If Nyra is Active during your Offensive Roll Phase, you may deal [[1UD]] dmg to her and then re-roll 1 [[d6]]. This may only be done once per turn.',
+    text: '• If you are being Attacked while Nyra is Active, you may choose to pass the full amount of this damage to Nyra instead (unless the opponent is Attacking with their Ultimate Ability).\n• If Nyra receives damage, you may still use your Defensive Ability.\n• If Nyra is Active and your Offensive Roll Phase results in an Attack, increase that dmg by [[2dm]].\n• If Nyra is Active during your Offensive Roll Phase, you may deal [[1UD]] dmg to her and then re-roll 1 [[d6]]. This may only be done once per turn.',
     heroes: ['Huntress']
   },
   "nyras-bond": {
@@ -1753,14 +1754,6 @@ const TOKENS = {
     text: 'A player afflicted with this token cannot gain or inflict any status effects associated with any of their Offensive Abilities (all other effects of the ability still apply).\n\nWhen a player with this token concludes their Roll Phase, remove it.',
     heroes: ['Psylocke']
   },
-  parasite: {
-    name: 'Parasite',
-    kind: 'Negative Status Effect',
-    stack: '1',
-    trigger: null,
-    text: 'During their Upkeep Phase, if a player inflicted with this token has a Positive Status Effect, they receive [[1UD]] dmg. Additionally, if they spend a Positive Status Effect to successfully prevent or avoid dmg, remove Parasite [[parasite.png]] and they receive [[3UD]] as an isolated source of undefendable dmg.',
-    heroes: []
-  },
   parlay: {
     name: 'Parlay',
     kind: 'Negative Status Effect',
@@ -1785,20 +1778,12 @@ const TOKENS = {
     text: 'A player afflicted with this token is dealt [[1UD]] dmg per Poison [[poison.png]] token during the Upkeep Phase of their turn.\n\nPersistent.',
     heroes: ['Alchemist', 'Shadow Thief']
   },
-  "portal-shards": {
-    name: 'Portal Shards',
-    kind: null,
-    stack: null,
-    trigger: null,
-    text: 'You must collect all 3 on every Portal Crawl. When collected, they are placed on the Boss Portal, which then allows you to face its powerful Minion.',
-    heroes: []
-  },
   potions: {
     name: 'Potions',
     kind: 'Unique Status Effect',
     stack: 'Varies',
     trigger: 'Whenever you Attach a Potion [[posn]]:',
-    text: '• Choose any one Potion [[posn]] and place it on an open Potion Slot within an acceptable Ability.\n• You may not Attach more Potions [[posn]] (on your entire Hero Board) than the Limit noted for each Potion [[posn]] type.\n\nWhenever you activate an Ability you may spend any number of Potions [[posn]] that are Attached to that Ability. For an Offensive Ability, spend at the end of the Offensive Roll Phase. For a Defensive Ability, spend after resolving the effects of your defense.\n\nThese tokens may not be transferred by any means (but can be removed).\n\nPunchify\n\nPotion | Limit: 6\n\nMay only be Attached to an Offensive Ability. When spent, add [[2UD]] dmg to your Attack. Attack Modifier.\n\nBolsterate\n\nPotion | Limit: 2\n\nMay only be Attached to a Defensive Ability. When spent, prevent [[2SLD]] incoming dmg.\n\nCleansitude\n\nPotion | Limit: 3\n\nMay be Attached to any Ability. When spent, the Alchemist chooses one: Remove 1 status effect from yourself or Heal [[1HP]].\n\nToxification\n\nPotion | Limit: 1\n\nMay be Attached to any Ability. When spent, inflict Poison [[poison.png]] on a chosen player.',
+    text: '• Choose any one Potion [[posn]] and place it on an open Potion Slot within an acceptable Ability.\n• You may not Attach more Potions [[posn]] (on your entire Hero Board) than the Limit noted for each Potion [[posn]] type.\n\nWhenever you activate an Ability you may spend any number of Potions [[posn]] that are Attached to that Ability. For an Offensive Ability, spend at the end of the Offensive Roll Phase. For a Defensive Ability, spend after resolving the effects of your defense.\n\nThese tokens may not be transferred by any means (but can be removed).\n\nPunchify\n\nPotion | Limit: 6\n\nMay only be Attached to an Offensive Ability. When spent, add [[2dm]] dmg to your Attack. Attack Modifier.\n\nBolsterate\n\nPotion | Limit: 2\n\nMay only be Attached to a Defensive Ability. When spent, prevent [[2SLD]] incoming dmg.\n\nCleansitude\n\nPotion | Limit: 3\n\nMay be Attached to any Ability. When spent, the Alchemist chooses one: Remove 1 status effect from yourself or Heal [[1HP]].\n\nToxification\n\nPotion | Limit: 1\n\nMay be Attached to any Ability. When spent, inflict Poison [[poison.png]] on a chosen player.',
     heroes: ['Alchemist']
   },
   "powder-keg": {
@@ -1822,7 +1807,7 @@ const TOKENS = {
     kind: 'Negative Status Effect',
     stack: '2',
     trigger: 'Add [[1UD]] or [[2UD]] dmg when Attacking:',
-    text: 'When a player afflicted with this token is Attacked by an opponent, the Attacker may roll 1 [[d6]].\n\n• On 1, remove this token.\n• On 2–5, the Attacker increased their dmg by [[1UD]].\n• On 6, the Attacker increased their dmg by [[2UD]].\n\nAttack Modifier.',
+    text: 'When a player afflicted with this token is Attacked by an opponent, the Attacker may roll 1 [[d6]].\n\n• On 1, remove this token.\n• On 2–5, the Attacker increased their dmg by [[1dm]].\n• On 6, the Attacker increased their dmg by [[2dm]].\n\nAttack Modifier.',
     heroes: ['Pale Lady']
   },
   "probability-manipulation": {
@@ -1854,7 +1839,7 @@ const TOKENS = {
     kind: 'Positive Status Effect',
     stack: '3',
     trigger: 'Spend to add dmg or draw [[1CARD]]:',
-    text: 'A player with this token may:\n\n• Spend 1 and discard [[1CARD]] to add [[3UD]] dmg to their Attack. Attack Modifier.\n• Spend 3 to draw [[1CARD]].',
+    text: 'A player with this token may:\n\n• Spend 1 and discard [[1CARD]] to add [[3dm]] dmg to their Attack. Attack Modifier.\n• Spend 3 to draw [[1CARD]].',
     heroes: ['Wolverine']
   },
   "reality-warp": {
@@ -1910,7 +1895,7 @@ const TOKENS = {
     kind: 'Positive Status Effect',
     stack: '1',
     trigger: 'Rock, Paper, Scissors for fun and benefits:',
-    text: 'A player with this token may spend it when Attacking or when being Attacked. Once spent, choose an opponent to play Rock, Paper, Scissors against. If you win, gain the benefit listed below. If you tie, play again.\n\n• While being Attacked: Prevent [[2SLD]] incoming dmg.\n• While Attacking: Add [[2UD]] dmg. If your Shoot card is Active, add [[3UD]] dmg instead. If spent during your Ultimate Ability, you automatically win RPS. This counts as an Attack Modifier.\n\nCan only spend once per turn.\n\nRock. Paper. Scissors. SHOOT!!!!! I picked shoot. I win. Pew. pew.',
+    text: 'A player with this token may spend it when Attacking or when being Attacked. Once spent, choose an opponent to play Rock, Paper, Scissors against. If you win, gain the benefit listed below. If you tie, play again.\n\n• While being Attacked: Prevent [[2SLD]] incoming dmg.\n• While Attacking: Add [[2dm]] dmg. If your Shoot card is Active, add [[3dm]] dmg instead. If spent during your Ultimate Ability, you automatically win RPS. This counts as an Attack Modifier.\n\nCan only spend once per turn.\n\nRock. Paper. Scissors. SHOOT!!!!! I picked shoot. I win. Pew. pew.',
     heroes: ['Deadpool']
   },
   "sapling-spirit": {
@@ -1941,8 +1926,8 @@ const TOKENS = {
     name: 'Shame',
     kind: 'Negative Status Effect',
     stack: '2',
-    trigger: 'Reduces Attack dmg by [[1UD]]:',
-    text: 'When a player with a Shame [[shame.png]] token would deal normal or undefendable damage as a result of an Attack, remove this token and reduce that dmg by [[1UD]] per Shame [[shame.png]] token removed.\n\nAttack Modifier.',
+    trigger: 'Reduces Attack dmg by [[1dm]]:',
+    text: 'When a player with a Shame [[shame.png]] token would deal normal or undefendable damage as a result of an Attack, remove this token and reduce that dmg by [[1dm]] per Shame [[shame.png]] token removed.\n\nAttack Modifier.',
     heroes: ['Samurai']
   },
   "shape-shift": {
@@ -1958,7 +1943,7 @@ const TOKENS = {
     kind: 'Companion',
     stack: 'Activation limit: 1',
     trigger: null,
-    text: 'If your Offensive Roll Phase results in an Attack, you may Activate this Bot. Upon activation, increase that dmg by [[3UD]]. This Bot may never be activated twice in one turn.',
+    text: 'If your Offensive Roll Phase results in an Attack, you may Activate this Bot. Upon activation, increase that dmg by [[3dm]]. This Bot may never be activated twice in one turn.',
     heroes: ['Artificer']
   },
   skyward: {
@@ -2006,7 +1991,7 @@ const TOKENS = {
     kind: 'Unique Status Effect',
     stack: '2',
     trigger: 'Increases the dmg of your Attack:',
-    text: 'A player with this token increases their Attack dmg by [[1UD]]. Attack Modifier. Persistent.',
+    text: 'A player with this token increases their Attack dmg by [[1dm]]. Attack Modifier. Persistent.',
     heroes: ['Mystic Brawler']
   },
   "strength-of-the-ocean": {
@@ -2077,8 +2062,8 @@ const TOKENS = {
     name: 'Targeted',
     kind: 'Negative Status Effect',
     stack: '1',
-    trigger: 'Increase incoming Attack dmg by [[2UD]]:',
-    text: 'When a player afflicted with this token is Attacked by an opponent, the incoming Attack dmg is increased by [[2UD]].\n\nAttack Modifier. Persistent.',
+    trigger: 'Increase incoming Attack dmg by [[2dm]]:',
+    text: 'When a player afflicted with this token is Attacked by an opponent, the incoming Attack dmg is increased by [[2dm]].\n\nAttack Modifier. Persistent.',
     heroes: ['Moon Elf', 'Tactician']
   },
   "time-bomb": {
@@ -2102,7 +2087,7 @@ const TOKENS = {
     kind: null,
     stack: null,
     trigger: null,
-    text: 'Summoning Undead:\n\n• Undead are Summoned by spending Corpses [[corpse.png]] during your Main Phase.\n• Whenever an Undead is Summoned, place it on to your Hero Board.\n• You cannot Summon more Undead than the Limits noted below.\n\nActivating Undead:\n\n• Each Summoned Undead has an ability that can be activated once per turn.\n• At the conclusion of your Roll Phase, roll 1 [[d6]] for each Undead that was activated (roll all of these dice simulataneously).\n• For every [[ndbones]] rolled, remove one Undead of your choosing.\n\nSkeletal Warrior\n\nCompanion | Summon cost: 2 Corpses [[corpse.png]] | Limit: 3\n\n• Bone Spear: Add [[1UD]] dmg. Attack Modifier.\n\nSkeletal Mage\n\nCompanion | Summon cost: 3 Corpses [[corpse.png]] | Limit: 1\n\n• Withering: Inflict Decrep-ify [[decrep-ify.png]]. Attack Modifier.\n• Scything Touch: Steal 1 Health (can only be used if you activated 3 Skeletal Warriors this turn). Attack Modifier.\n\nBone Golem\n\nCompanion | Summon cost: 6 Corpses [[corpse.png]] | Limit: 1\n\n• Bone Spur: Add [[2UD]] dmg. Attack Modifier.\n• Bone Spikes: When being Attacked, remove Bone Golem to deal [[2UD]] dmg and prevent [[2SLD]] dmg (without rolling a die for activating the ability). Attack Modifier.',
+    text: 'Summoning Undead:\n\n• Undead are Summoned by spending Corpses [[corpse.png]] during your Main Phase.\n• Whenever an Undead is Summoned, place it on to your Hero Board.\n• You cannot Summon more Undead than the Limits noted below.\n\nActivating Undead:\n\n• Each Summoned Undead has an ability that can be activated once per turn.\n• At the conclusion of your Roll Phase, roll 1 [[d6]] for each Undead that was activated (roll all of these dice simulataneously).\n• For every [[ndbones]] rolled, remove one Undead of your choosing.\n\nSkeletal Warrior\n\nCompanion | Summon cost: 2 Corpses [[corpse.png]] | Limit: 3\n\n• Bone Spear: Add [[1dm]] dmg. Attack Modifier.\n\nSkeletal Mage\n\nCompanion | Summon cost: 3 Corpses [[corpse.png]] | Limit: 1\n\n• Withering: Inflict Decrep-ify [[decrep-ify.png]]. Attack Modifier.\n• Scything Touch: Steal 1 Health (can only be used if you activated 3 Skeletal Warriors this turn). Attack Modifier.\n\nBone Golem\n\nCompanion | Summon cost: 6 Corpses [[corpse.png]] | Limit: 1\n\n• Bone Spur: Add [[2dm]] dmg. Attack Modifier.\n• Bone Spikes: When being Attacked, remove Bone Golem to deal [[2UD]] dmg and prevent [[2SLD]] dmg (without rolling a die for activating the ability). Attack Modifier.',
     heroes: ['Necromancer']
   },
   unearth: {
@@ -2149,8 +2134,8 @@ const TOKENS = {
     name: 'Wither',
     kind: 'Negative Status Effect',
     stack: '2',
-    trigger: 'Reduce Attack dmg by [[1UD]] per token:',
-    text: 'When a player with a Wither [[wither.png]] token would deal normal or undefendable damage as a result of an Attack, reduce that dmg by [[1UD]] per Wither [[wither.png]] token.\n\nAttack Modifier. Persistent.',
+    trigger: 'Reduce Attack dmg by [[1dm]] per token:',
+    text: 'When a player with a Wither [[wither.png]] token would deal normal or undefendable damage as a result of an Attack, reduce that dmg by [[1dm]] per Wither [[wither.png]] token.\n\nAttack Modifier. Persistent.',
     heroes: ['Cursed Pirate']
   },
   wound: {
@@ -2223,16 +2208,41 @@ function tokensOf(heroName){
    pointing at the popup's own token stays plain. */
 const reEsc = x => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
+/* Two kinds of tag:
+     [[glide.png]]  a token — icon from tok/, linked to that token
+     [[2UD]]        a symbol — icon from sym/, lowercased, never a link
+   A symbol whose file is missing falls back to its own text, so the
+   sentence still reads. */
+const symFile = tag => tag.toLowerCase().replace(/\+/g, 'plus');
+
+function symMissing(img){
+  const span = document.createElement('span');
+  span.className = 'symmiss';
+  span.textContent = img.alt;
+  img.replaceWith(span);
+}
+
 function tokenText(txt, selfId){
-  const tag = /\[\[([A-Za-z0-9._-]+)\.png\]\]/g;
+  const tag = /\[\[([^\]\s]+?)\]\]/g;
   let out = '', cursor = 0, m;
 
   while ((m = tag.exec(txt))){
-    const slug = m[1].toLowerCase();
+    const raw = m[1];
+    let before = txt.slice(cursor, m.index);
+    cursor = m.index + m[0].length;
+
+    /* symbol */
+    if (!/\.png$/i.test(raw)){
+      out += esc(before) + '<img class="inlinetok sym" src="sym/' + esc(symFile(raw)) +
+             '.png" alt="' + esc(raw) + '" onerror="symMissing(this)">';
+      continue;
+    }
+
+    /* token */
+    const slug = raw.slice(0, -4).toLowerCase();
     const t = TOKENS[slug];
     const img = '<img class="inlinetok" src="tok/' + slug + '.png" alt="' +
                 esc(t ? t.name : slug) + '" onerror="this.remove()">';
-    let before = txt.slice(cursor, m.index);
 
     if (t && slug !== selfId){
       const n = t.name;
@@ -2241,16 +2251,12 @@ function tokenText(txt, selfId){
                      ')(\\s*)$', 'i');
       const hit = before.match(nameRe);
       const open = '<button class="toklink" onclick="openToken(' + jq(slug) + ')" aria-label="' + esc(n) + '">';
-      if (hit){
-        out += esc(before.slice(0, hit.index)) + open +
-               '<span class="tokword">' + esc(hit[1]) + '</span>' + esc(hit[2]) + img + '</button>';
-      } else {
-        out += esc(before) + open + img + '</button>';
-      }
+      out += hit
+        ? esc(before.slice(0, hit.index)) + open + '<span class="tokword">' + esc(hit[1]) + '</span>' + esc(hit[2]) + img + '</button>'
+        : esc(before) + open + img + '</button>';
     } else {
       out += esc(before) + img;
     }
-    cursor = m.index + m[0].length;
   }
   out += esc(txt.slice(cursor));
   return out.replace(/\n/g, '<br>');   /* the sheet's line breaks and bullet lists */
@@ -2812,7 +2818,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '2.6';
+const APP_VERSION = '2.7';
 let swReg = null;
 
 function takeOver(sw){

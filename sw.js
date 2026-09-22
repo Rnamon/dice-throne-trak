@@ -1,6 +1,6 @@
 /* Dice Throne Matrix — service worker
    Bump VERSION on every release: it wipes the old cache and forces a refresh. */
-const VERSION = 'v29';
+const VERSION = 'v30';
 const CACHE   = 'dt-' + VERSION;
 
 /* The app shell: without these the app cannot start offline. */
@@ -153,11 +153,9 @@ const TOKEN_ART = [
   'oppression',
   'ore',
   'paralyze',
-  'parasite',
   'parlay',
   'phoenix-burn',
   'poison',
-  'portal-shards',
   'potions',
   'powder-keg',
   'premonition',
@@ -206,6 +204,54 @@ const TOKEN_ART = [
   'wound',
 ];
 
+/* Symbols used inside token text ([[2UD]] -> sym/2ud.png). */
+const SYMBOLS = [
+  '0hp',
+  '1card',
+  '1cp',
+  '1dm',
+  '1hp',
+  '1sld',
+  '1ud',
+  '2card',
+  '2cp',
+  '2dm',
+  '2hp',
+  '2sld',
+  '2ud',
+  '3card',
+  '3dm',
+  '3sld',
+  '3ud',
+  '4dm',
+  '4sld',
+  '4ud',
+  '5dm',
+  '5hp',
+  '5ud',
+  '6dm',
+  'adbolt',
+  'adgear',
+  'adwrench',
+  'cp',
+  'd6',
+  'dpdjoke',
+  'dpdknife',
+  'gdheartdiamond',
+  'gdspadeclub',
+  'halfsld',
+  'hhdhorseshoe',
+  'ndbones',
+  'plus1ud',
+  'posn',
+  'regenerate-1',
+  'sdaxe',
+  'sdball',
+  'sdstar',
+  'time-bomb-1',
+  'vitality',
+];
+
 /* Optional background artwork — skipped quietly when a file is absent. */
 const BACKGROUNDS = [
   'artificer',
@@ -250,6 +296,7 @@ self.addEventListener('install', e => {
     await Promise.all(HEROES.map(s => cacheHero(cache, s)));  // best effort
     await Promise.all(BACKGROUNDS.map(b => tryCache(cache, './bkg/' + b + '.webp')));
     await Promise.all(TOKEN_ART.map(t => tryCache(cache, './tok/' + t + '.png')));
+    await Promise.all(SYMBOLS.map(x => tryCache(cache, './sym/' + x + '.png')));
     self.skipWaiting();
   })());
 });
