@@ -288,10 +288,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--orange)}
 .pophead{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;margin-bottom:6px}
 .pophead img{width:88px;height:88px;object-fit:contain}
 .pophead h2{font-size:22px}
-.kind{font-size:calc(12px * var(--read,1));color:var(--muted);text-align:center;margin-bottom:14px}
+.kind{font-size:14px;color:var(--muted);text-align:center;margin-bottom:14px}
 .kind b{color:var(--bone);font-weight:700}
-.trigger{font-weight:700;color:var(--orange);font-size:calc(14px * var(--read,1));margin:0 0 6px}
-.poptext{font-size:calc(14px * var(--read,1));line-height:1.7;margin:0}
+.trigger{font-weight:700;color:var(--orange);font-size:16.5px;margin:0 0 6px}
+.poptext{font-size:16.5px;line-height:1.7;margin:0}
 .inlinetok{height:1.25em;width:auto;vertical-align:-.28em;margin:0 1px}
 .symmiss{font-weight:700;font-size:.85em;color:var(--muted);letter-spacing:.3px}
 /* the d6 is dark and gets lost on some backgrounds: a thin white contour
@@ -309,7 +309,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--orange)}
 .toklink .inlinetok{filter:drop-shadow(0 0 1.5px rgba(242,107,43,.7));transition:transform .12s}
 .toklink:active .inlinetok{transform:scale(1.2)}
 .toklink:active .tokword{text-decoration-thickness:2.5px}
-.flavor{font-family:'Patrick Hand','Comic Sans MS',cursive;font-size:calc(17px * var(--read,1));line-height:1.45;
+.flavor{font-family:'Patrick Hand','Comic Sans MS',cursive;font-size:17px;line-height:1.45;
         color:var(--bone);margin:14px 0 0;padding-top:12px;border-top:1px dashed var(--line)}
 .usedby{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
 .usedby h3{font-size:12px;color:var(--orange);margin-bottom:9px}
@@ -513,19 +513,6 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
         of reopening the app. Impatient? Check now.
       </p>
       <button class="btn block" id="updBtn" onclick="checkUpdate()">Check for updates</button>
-    </div>
-
-    <div class="card">
-      <h3 style="font-size:17px;margin-bottom:6px">Text size</h3>
-      <p class="small muted" style="margin:0 0 12px">Applies to token and setup text. Everything else stays put.</p>
-      <div class="seg3" id="textSize">
-        <button onclick="setTextSize(1)">Normal</button>
-        <button onclick="setTextSize(1.18)">Large</button>
-        <button onclick="setTextSize(1.36)">Huge</button>
-      </div>
-      <p class="poptext" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">
-        A player afflicted with this token must skip their Income Phase and then remove this token.
-      </p>
     </div>
 
     <button class="btn block" style="margin-bottom:14px" onclick="go('bkg')">Backgrounds</button>
@@ -772,28 +759,6 @@ function av(name, size, eager){
     (eager ? 'eager' : 'lazy') + '" onerror="nextImg(this)"></span>';
 }
 
-/* ---------------- reading text size ----------------
-   Only the long-form text scales: token popups and Hero Setup. Buttons,
-   lists and the matrix keep their size so nothing starts wrapping. */
-const TEXT_SIZES = [1, 1.18, 1.36];
-
-function applyTextSize(){
-  document.body.style.setProperty('--read', S.textSize || 1);
-}
-
-function renderTextSize(){
-  const cur = S.textSize || 1;
-  [...$('#textSize').children].forEach((b, i) =>
-    b.classList.toggle('on', Math.abs(TEXT_SIZES[i] - cur) < 0.01));
-}
-
-async function setTextSize(v){
-  S.textSize = v;
-  await save();
-  applyTextSize();
-  renderTextSize();
-}
-
 /* ---------------- background themes ---------------- */
 const THEMES = [
   { id:'artificer', label:'Artificer' },
@@ -923,7 +888,6 @@ function go(id, back){
   if (id === 'draw')   renderDraw();
   if (id === 'home')   renderHome();
   if (id === 'bkg')     renderThemes();
-  if (id === 'set')     renderTextSize();
   if (id === 'bkg' || id === 'credits') $('#t-set').classList.add('on');
 }
 
@@ -2530,10 +2494,13 @@ function exitStay(){
   $('#exitPop').classList.remove('on');
   history.pushState({ dt: 's', id: screenNow }, '');
 }
+/* An installed app can close its own window; a browser tab cannot, and there
+   the best available exit is stepping back out of the app's history. */
 function exitLeave(){
   $('#exitScrim').classList.remove('on');
   $('#exitPop').classList.remove('on');
-  history.back();
+  try { window.close(); } catch (e) {}
+  setTimeout(() => { if (!document.hidden) history.go(-(history.length || 1)); }, 150);
 }
 
 function initBackButton(){
@@ -2886,7 +2853,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '2.9';
+const APP_VERSION = '3.0';
 let swReg = null;
 
 function takeOver(sw){
@@ -3015,7 +2982,6 @@ function refresh(){
   migrateNames();
   mergeSeed();
   applyTheme();
-  applyTextSize();
   initBackButton();
   renderSortBars();
   fillSelects();
