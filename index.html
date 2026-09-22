@@ -13,7 +13,7 @@
 <title>DICE THRONE MATRIX</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&family=Patrick+Hand&display=swap" rel="stylesheet">
 <style>
 :root{
   --ink:#16132A;
@@ -302,6 +302,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--orange)}
 .toklink .inlinetok{filter:drop-shadow(0 0 1.5px rgba(242,107,43,.7));transition:transform .12s}
 .toklink:active .inlinetok{transform:scale(1.2)}
 .toklink:active .tokword{text-decoration-thickness:2.5px}
+.flavor{font-family:'Patrick Hand','Comic Sans MS',cursive;font-size:17px;line-height:1.45;
+        color:var(--bone);margin:14px 0 0;padding-top:12px;border-top:1px dashed var(--line)}
 .usedby{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
 .usedby h3{font-size:12px;color:var(--orange);margin-bottom:9px}
 .heroes{display:flex;flex-wrap:wrap;gap:7px}
@@ -433,6 +435,7 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
       <div class="meterwrap"><div class="meter" id="dMeter"></div></div>
     </div>
     <div id="tokCard"></div>
+    <div id="setupCard"></div>
     <div id="dList"></div>
   </section>
 
@@ -1018,6 +1021,7 @@ function openHero(name, fromPop){
   $('#dMeter').style.width = (s.total ? s.done / s.total * 100 : 0) + '%';
 
   renderTokens(name);
+  renderSetup(name);
 
   $('#dList').innerHTML = '<div class="list">' + abcHeroes().map(o => {
     const b = get(name, o.name);
@@ -2159,6 +2163,49 @@ const TOKENS = {
   }
 };
 
+/* ---------------- hero setup ----------------
+   Shown on a hero's page under Tokens. [[name.png]] tags work exactly as in
+   token text: icons, underlined names, links to the token. */
+const HERO_SETUP = {
+  'Deadpool':          'Begin the game with The Shoot card set to the side of your Hero Board, active side face up.',
+  'Doctor Strange':    'Begin the game with the Flames of Faltine Spell placed on the Book of Vishanti.',
+  'Druid':             'Begin the game in Druid Form. Place your Cat / Bear Form Overlay next to your Hero Board.',
+  'Duelist':           'Start the game with the Footwork token on the Neutral Position of the Footwork Track.',
+  'Forgemaster':       'If you have more than 1 opponent, begin the game with any one Gold Armor.',
+  'Gambit':            'Begin the game with all 4 Ace Cards face up next to your Hero Board.',
+  'Headless Horseman': 'Begin the game with the Haunted Head [[haunted-head.png]] on your Hero Board.\n\nIf you are not the first player to begin the game, gain Dreadful [[dreadful.png]].',
+  'Iceman':            'Begin the game with The Freezer card set to the side of your Hero Board.',
+  'Necromancer':       'Cover your black shroud ability with your Unearth [[Unearth.png]] card. Set your Corpse Dial to 0.',
+  'Pale Lady':         'Begin the game with your Hero Board “Pale Lady” side up.',
+  'Raveness':          'Begin the game with Nevermore [[nevermore.png]] on your Hero Board set to 0.',
+  'Sun Elf':           'Begin the game with Sun Dial set to 0 with the Dusk side face up.'
+};
+
+function renderSetup(heroName){
+  const txt = HERO_SETUP[heroName];
+  $('#setupCard').innerHTML = txt
+    ? '<div class="card"><h3 style="font-size:16px;margin-bottom:8px">Hero Setup</h3>' +
+      '<p class="poptext">' + tokenText(txt, null) + '</p></div>'
+    : '';
+}
+
+/* ---------------- flavor text ----------------
+   Deadpool's asides, set in a handwritten face. If the same words also sit
+   at the end of the token's text (as they do in the spreadsheet), they are
+   lifted out of it so they never appear twice. */
+const FLAVOR = {
+  donut: 'You got a hankerin’ for a bear claw or an apple fritter? Roll a die and heal ½ of whatever you rolled. Round it up, yo! Then eat the token. Or just discard it. I don’t care. Just pretend you ate a donut. Mmmm…cardboardy. Anytime you gain a donut you could give it to your friends or teammates. But why?',
+  onomatopoeia: 'Say “On. oh. Mot. Oh. Pee. A.” (I just made you say Pee! I win!) Spend this bad boy and make a cool sound with your mouth hole. Make it good and actiony! Then increase your Attack by 100. Just kidding. We’re not trying to make an OP hero. (I just made you say Pee again! I double win!)',
+  rps: 'Rock. Paper. Scissors. SHOOT!!!!! I picked shoot. I win. Pew. pew.'
+};
+
+function splitFlavor(id, text){
+  const f = FLAVOR[id];
+  if (!f) return { main: text, flavor: '' };
+  const i = text.indexOf(f);
+  return { main: i > -1 ? (text.slice(0, i) + text.slice(i + f.length)).trim() : text, flavor: f };
+}
+
 /* tokens belonging to a hero, alphabetical */
 function tokensOf(heroName){
   return Object.keys(TOKENS)
@@ -2249,7 +2296,11 @@ function openToken(id, fromPop){
     '<h2>' + esc(t.name) + '</h2></div>' +
     (meta ? '<div class="kind">' + meta + '</div>' : '') +
     (t.trigger ? '<p class="trigger">' + tokenText(t.trigger, id) + '</p>' : '') +
-    '<p class="poptext">' + tokenText(t.text || '', id) + '</p>' +
+    (() => {
+      const part = splitFlavor(id, t.text || '');
+      return '<p class="poptext">' + tokenText(part.main, id) + '</p>' +
+             (part.flavor ? '<p class="flavor">' + tokenText(part.flavor, id) + '</p>' : '');
+    })() +
     (t.heroes && t.heroes.length
       ? '<div class="usedby"><h3>Used by</h3><div class="heroes">' +
         t.heroes.map(h => '<button class="hero" onclick="tokHero(' + jq(h) + ')">' + av(h, 'xxs') + esc(h) + '</button>').join('') +
@@ -2761,7 +2812,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '2.5';
+const APP_VERSION = '2.6';
 let swReg = null;
 
 function takeOver(sw){
