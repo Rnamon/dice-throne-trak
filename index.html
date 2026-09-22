@@ -317,7 +317,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--orange)}
 .subhead{display:flex;align-items:center;gap:10px;margin-bottom:4px}
 .subhead img{width:38px;height:38px;object-fit:contain;flex:none}
 .subhead b{font-family:var(--cond);font-size:19px;font-weight:700;text-transform:uppercase;letter-spacing:.6px}
-.sub-kind{text-align:left;margin:0 0 4px}
+.sub-kind{text-align:left;margin:0 0 4px;line-height:1.6}
+/* tall artwork beside its text rather than inside the heading */
+.sub.side{display:flex;align-items:center;gap:12px}
+.sub.side .sub-body{flex:1;min-width:0}
+.sub-art{width:86px;max-height:170px;object-fit:contain;flex:none}
 .usedby{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
 .usedby h3{font-size:12px;color:var(--orange);margin-bottom:9px}
 .heroes{display:flex;flex-wrap:wrap;gap:7px}
@@ -2199,6 +2203,31 @@ function potionRows(){
     '</div>').join('') + '</div>';
 }
 
+/* ---------------- undead ----------------
+   Same treatment as the potions, but these figures are tall, so the artwork
+   sits beside the text instead of shrinking into the heading. */
+const UNDEAD = [
+  { id: 'skeletal-warrior', name: 'Skeletal Warrior', cost: '2', limit: '3',
+    text: '• Bone Spear: Add [[1dm]] dmg. Attack Modifier.' },
+  { id: 'skeletal-mage', name: 'Skeletal Mage', cost: '3', limit: '1',
+    text: '• Withering: Inflict Decrep-ify [[decrep-ify.png]]. Attack Modifier.\n• Scything Touch: Steal 1 Health (can only be used if you activated 3 Skeletal Warriors this turn). Attack Modifier.' },
+  { id: 'bone-golem', name: 'Bone Golem', cost: '6', limit: '1',
+    text: '• Bone Spur: Add [[2dm]] dmg. Attack Modifier.\n• Bone Spikes: When being Attacked, remove Bone Golem to deal [[2UD]] dmg and prevent [[2SLD]] dmg (without rolling a die for activating the ability). Attack Modifier.' }
+];
+
+function undeadRows(){
+  return '<div class="subs">' + UNDEAD.map(u =>
+    '<div class="sub side">' +
+      '<div class="sub-body">' +
+        '<div class="subhead"><b>' + esc(u.name) + '</b></div>' +
+        '<div class="kind sub-kind"><b>Companion</b> &nbsp;|&nbsp; Summon cost: <b>' + esc(u.cost) +
+          '</b> Corpses ' + tokenText('[[corpse.png]]', null) + ' &nbsp;|&nbsp; Limit: <b>' + esc(u.limit) + '</b></div>' +
+        '<p class="poptext">' + tokenText(u.text, null) + '</p>' +
+      '</div>' +
+      '<img class="sub-art" src="extraimg/' + u.id + '.png" alt="" onerror="this.remove()">' +
+    '</div>').join('') + '</div>';
+}
+
 /* ---------------- special cards ----------------
    Mechanics that belong to a single hero and sit above that hero's Tokens.
    Each entry is a list of cards, so a hero can have more than one. Text uses
@@ -2385,6 +2414,11 @@ function openToken(id, fromPop){
         const cut = main.indexOf('Punchify');
         if (cut > -1) main = main.slice(0, cut).trim();
         rows = potionRows();
+      }
+      if (id === 'undead'){
+        const cut = main.indexOf('Skeletal Warrior');
+        if (cut > -1) main = main.slice(0, cut).trim();
+        rows = undeadRows();
       }
       return '<p class="poptext">' + tokenText(main, id) + '</p>' + rows +
              (part.flavor ? '<p class="flavor">' + tokenText(part.flavor, id) + '</p>' : '');
@@ -2920,7 +2954,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '3.2';
+const APP_VERSION = '3.3';
 let swReg = null;
 
 function takeOver(sw){
