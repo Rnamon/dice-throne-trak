@@ -441,6 +441,7 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
       </div>
       <div class="meterwrap"><div class="meter" id="dMeter"></div></div>
     </div>
+    <div id="specialCard"></div>
     <div id="tokCard"></div>
     <div id="setupCard"></div>
     <div id="dList"></div>
@@ -1036,6 +1037,7 @@ function openHero(name, fromPop){
   $('#dRec').textContent  = s.w + ' wins · ' + s.l + ' losses';
   $('#dMeter').style.width = (s.total ? s.done / s.total * 100 : 0) + '%';
 
+  renderSpecials(name);
   renderTokens(name);
   renderSetup(name);
 
@@ -2163,6 +2165,26 @@ const TOKENS = {
   }
 };
 
+/* ---------------- special cards ----------------
+   Mechanics that belong to a single hero and sit above that hero's Tokens.
+   Each entry is a list of cards, so a hero can have more than one. Text uses
+   the same [[tags]] as everywhere else. */
+const SPECIALS = {
+  'Treant': [{
+    title: 'Spirits',
+    text: 'You may spend 1 Spirit of each type once per turn to receive one of the effects. To ‘Grow a Spirit‘ means to gain a Seedling [[Seedling-spirit.png]] or upgrade an existing Spirit (from Seedling [[Seedling-spirit.png]] to Sapling [[Sapling-spirit.png]] or from Sapling to Dryad [[Dryad-spirit.png]] ).'
+  }]
+};
+
+function renderSpecials(heroName){
+  const cards = SPECIALS[heroName];
+  $('#specialCard').innerHTML = cards
+    ? cards.map(c =>
+        '<div class="card"><h3 style="font-size:16px;margin-bottom:8px">' + esc(c.title) + '</h3>' +
+        '<p class="poptext">' + tokenText(c.text, null) + '</p></div>').join('')
+    : '';
+}
+
 /* ---------------- hero setup ----------------
    Shown on a hero's page under Tokens. [[name.png]] tags work exactly as in
    token text: icons, underlined names, links to the token. */
@@ -2261,9 +2283,14 @@ function tokenText(txt, selfId){
 
     if (t && slug !== selfId){
       const n = t.name;
-      const nameRe = new RegExp('(' + reEsc(n) + '(?:es|s)?' +
-                     (n.length > 2 && /y$/i.test(n) ? '|' + reEsc(n.slice(0, -1)) + 'ies' : '') +
-                     ')(\\s*)$', 'i');
+      /* text often shortens a name to its distinctive part — "Seedling" for
+         "Seedling Spirit" — so a trailing generic word may be dropped */
+      const SHORTEN = /\s+(spirits?|tokens?|cards?|dice|die|dial)$/i;
+      const short = SHORTEN.test(n) ? n.replace(SHORTEN, '') : null;
+      const forms = [n].concat(short ? [short] : []);
+      const alt = forms.map(f => reEsc(f) + '(?:es|s)?' +
+                  (f.length > 2 && /y$/i.test(f) ? '|' + reEsc(f.slice(0, -1)) + 'ies' : '')).join('|');
+      const nameRe = new RegExp('(' + alt + ')(\\s*)$', 'i');
       const hit = before.match(nameRe);
       const open = '<button class="toklink" onclick="openToken(' + jq(slug) + ')" aria-label="' + esc(n) + '">';
       out += hit
@@ -2853,7 +2880,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '3.0';
+const APP_VERSION = '3.1';
 let swReg = null;
 
 function takeOver(sw){
