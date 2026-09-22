@@ -249,11 +249,12 @@ label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;lett
 input,select,textarea{width:100%;background:var(--ink);border:1px solid var(--line);border-radius:8px;padding:11px 12px;outline:none}
 input:focus,select:focus,textarea:focus{border-color:var(--orange)}
 .seg,.toggles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.seg button,.toggles button{
+.seg3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.seg button,.seg3 button,.toggles button{
   border:1px solid var(--line);background:var(--ink);color:var(--muted);border-radius:8px;
   padding:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;font-size:13px;
 }
-.seg button.on,.toggles button.on{background:var(--orange);border-color:var(--orange);color:#fff;font-weight:700}
+.seg button.on,.seg3 button.on,.toggles button.on{background:var(--orange);border-color:var(--orange);color:#fff;font-weight:700}
 .vs{font-family:var(--cond);font-size:20px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;text-align:center;margin-bottom:2px}
 .vsmark{color:var(--orange);font-size:14px;font-weight:600;letter-spacing:1.2px;margin:0 9px;vertical-align:1px}
 
@@ -287,10 +288,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--orange)}
 .pophead{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;margin-bottom:6px}
 .pophead img{width:88px;height:88px;object-fit:contain}
 .pophead h2{font-size:22px}
-.kind{font-size:12px;color:var(--muted);text-align:center;margin-bottom:14px}
+.kind{font-size:calc(12px * var(--read,1));color:var(--muted);text-align:center;margin-bottom:14px}
 .kind b{color:var(--bone);font-weight:700}
-.trigger{font-weight:700;color:var(--orange);font-size:14px;margin:0 0 6px}
-.poptext{font-size:14px;line-height:1.7;margin:0}
+.trigger{font-weight:700;color:var(--orange);font-size:calc(14px * var(--read,1));margin:0 0 6px}
+.poptext{font-size:calc(14px * var(--read,1));line-height:1.7;margin:0}
 .inlinetok{height:1.25em;width:auto;vertical-align:-.28em;margin:0 1px}
 .symmiss{font-weight:700;font-size:.85em;color:var(--muted);letter-spacing:.3px}
 /* the d6 is dark and gets lost on some backgrounds: a thin white contour
@@ -308,7 +309,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--orange)}
 .toklink .inlinetok{filter:drop-shadow(0 0 1.5px rgba(242,107,43,.7));transition:transform .12s}
 .toklink:active .inlinetok{transform:scale(1.2)}
 .toklink:active .tokword{text-decoration-thickness:2.5px}
-.flavor{font-family:'Patrick Hand','Comic Sans MS',cursive;font-size:17px;line-height:1.45;
+.flavor{font-family:'Patrick Hand','Comic Sans MS',cursive;font-size:calc(17px * var(--read,1));line-height:1.45;
         color:var(--bone);margin:14px 0 0;padding-top:12px;border-top:1px dashed var(--line)}
 .usedby{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
 .usedby h3{font-size:12px;color:var(--orange);margin-bottom:9px}
@@ -514,6 +515,19 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
       <button class="btn block" id="updBtn" onclick="checkUpdate()">Check for updates</button>
     </div>
 
+    <div class="card">
+      <h3 style="font-size:17px;margin-bottom:6px">Text size</h3>
+      <p class="small muted" style="margin:0 0 12px">Applies to token and setup text. Everything else stays put.</p>
+      <div class="seg3" id="textSize">
+        <button onclick="setTextSize(1)">Normal</button>
+        <button onclick="setTextSize(1.18)">Large</button>
+        <button onclick="setTextSize(1.36)">Huge</button>
+      </div>
+      <p class="poptext" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">
+        A player afflicted with this token must skip their Income Phase and then remove this token.
+      </p>
+    </div>
+
     <button class="btn block" style="margin-bottom:14px" onclick="go('bkg')">Backgrounds</button>
 
     <button class="btn block" style="margin-bottom:14px" onclick="go('credits')">Credits</button>
@@ -583,6 +597,15 @@ td.num,th.num{text-align:center;font-variant-numeric:tabular-nums}
 
 <div class="scrim" id="scrim" onclick="closeSheet()"></div>
 <div class="scrim" id="tokScrim" onclick="closeToken()"></div>
+<div class="scrim" id="exitScrim" onclick="exitStay()"></div>
+<div class="pop" id="exitPop" style="width:min(300px,86vw);text-align:center">
+  <h2 style="font-size:20px;margin-bottom:8px">Close the app?</h2>
+  <p class="small muted" style="margin:0 0 18px">Everything you logged is already saved.</p>
+  <div class="btnrow">
+    <button class="btn" onclick="exitStay()">Stay</button>
+    <button class="btn" onclick="exitLeave()">Close</button>
+  </div>
+</div>
 <div class="pop" id="tokPop"></div>
 
 <div class="sheet" id="sheet">
@@ -749,6 +772,28 @@ function av(name, size, eager){
     (eager ? 'eager' : 'lazy') + '" onerror="nextImg(this)"></span>';
 }
 
+/* ---------------- reading text size ----------------
+   Only the long-form text scales: token popups and Hero Setup. Buttons,
+   lists and the matrix keep their size so nothing starts wrapping. */
+const TEXT_SIZES = [1, 1.18, 1.36];
+
+function applyTextSize(){
+  document.body.style.setProperty('--read', S.textSize || 1);
+}
+
+function renderTextSize(){
+  const cur = S.textSize || 1;
+  [...$('#textSize').children].forEach((b, i) =>
+    b.classList.toggle('on', Math.abs(TEXT_SIZES[i] - cur) < 0.01));
+}
+
+async function setTextSize(v){
+  S.textSize = v;
+  await save();
+  applyTextSize();
+  renderTextSize();
+}
+
 /* ---------------- background themes ---------------- */
 const THEMES = [
   { id:'artificer', label:'Artificer' },
@@ -878,6 +923,7 @@ function go(id, back){
   if (id === 'draw')   renderDraw();
   if (id === 'home')   renderHome();
   if (id === 'bkg')     renderThemes();
+  if (id === 'set')     renderTextSize();
   if (id === 'bkg' || id === 'credits') $('#t-set').classList.add('on');
 }
 
@@ -2472,6 +2518,24 @@ function armGuard(){
   window.addEventListener('pointerdown', arm, true);
 }
 
+/* Leaving is confirmed in the app's own dialog rather than the browser's.
+   Staying re-adds the history entry right there in the tap, which is what
+   Chrome needs for the next Back press to be caught again. */
+function askExit(){
+  $('#exitScrim').classList.add('on');
+  $('#exitPop').classList.add('on');
+}
+function exitStay(){
+  $('#exitScrim').classList.remove('on');
+  $('#exitPop').classList.remove('on');
+  history.pushState({ dt: 's', id: screenNow }, '');
+}
+function exitLeave(){
+  $('#exitScrim').classList.remove('on');
+  $('#exitPop').classList.remove('on');
+  history.back();
+}
+
 function initBackButton(){
   history.replaceState({ dt: 'guard' }, '');
   armGuard();
@@ -2502,8 +2566,7 @@ function initBackButton(){
 
     /* the guard: we backed out of Home */
     if (screenNow !== 'home') go('home', true);
-    if (confirm('Leave Dice Throne Matrix?')) history.back();
-    else armGuard();
+    askExit();
   });
 }
 
@@ -2823,7 +2886,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '2.7';
+const APP_VERSION = '2.9';
 let swReg = null;
 
 function takeOver(sw){
@@ -2952,6 +3015,7 @@ function refresh(){
   migrateNames();
   mergeSeed();
   applyTheme();
+  applyTextSize();
   initBackButton();
   renderSortBars();
   fillSelects();
