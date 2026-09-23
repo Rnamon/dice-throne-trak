@@ -210,11 +210,11 @@ main{padding:16px 16px 24px;max-width:760px;margin:0 auto}
 .av.s{width:34px;height:34px;font-size:13px}
 .av.m{width:42px;height:42px;font-size:15px}
 .av.l{width:64px;height:64px;font-size:22px}
-.av.p{width:58px;height:58px;font-size:18px}
+.av.p{width:64px;height:64px;font-size:19px}
 .av.xl{width:118px;height:118px;font-size:40px}
 
 /* draw */
-.pickgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:16px 10px;justify-items:center;padding:14px 10px}
+.pickgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px 8px;justify-items:center;padding:14px 10px}
 .pick{border:0;background:none;padding:0;line-height:0;border-radius:50%}
 .pick .av{transition:filter .15s,opacity .15s,box-shadow .15s}
 .pick.off .av{filter:grayscale(1) brightness(.34);opacity:.5}
@@ -2212,8 +2212,8 @@ function potionRows(){
    beside the closing one. Width is set per image so tall and square art
    both sit well. */
 const TOKEN_ART_SIDE = {
-  footwork:      { img: 'footwork-track', mode: 'all',  w: 62 },
-  'shape-shift': { img: 'druid-overlays', mode: 'tail', count: 1, w: 104 },
+  footwork:      { img: 'footwork-track', mode: 'at',   index: 1, w: 74 },
+  'shape-shift': { img: 'druid-overlays', mode: 'at',   index: 1, w: 104 },
   illusion:      { img: 'card-illusion',  mode: 'head', count: 2, w: 82, tight: true }
 };
 
@@ -2227,7 +2227,10 @@ function artLayout(id, main, flavor){
   const beside = inner => '<div class="withart"><div class="withart-body">' + inner + '</div>' + img + '</div>';
 
   let body;
-  if (cfg.mode === 'head'){
+  if (cfg.mode === 'at'){
+    const i = Math.min(cfg.index, paras.length - 1);
+    body = P(paras.slice(0, i)) + beside(P([paras[i]], cfg.tight)) + P(paras.slice(i + 1));
+  } else if (cfg.mode === 'head'){
     body = beside(P(paras.slice(0, cfg.count), cfg.tight)) + P(paras.slice(cfg.count));
   } else if (cfg.mode === 'tail'){
     body = P(paras.slice(0, paras.length - cfg.count)) + beside(P(paras.slice(-cfg.count), cfg.tight));
@@ -3005,7 +3008,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '3.6';
+const APP_VERSION = '3.7';
 let swReg = null;
 
 function takeOver(sw){
