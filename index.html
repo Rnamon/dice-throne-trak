@@ -214,7 +214,7 @@ main{padding:16px 16px 24px;max-width:760px;margin:0 auto}
 .av.xl{width:118px;height:118px;font-size:40px}
 
 /* draw */
-.pickgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:11px;justify-items:center;padding:12px 10px}
+.pickgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:16px 10px;justify-items:center;padding:14px 10px}
 .pick{border:0;background:none;padding:0;line-height:0;border-radius:50%}
 .pick .av{transition:filter .15s,opacity .15s,box-shadow .15s}
 .pick.off .av{filter:grayscale(1) brightness(.34);opacity:.5}
@@ -320,6 +320,9 @@ input:focus,select:focus,textarea:focus{border-color:var(--orange)}
 .sub-kind{text-align:left;margin:0 0 4px;line-height:1.6}
 /* artwork sits top-right, only as tall as the name and label lines, with
    the bullets wrapping underneath it */
+.withart{display:flex;gap:14px;align-items:flex-start}
+.withart-body{flex:1;min-width:0}
+.art-tall{width:62px;height:auto;object-fit:contain;flex:none;border-radius:6px}
 .sub::after{content:'';display:block;clear:both}
 .sub-art{float:right;height:74px;width:auto;object-fit:contain;margin:0 0 6px 12px}
 .usedby{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
@@ -2203,6 +2206,10 @@ function potionRows(){
     '</div>').join('') + '</div>';
 }
 
+/* Tokens whose meaning is easier to see as a picture: the art runs down the
+   side of the text instead of sitting inside it. */
+const TOKEN_ART_SIDE = { footwork: 'footwork-track' };
+
 /* ---------------- undead ----------------
    Same treatment as the potions, but these figures are tall, so the artwork
    sits beside the text instead of shrinking into the heading. */
@@ -2324,7 +2331,14 @@ const reEsc = x => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
    sentence still reads. */
 const symFile = tag => tag.toLowerCase().replace(/\+/g, 'plus');
 
+/* Symbols normally live in sym/. If one isn't there, extraimg/ is tried
+   before giving up and showing the tag as text. */
 function symMissing(img){
+  if (!img.dataset.alt){
+    img.dataset.alt = '1';
+    img.src = 'extraimg/' + symFile(img.alt) + '.png';
+    return;
+  }
   const span = document.createElement('span');
   span.className = 'symmiss';
   span.textContent = img.alt;
@@ -2423,6 +2437,12 @@ function openToken(id, fromPop){
         const cut = main.indexOf('Punchify');
         if (cut > -1) main = main.slice(0, cut).trim();
         rows = potionRows();
+      }
+      if (TOKEN_ART_SIDE[id]){
+        return '<div class="withart"><div class="withart-body"><p class="poptext">' +
+               tokenText(main, id) + '</p></div>' +
+               '<img class="art-tall" src="extraimg/' + TOKEN_ART_SIDE[id] + '.png" alt="" onerror="this.remove()"></div>' +
+               (part.flavor ? '<p class="flavor">' + tokenText(part.flavor, id) + '</p>' : '');
       }
       if (id === 'undead'){
         const cut = main.indexOf('Skeletal Warrior');
@@ -2963,7 +2983,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '3.4';
+const APP_VERSION = '3.5';
 let swReg = null;
 
 function takeOver(sw){
