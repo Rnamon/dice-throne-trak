@@ -321,6 +321,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--orange)}
 /* artwork sits top-right, only as tall as the name and label lines, with
    the bullets wrapping underneath it */
 .withart{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px}
+.withart.middle{align-items:center}
 .withart-body{flex:1;min-width:0}
 .withart-body .poptext{margin:0}
 .art-tall{height:auto;object-fit:contain;flex:none;border-radius:6px}
@@ -1967,7 +1968,7 @@ const TOKENS = {
     kind: 'Unique Status Effect',
     stack: '2',
     trigger: 'Transform into one of your three forms:',
-    text: 'This token may be spent at any time to perform one of the following effects:\n\n• Transform into Bear Form\n• Transform into Cat Form\n• Return to Druid Form\n\nThis token may not be removed or transferred by any other means.\n\nThe Bear and Cat Forms are on one double-sided overlay. This overlay covers the center of your Hero Board to represent your Active form. It adds different bonuses for each Active form.',
+    text: 'This token may be spent at any time to perform one of the following effects:\n\n• Transform to Bear Form\n• Transform to Cat Form\n• Return to Druid Form\n\nThis token may not be removed or transferred by any other means.\n\nThe Bear and Cat Forms are on one double-sided overlay. This overlay covers the center of your Hero Board to represent your Active form. It adds different bonuses for each Active form.',
     heroes: ['Druid']
   },
   "shock-bot": {
@@ -2212,7 +2213,7 @@ function potionRows(){
    beside the closing one. Width is set per image so tall and square art
    both sit well. */
 const TOKEN_ART_SIDE = {
-  footwork:      { img: 'footwork-track', mode: 'at',   index: 1, w: 74 },
+  footwork:      { img: 'footwork-track', mode: 'at',   index: 1, w: 74, center: true },
   'shape-shift': { img: 'druid-overlays', mode: 'at',   index: 1, w: 104 },
   illusion:      { img: 'card-illusion',  mode: 'head', count: 2, w: 82, tight: true }
 };
@@ -2224,7 +2225,8 @@ function artLayout(id, main, flavor){
               cfg.img + '.png" alt="" onerror="this.remove()">';
   const P = (arr, tight) => arr.length
     ? '<p class="poptext">' + tokenText(arr.join(tight ? '\n' : '\n\n'), id) + '</p>' : '';
-  const beside = inner => '<div class="withart"><div class="withart-body">' + inner + '</div>' + img + '</div>';
+  const beside = inner => '<div class="withart' + (cfg.center ? ' middle' : '') + '">' +
+    '<div class="withart-body">' + inner + '</div>' + img + '</div>';
 
   let body;
   if (cfg.mode === 'at'){
@@ -2746,7 +2748,9 @@ function drawOrder(){
 }
 function drawGroup(h){
   if (S.drawSort === 'diff') return diffOf(h) ? 'Difficulty ' + diffOf(h) : 'Unrated';
-  if (S.drawSort === 'abc')  return null;
+  /* A-Z used to be one unbroken wall of 45 faces; letter headings give it the
+     same rhythm the other two sorts get from their groups */
+  if (S.drawSort === 'abc')  return h.name.charAt(0).toUpperCase();
   return h.set;
 }
 
@@ -2763,7 +2767,7 @@ function poolHTML(which, title){
       if (open) html += '</div>';
       cur = g;
       if (g) html += '<div class="setlabel" style="border:0;background:none">' +
-        (S.drawSort === 'diff' ? diffHTML(diffOf(h), 19) : esc(h.set)) + '</div>';
+        (S.drawSort === 'diff' ? diffHTML(diffOf(h), 19) : esc(g)) + '</div>';
       html += '<div class="pickgrid">'; open = true;
     }
     html += '<button class="pick ' + (picked(which, h.name) ? 'on' : 'off') + '" aria-label="' + esc(h.name) +
@@ -3008,7 +3012,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '3.7';
+const APP_VERSION = '3.8';
 let swReg = null;
 
 function takeOver(sw){
