@@ -2758,10 +2758,13 @@ function poolHTML(which, title){
     '<span class="tiny muted">' + pickList(which).length + '/' + S.heroes.length + '</span>' +
     '<button class="btn sm" onclick="pickAll(\'' + which + '\',true)">All</button>' +
     '<button class="btn sm" onclick="pickAll(\'' + which + '\',false)">None</button></div>';
-  let cur = null, open = false;
+  /* cur starts undefined, not null: in A-Z every hero's group *is* null, so a
+     null start meant "same group as before" and the grid was never opened —
+     the icons spilled out ungridded. */
+  let cur, open = false;
   drawOrder().forEach(h => {
     const g = drawGroup(h);
-    if (g !== cur){
+    if (!open || g !== cur){
       if (open) html += '</div>';
       cur = g;
       if (g) html += '<div class="setlabel" style="border:0;background:none">' +
@@ -3010,7 +3013,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '3.9';
+const APP_VERSION = '4.0';
 let swReg = null;
 
 function takeOver(sw){
