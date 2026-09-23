@@ -320,9 +320,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--orange)}
 .sub-kind{text-align:left;margin:0 0 4px;line-height:1.6}
 /* artwork sits top-right, only as tall as the name and label lines, with
    the bullets wrapping underneath it */
-.withart{display:flex;gap:14px;align-items:flex-start}
+.withart{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px}
 .withart-body{flex:1;min-width:0}
-.art-tall{width:62px;height:auto;object-fit:contain;flex:none;border-radius:6px}
+.withart-body .poptext{margin:0}
+.art-tall{height:auto;object-fit:contain;flex:none;border-radius:6px}
 .sub::after{content:'';display:block;clear:both}
 .sub-art{float:right;height:74px;width:auto;object-fit:contain;margin:0 0 6px 12px}
 .usedby{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
@@ -2206,9 +2207,35 @@ function potionRows(){
     '</div>').join('') + '</div>';
 }
 
-/* Tokens whose meaning is easier to see as a picture: the art runs down the
-   side of the text instead of sitting inside it. */
-const TOKEN_ART_SIDE = { footwork: 'footwork-track' };
+/* Tokens whose meaning is easier to see as a picture. The art runs down the
+   side of the text — beside all of it, beside the opening paragraphs, or
+   beside the closing one. Width is set per image so tall and square art
+   both sit well. */
+const TOKEN_ART_SIDE = {
+  footwork:      { img: 'footwork-track', mode: 'all',  w: 62 },
+  'shape-shift': { img: 'druid-overlays', mode: 'tail', count: 1, w: 104 },
+  illusion:      { img: 'card-illusion',  mode: 'head', count: 2, w: 82, tight: true }
+};
+
+function artLayout(id, main, flavor){
+  const cfg = TOKEN_ART_SIDE[id];
+  const paras = main.split('\n\n');
+  const img = '<img class="art-tall" style="width:' + cfg.w + 'px" src="extraimg/' +
+              cfg.img + '.png" alt="" onerror="this.remove()">';
+  const P = (arr, tight) => arr.length
+    ? '<p class="poptext">' + tokenText(arr.join(tight ? '\n' : '\n\n'), id) + '</p>' : '';
+  const beside = inner => '<div class="withart"><div class="withart-body">' + inner + '</div>' + img + '</div>';
+
+  let body;
+  if (cfg.mode === 'head'){
+    body = beside(P(paras.slice(0, cfg.count), cfg.tight)) + P(paras.slice(cfg.count));
+  } else if (cfg.mode === 'tail'){
+    body = P(paras.slice(0, paras.length - cfg.count)) + beside(P(paras.slice(-cfg.count), cfg.tight));
+  } else {
+    body = beside(P(paras, cfg.tight));
+  }
+  return body + (flavor ? '<p class="flavor">' + tokenText(flavor, id) + '</p>' : '');
+}
 
 /* ---------------- undead ----------------
    Same treatment as the potions, but these figures are tall, so the artwork
@@ -2242,7 +2269,7 @@ function undeadRows(){
 const SPECIALS = {
   'Treant': [{
     title: 'Spirits',
-    text: 'You may spend 1 Spirit of each type once per turn to receive one of the effects. To ‘Grow a Spirit‘ means to gain a Seedling [[Seedling-spirit.png]] or upgrade an existing Spirit (from Seedling [[Seedling-spirit.png]] to Sapling [[Sapling-spirit.png]] or from Sapling  to [[Sapling-spirit.png]] Dryad [[Dryad-spirit.png]] ).'
+    text: 'You may spend 1 Spirit of each type once per turn to receive one of the effects.\nTo ‘Grow a Spirit‘ means to gain a Seedling [[Seedling-spirit.png]] or upgrade an existing Spirit\n(from Seedling [[Seedling-spirit.png]] to Sapling [[Sapling-spirit.png]] or from Sapling  to [[Sapling-spirit.png]] Dryad [[Dryad-spirit.png]] ).'
   }]
 };
 
@@ -2438,12 +2465,7 @@ function openToken(id, fromPop){
         if (cut > -1) main = main.slice(0, cut).trim();
         rows = potionRows();
       }
-      if (TOKEN_ART_SIDE[id]){
-        return '<div class="withart"><div class="withart-body"><p class="poptext">' +
-               tokenText(main, id) + '</p></div>' +
-               '<img class="art-tall" src="extraimg/' + TOKEN_ART_SIDE[id] + '.png" alt="" onerror="this.remove()"></div>' +
-               (part.flavor ? '<p class="flavor">' + tokenText(part.flavor, id) + '</p>' : '');
-      }
+      if (TOKEN_ART_SIDE[id]) return artLayout(id, main, part.flavor);
       if (id === 'undead'){
         const cut = main.indexOf('Skeletal Warrior');
         if (cut > -1) main = main.slice(0, cut).trim();
@@ -2983,7 +3005,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '3.5';
+const APP_VERSION = '3.6';
 let swReg = null;
 
 function takeOver(sw){
