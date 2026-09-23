@@ -2748,9 +2748,7 @@ function drawOrder(){
 }
 function drawGroup(h){
   if (S.drawSort === 'diff') return diffOf(h) ? 'Difficulty ' + diffOf(h) : 'Unrated';
-  /* A-Z used to be one unbroken wall of 45 faces; letter headings give it the
-     same rhythm the other two sorts get from their groups */
-  if (S.drawSort === 'abc')  return h.name.charAt(0).toUpperCase();
+  if (S.drawSort === 'abc')  return null;
   return h.set;
 }
 
@@ -3012,7 +3010,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '3.8';
+const APP_VERSION = '3.9';
 let swReg = null;
 
 function takeOver(sw){
