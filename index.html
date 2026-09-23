@@ -318,10 +318,10 @@ input:focus,select:focus,textarea:focus{border-color:var(--orange)}
 .subhead img{width:38px;height:38px;object-fit:contain;flex:none}
 .subhead b{font-family:var(--cond);font-size:19px;font-weight:700;text-transform:uppercase;letter-spacing:.6px}
 .sub-kind{text-align:left;margin:0 0 4px;line-height:1.6}
-/* tall artwork beside its text rather than inside the heading */
-.sub.side{display:flex;align-items:center;gap:12px}
-.sub.side .sub-body{flex:1;min-width:0}
-.sub-art{width:86px;max-height:170px;object-fit:contain;flex:none}
+/* artwork sits top-right, only as tall as the name and label lines, with
+   the bullets wrapping underneath it */
+.sub::after{content:'';display:block;clear:both}
+.sub-art{float:right;height:74px;width:auto;object-fit:contain;margin:0 0 6px 12px}
 .usedby{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
 .usedby h3{font-size:12px;color:var(--orange);margin-bottom:9px}
 .heroes{display:flex;flex-wrap:wrap;gap:7px}
@@ -2217,14 +2217,14 @@ const UNDEAD = [
 
 function undeadRows(){
   return '<div class="subs">' + UNDEAD.map(u =>
-    '<div class="sub side">' +
+    '<div class="sub">' +
+      '<img class="sub-art" src="extraimg/' + u.id + '.png" alt="" onerror="this.remove()">' +
       '<div class="sub-body">' +
         '<div class="subhead"><b>' + esc(u.name) + '</b></div>' +
         '<div class="kind sub-kind"><b>Companion</b> &nbsp;|&nbsp; Summon cost: <b>' + esc(u.cost) +
           '</b> Corpses ' + tokenText('[[corpse.png]]', null) + ' &nbsp;|&nbsp; Limit: <b>' + esc(u.limit) + '</b></div>' +
         '<p class="poptext">' + tokenText(u.text, null) + '</p>' +
       '</div>' +
-      '<img class="sub-art" src="extraimg/' + u.id + '.png" alt="" onerror="this.remove()">' +
     '</div>').join('') + '</div>';
 }
 
@@ -2235,7 +2235,7 @@ function undeadRows(){
 const SPECIALS = {
   'Treant': [{
     title: 'Spirits',
-    text: 'You may spend 1 Spirit of each type once per turn to receive one of the effects. To ‘Grow a Spirit‘ means to gain a Seedling [[Seedling-spirit.png]] or upgrade an existing Spirit (from Seedling [[Seedling-spirit.png]] to Sapling [[Sapling-spirit.png]] or from Sapling to Dryad [[Dryad-spirit.png]] ).'
+    text: 'You may spend 1 Spirit of each type once per turn to receive one of the effects. To ‘Grow a Spirit‘ means to gain a Seedling [[Seedling-spirit.png]] or upgrade an existing Spirit (from Seedling [[Seedling-spirit.png]] to Sapling [[Sapling-spirit.png]] or from Sapling  to [[Sapling-spirit.png]] Dryad [[Dryad-spirit.png]] ).'
   }]
 };
 
@@ -2291,11 +2291,20 @@ function splitFlavor(id, text){
   return { main: i > -1 ? (text.slice(0, i) + text.slice(i + f.length)).trim() : text, flavor: f };
 }
 
-/* tokens belonging to a hero, alphabetical */
+/* Tokens are listed alphabetically, unless a hero reads better in its own
+   order — the Treant's spirits go by how they grow. */
+const TOKEN_ORDER = {
+  'Treant': ['seedling-spirit', 'sapling-spirit', 'dryad-spirit', 'barbed-vine', 'wellspring']
+};
+
 function tokensOf(heroName){
-  return Object.keys(TOKENS)
-    .filter(k => (TOKENS[k].heroes || []).includes(heroName))
-    .sort((a, b) => TOKENS[a].name.localeCompare(TOKENS[b].name, 'en'));
+  const mine = Object.keys(TOKENS).filter(k => (TOKENS[k].heroes || []).includes(heroName));
+  const order = TOKEN_ORDER[heroName];
+  if (order){
+    const rank = k => { const i = order.indexOf(k); return i < 0 ? order.length : i; };
+    return mine.sort((a, b) => rank(a) - rank(b) || TOKENS[a].name.localeCompare(TOKENS[b].name, 'en'));
+  }
+  return mine.sort((a, b) => TOKENS[a].name.localeCompare(TOKENS[b].name, 'en'));
 }
 
 /* [[slug]] -> small inline icon */
@@ -2954,7 +2963,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '3.3';
+const APP_VERSION = '3.4';
 let swReg = null;
 
 function takeOver(sw){
