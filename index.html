@@ -2422,7 +2422,9 @@ function splitFlavor(id, text){
 /* Tokens are listed alphabetically, unless a hero reads better in its own
    order — the Treant's spirits go by how they grow. */
 const TOKEN_ORDER = {
-  'Treant': ['seedling-spirit', 'sapling-spirit', 'dryad-spirit', 'barbed-vine', 'wellspring']
+  'Treant':         ['seedling-spirit', 'sapling-spirit', 'dryad-spirit', 'barbed-vine', 'wellspring'],
+  'Artificer':      ['heal-bot', 'nanobot', 'shock-bot', 'nanite', 'synth'],
+  'Mystic Brawler': ['strength-of-the-mountain', 'strength-of-the-ocean', 'strength-of-the-sky', 'concussion']
 };
 
 function tokensOf(heroName){
@@ -3103,7 +3105,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '4.1';
+const APP_VERSION = '4.2';
 let swReg = null;
 
 function takeOver(sw){

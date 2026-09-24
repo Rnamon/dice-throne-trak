@@ -1,6 +1,6 @@
 /* Dice Throne Matrix — service worker
    Bump VERSION on every release: it wipes the old cache and forces a refresh. */
-const VERSION = 'v46';
+const VERSION = 'v47';
 const CACHE   = 'dt-' + VERSION;
 
 /* The app shell: without these the app cannot start offline. */
