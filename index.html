@@ -224,6 +224,9 @@ main{padding:16px 16px 24px;max-width:760px;margin:0 auto}
 .reelwrap{position:relative;width:118px;height:118px;flex:none}
 .reelwrap.tappable{cursor:pointer;border-radius:50%;box-shadow:0 0 0 2px var(--orange)}
 .reelwrap.tappable:active{transform:scale(.96)}
+.hlogo{display:block;height:auto;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.55))}
+.hlogo.big{max-width:100%;max-height:64px;width:210px;object-position:left center}
+.hlogo.roll{margin:0 auto 2px;max-width:85%;max-height:78px;width:280px}
 .rollhero{display:block;width:100%;padding:2px 0;font:inherit;color:inherit;text-transform:inherit;letter-spacing:inherit}
 .frame{position:absolute;inset:0;opacity:0}
 .frame.on{opacity:1}
@@ -800,6 +803,22 @@ function av(name, size, eager){
     (eager ? 'eager' : 'lazy') + '" onerror="nextImg(this)"></span>';
 }
 
+/* ---------------- hero logos ----------------
+   Logos live in logos/<slug>.png (transparent). A few files carry a
+   different name; they're mapped here. A hero with no logo (or one that
+   fails to load) falls back to its name as text. */
+const LOGO_FILE = { gambit: 'gambit_transparent', huntress: 'huntres' };
+function logoHTML(name, cls){
+  const s = slug(name);
+  return '<img class="hlogo ' + (cls || '') + '" src="logos/' + (LOGO_FILE[s] || s) + '.png" alt="' +
+    esc(name) + '" onerror="logoFail(this)">';
+}
+function logoFail(img){
+  const t = document.createElement('span');
+  t.textContent = img.alt;
+  img.replaceWith(t);
+}
+
 /* ---------------- background themes ---------------- */
 const THEMES = [
   { id:'artificer', label:'Artificer' },
@@ -1070,7 +1089,7 @@ function openHero(name, fromPop){
   current = name;
   const s = heroStats(name), h = hero(name);
   $('#dAv').innerHTML = av(name, 'l');
-  $('#dName').textContent = name;
+  $('#dName').innerHTML = logoHTML(name, 'big');
   $('#dSet').innerHTML = h ? (esc(h.set) + (diffOf(h) ? ' · ' + diffHTML(diffOf(h), 19) : '')) : '';
   $('#dDone').textContent = s.done;
   $('#dTotal').textContent = s.total;
@@ -3039,7 +3058,7 @@ async function startRoll(){
   const label = n => {
     const h = hero(n) || {};
     const bits = [esc(h.set || ''), diffOf(h) ? diffHTML(diffOf(h), 20) : ''].filter(Boolean);
-    return n + (bits.length ? '<div class="muted small" style="font-family:var(--sans);font-weight:400;text-transform:none;letter-spacing:0;margin-top:2px">' + bits.join(' · ') + '</div>' : '');
+    return logoHTML(n, 'roll') + (bits.length ? '<div class="muted small" style="font-family:var(--sans);font-weight:400;text-transform:none;letter-spacing:0;margin-top:2px">' + bits.join(' · ') + '</div>' : '');
   };
   const finish = () => {
     rolling = false;
