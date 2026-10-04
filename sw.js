@@ -1,6 +1,6 @@
 /* Dice Throne Matrix — service worker
    Bump VERSION on every release: it wipes the old cache and forces a refresh. */
-const VERSION = 'v47';
+const VERSION = 'v48';
 const CACHE   = 'dt-' + VERSION;
 
 /* The app shell: without these the app cannot start offline. */
@@ -297,6 +297,9 @@ const BACKGROUNDS = [
   'vampire-lord',
 ];
 
+/* Hero logos: logos/<slug>.png, except these differently named files. */
+const LOGO_FILE = { gambit: 'gambit_transparent', huntress: 'huntres' };
+
 /* Cache one URL, ignoring failures. */
 async function tryCache(cache, url){
   try {
@@ -318,6 +321,7 @@ self.addEventListener('install', e => {
     const cache = await caches.open(CACHE);
     await cache.addAll(SHELL);                       // must succeed
     await Promise.all(HEROES.map(s => cacheHero(cache, s)));  // best effort
+    await Promise.all(HEROES.map(s => tryCache(cache, './logos/' + (LOGO_FILE[s] || s) + '.png')));
     await Promise.all(BACKGROUNDS.map(b => tryCache(cache, './bkg/' + b + '.webp')));
     await Promise.all(TOKEN_ART.map(t => tryCache(cache, './tok/' + t + '.png')));
     await Promise.all(SYMBOLS.map(x => tryCache(cache, './sym/' + x + '.png')));
