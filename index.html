@@ -224,9 +224,10 @@ main{padding:16px 16px 24px;max-width:760px;margin:0 auto}
 .reelwrap{position:relative;width:118px;height:118px;flex:none}
 .reelwrap.tappable{cursor:pointer;border-radius:50%;box-shadow:0 0 0 2px var(--orange)}
 .reelwrap.tappable:active{transform:scale(.96)}
-.hlogo{display:block;height:auto;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.55))}
-.hlogo.big{max-width:100%;max-height:64px;width:210px;object-position:left center}
-.hlogo.roll{margin:0 auto 2px;max-width:85%;max-height:78px;width:280px}
+/* Every logo sits in the same 10:3 box (matches the 600x180 files), so they all read at one size. */
+.hlogo{display:block;aspect-ratio:10/3;height:auto;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.55))}
+.hlogo.big{width:190px;object-position:center}
+.hlogo.roll{width:270px;max-width:100%;margin:0 auto 2px;object-position:center}
 .rollhero{display:block;width:100%;padding:2px 0;font:inherit;color:inherit;text-transform:inherit;letter-spacing:inherit}
 .frame{position:absolute;inset:0;opacity:0}
 .frame.on{opacity:1}
