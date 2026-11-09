@@ -351,6 +351,15 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:32px;heigh
   background:radial-gradient(circle at 35% 30%,var(--gold-hi),var(--gold) 50%,#9A5A08);box-shadow:0 0 10px rgba(247,181,44,.45),0 2px 3px rgba(0,0,0,.6)}
 input[type=range]::-moz-range-thumb{width:32px;height:32px;border-radius:50%;border:0;
   background:radial-gradient(circle at 35% 30%,var(--gold-hi),var(--gold) 50%,#9A5A08);box-shadow:0 0 10px rgba(247,181,44,.45),0 2px 3px rgba(0,0,0,.6)}
+/* "already logged" notice inside the battle sheet */
+.logged{display:none;margin-top:16px;background:var(--panel);border:1.5px solid var(--line);border-left:4px solid var(--gold);
+  border-radius:10px;padding:11px 13px}
+.logged.on{display:block}
+.logged .lmsg{font-family:var(--cond);font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--gold);margin-bottom:8px}
+.logged .lrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.logged .lacts{display:flex;gap:10px;margin-top:12px}
+.logged .lacts .btn{flex:1}
+
 .vs{font-family:var(--head);font-size:24px;text-transform:uppercase;letter-spacing:.5px;text-align:center;margin-bottom:2px;color:#fff}
 .vsmark{color:var(--gold);font-size:17px;letter-spacing:1px;margin:0 9px;vertical-align:2px}
 
@@ -756,16 +765,16 @@ td[style*="--loss"],span[style*="--loss"]{color:var(--loss-hi)!important;font-we
   <label for="fOpp">Against</label>
   <select id="fOpp" onchange="syncTitle()"></select>
 
+  <div class="logged" id="shLogged"></div>
+
   <label>Winner</label>
   <div class="seg">
     <button id="wMe" onclick="setWinner('me')">Me</button>
     <button id="wOpp" onclick="setWinner('opp')">Opponent</button>
   </div>
 
-  <div class="seg">
-    <div><label for="fMyHP">My HP left</label><input id="fMyHP" type="number" inputmode="numeric" min="0" placeholder="0"></div>
-    <div><label for="fOppHP">Opponent HP left</label><input id="fOppHP" type="number" inputmode="numeric" min="0" placeholder="0"></div>
-  </div>
+  <label for="fHP" id="fHPLab">My HP left</label>
+  <input id="fHP" type="number" inputmode="numeric" min="0" placeholder="0">
 
   <label>Ultimate used</label>
   <div class="toggles">
@@ -783,7 +792,7 @@ td[style*="--loss"],span[style*="--loss"]{color:var(--loss-hi)!important;font-we
   <textarea id="fNote" rows="2" placeholder="Big roll, clutch moment, anything"></textarea>
 
   <div class="btnrow" style="margin-top:18px">
-    <button class="btn gold" onclick="saveBattle()">Save battle</button>
+    <button class="btn gold" id="saveBtn" onclick="saveBattle()">Save battle</button>
     <button class="btn" onclick="closeSheet()">Cancel</button>
   </div>
   <button class="btn danger block" id="delBtn" style="margin-top:10px;display:none" onclick="deleteBattle()">Delete this battle</button>
@@ -876,6 +885,15 @@ async function save(){ await Store.set(JSON.stringify(S)); }
 function total(){ return S.heroes.length * S.heroes.length; }
 function played(){ return Object.keys(S.battles).length; }
 function get(a,b){ return S.battles[kk(a,b)]; }
+
+/* Only the winner's HP is recorded — the loser is always on 0. Records written
+   before v4.4 held both sides, so the winner's number is read out of those. */
+function hpOf(b){
+  if (!b) return null;
+  if (b.hp !== undefined && b.hp !== null) return b.hp;
+  const old = b.w === 'me' ? b.myHP : b.oppHP;
+  return (old === undefined || old === null) ? null : old;
+}
 function hero(name){ return S.heroes.find(h => h.name === name); }
 
 function toast(msg){
@@ -1211,7 +1229,8 @@ function openHero(name, fromPop){
     const chip = b
       ? '<span class="chip ' + (b.w === 'me' ? 'w' : 'l') + '">' + (b.w === 'me' ? 'Won' : 'Lost') + '</span>'
       : '<span class="chip n">Not yet</span>';
-    const hp = b ? '<span class="tiny muted">' + (b.myHP ?? '–') + ':' + (b.oppHP ?? '–') + '</span>' : '';
+    const hpv = hpOf(b);
+    const hp  = hpv === null ? '' : '<span class="tiny muted">' + hpv + ' HP</span>';
     return '<button class="item" onclick="openBattle(' + jq(name) + ',' + jq(o.name) + ')">' +
       av(o.name) + '<span class="name' + (b ? (b.w === 'me' ? ' won' : ' lost') : '') + '">' + esc(o.name) + '</span>' +
       (o.name === name ? '<span class="mirror">Mirror</span>' : '') +
@@ -2770,6 +2789,7 @@ function setWinner(v){
   winner = v;
   $('#wMe').classList.toggle('on', v === 'me');
   $('#wOpp').classList.toggle('on', v === 'opp');
+  $('#fHPLab').textContent = v === 'me' ? 'My HP left' : "Opponent's HP left";
 }
 
 function toggleUlt(who){
@@ -2781,6 +2801,75 @@ function syncTitle(){
   const a = $('#fMine').value, b = $('#fOpp').value;
   $('#shTitle').innerHTML = esc(a) + '<span class="vsmark">vs</span>' + esc(b);
   $('#shAvs').innerHTML = av(a,'m') + '<span class="muted small">vs</span>' + av(b,'m');
+  syncLogged();
+}
+
+/* Writes the form from a record, or clears it when passed nothing. */
+function fillForm(b){
+  setWinner(b ? b.w : 'me');
+  ult = { me: !!(b && b.ult && b.ult.me), opp: !!(b && b.ult && b.ult.opp) };
+  $('#uMe').classList.toggle('on', ult.me);
+  $('#uOpp').classList.toggle('on', ult.opp);
+  const h = hpOf(b);
+  $('#fHP').value   = h === null ? '' : h;
+  $('#fVs').value   = b ? (b.vs || '') : '';
+  $('#fNote').value = b ? (b.note || '') : '';
+  $('#fDate').value = (b && b.date) ? b.date : today();
+}
+
+/* Says out loud when the matchup on screen is already in the log, so saving is
+   never a silent overwrite. `editing` holds the key the form was filled from,
+   which is how "Update" is told apart from "Replace". */
+function syncLogged(){
+  const k   = kk($('#fMine').value, $('#fOpp').value);
+  const b   = S.battles[k];
+  const box = $('#shLogged');
+
+  if (!b){
+    if (editing !== k) editing = null;
+    box.classList.remove('on');
+    box.innerHTML = '';
+    $('#delBtn').style.display = 'none';
+    $('#saveBtn').textContent  = 'Save battle';
+    return;
+  }
+
+  const mine = editing === k;
+  const won  = b.w === 'me';
+  const h    = hpOf(b);
+  const bits = [];
+  if (h !== null) bits.push(h + ' HP left');
+  if (b.date)     bits.push(fmtDate(b.date));
+  if (b.vs)       bits.push('vs ' + b.vs);
+
+  box.innerHTML =
+    '<div class="lmsg">' + (mine ? 'Editing the logged battle' : 'This matchup is already logged') + '</div>' +
+    '<div class="lrow">' +
+      '<span class="chip ' + (won ? 'w' : 'l') + '">' + (won ? 'You won' : 'You lost') + '</span>' +
+      (bits.length ? '<span class="small quiet">' + esc(bits.join(' · ')) + '</span>' : '') +
+    '</div>' +
+    '<div class="lacts">' +
+      (mine ? '<button class="btn sm" onclick="clearLogged()">Clear the form</button>'
+            : '<button class="btn sm" onclick="loadLogged()">Load it in</button>') +
+    '</div>';
+
+  box.classList.add('on');
+  $('#delBtn').style.display = 'block';
+  $('#saveBtn').textContent  = mine ? 'Update it' : 'Replace it';
+}
+
+function loadLogged(){
+  const k = kk($('#fMine').value, $('#fOpp').value);
+  if (!S.battles[k]) return;
+  fillForm(S.battles[k]);
+  editing = k;
+  syncLogged();
+}
+
+function clearLogged(){
+  fillForm(null);
+  editing = null;
+  syncLogged();
 }
 
 /* Stored dates stay YYYY-MM-DD — sorting and <input type="date"> both need it.
@@ -2802,17 +2891,8 @@ function openBattle(mine, opp){
   $('#fMine').value = mine;
   $('#fOpp').value  = opp;
   const b = get(mine, opp);
+  fillForm(b);
   editing = b ? kk(mine, opp) : null;
-  setWinner(b ? b.w : 'me');
-  ult = { me: !!(b && b.ult && b.ult.me), opp: !!(b && b.ult && b.ult.opp) };
-  $('#uMe').classList.toggle('on', ult.me);
-  $('#uOpp').classList.toggle('on', ult.opp);
-  $('#fMyHP').value  = b ? (b.myHP ?? '') : '';
-  $('#fOppHP').value = b ? (b.oppHP ?? '') : '';
-  $('#fVs').value    = b ? (b.vs || '') : '';
-  $('#fNote').value  = b ? (b.note || '') : '';
-  $('#fDate').value  = b ? (b.date || today()) : today();
-  $('#delBtn').style.display = b ? 'block' : 'none';
   syncTitle();
   $('#scrim').classList.add('on');
   $('#sheet').classList.add('on');
@@ -2913,11 +2993,9 @@ function initBackButton(){
 
 async function saveBattle(){
   const mine = $('#fMine').value, opp = $('#fOpp').value;
-  if (editing && editing !== kk(mine, opp)) delete S.battles[editing];
   S.battles[kk(mine, opp)] = {
     w: winner,
-    myHP:  $('#fMyHP').value  === '' ? null : +$('#fMyHP').value,
-    oppHP: $('#fOppHP').value === '' ? null : +$('#fOppHP').value,
+    hp:    $('#fHP').value === '' ? null : +$('#fHP').value,
     ult:   { me: ult.me, opp: ult.opp },
     vs:    $('#fVs').value.trim(),
     date:  $('#fDate').value,
@@ -2934,6 +3012,7 @@ async function deleteBattle(){
   if (!S.battles[k]) return closeSheet();
   if (!confirm('Delete this battle record?')) return;
   delete S.battles[k];
+  editing = null;
   await save();
   closeSheet();
   refresh();
@@ -3211,6 +3290,7 @@ function importData(input){
       if (!confirm('Importing replaces everything currently stored. Continue?')) return;
       S = d;
       if (!S.sort) S.sort = 'abc';
+      migrateHP();
       await save();
       renderSortBars(); fillSelects();
       refresh();
@@ -3230,7 +3310,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '4.3';
+const APP_VERSION = '4.4';
 let swReg = null;
 
 function takeOver(sw){
@@ -3321,6 +3401,22 @@ function migrateNames(){
   if (changed) save();
 }
 
+/* v4.4 keeps only the winner's HP. Older records carried both sides, so the
+   winner's number is kept and the pair of fields is dropped. */
+function migrateHP(){
+  let changed = false;
+  Object.values(S.battles).forEach(b => {
+    if (!b || !('myHP' in b || 'oppHP' in b)) return;
+    if (b.hp === undefined || b.hp === null){
+      const old = b.w === 'me' ? b.myHP : b.oppHP;
+      b.hp = (old === undefined || old === null) ? null : old;
+    }
+    delete b.myHP; delete b.oppHP;
+    changed = true;
+  });
+  if (changed) save();
+}
+
 /* Pull in official heroes added or corrected in the code since last time.
    Custom heroes and every logged battle are left untouched. */
 function mergeSeed(){
@@ -3357,6 +3453,7 @@ function refresh(){
   if (!S.sort) S.sort = 'abc';
   S.heroes.forEach(h => { if (h.set === 'בודדים') h.set = 'Singles'; });
   migrateNames();
+  migrateHP();
   mergeSeed();
   applyTheme();
   initBackButton();
