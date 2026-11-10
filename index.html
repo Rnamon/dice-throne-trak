@@ -557,6 +557,12 @@ body.at-home main{padding-bottom:12px}
 #s-home .progstrip{flex:none;padding:12px 16px}
 #s-home .progstrip .count{font-size:28px}
 #s-home .progstrip .meterwrap{margin-top:8px}
+/* the hero runs up behind the logo (like DT Intros), a little bigger, and
+   lifted inside the frame so the empty top of the art is cropped away */
+#s-home .homelogo{position:relative;z-index:3}
+#s-home .homeart{margin:-96px -16px 4px;z-index:1;
+  -webkit-mask-image:radial-gradient(ellipse 58% 54% at 50% 50%,#000 58%,transparent 100%);mask-image:radial-gradient(ellipse 58% 54% at 50% 50%,#000 58%,transparent 100%)}
+#s-home .homeart img{object-position:50% 0;transform:translateY(-9%) scale(1.14);transform-origin:50% 0}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
