@@ -545,6 +545,18 @@ body.at-home main{padding-top:calc(16px + env(safe-area-inset-top))}
   border:2px solid var(--edge);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 4px 0 var(--edge),0 6px 10px rgba(0,0,0,.35)}
 .randbar:active{transform:translateY(2px)}
 .randbar svg{width:22px;height:22px;flex:none}
+/* home fits one screen exactly: logo, hero, the two buttons, progress.
+   Nothing scrolls; the hero picture takes whatever height is left. */
+html:has(body.at-home),body.at-home{overflow:hidden;overscroll-behavior:none}
+body.at-home main{padding-bottom:12px}
+#s-home.on{height:calc(100dvh - var(--tab-h) - env(safe-area-inset-bottom) - env(safe-area-inset-top) - 28px);min-height:0}
+#s-home .homelogo{flex:none;margin:0 0 4px}
+#s-home .homeart{flex:1 1 0;min-height:0;margin:-6px -16px 6px}
+#s-home .fbtn{flex:none;margin:0 6px 16px}
+#s-home .randbar{flex:none;margin:0 6px 18px}
+#s-home .progstrip{flex:none;padding:12px 16px}
+#s-home .progstrip .count{font-size:28px}
+#s-home .progstrip .meterwrap{margin-top:8px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -563,15 +575,6 @@ body.at-home main{padding-top:calc(16px + env(safe-area-inset-top))}
   <section class="screen on" id="s-home">
     <h1 class="homelogo"><img src="app-logo.webp" alt="Dice Throne Matrix"></h1>
 
-    <button class="progstrip" onclick="go('matrix');setMatrixView('map')">
-      <div class="spread">
-        <span class="count"><span id="hDone">0</span><small> / <span id="hTotal">0</span></small></span>
-        <span class="small" style="font-family:var(--cond);font-weight:700;font-size:15px;letter-spacing:.6px;color:var(--gold);text-transform:uppercase"><span id="hPct">0%</span> complete</span>
-      </div>
-      <div class="meterwrap"><div class="meter" id="hMeter" style="width:0%"></div></div>
-      <div class="small muted" style="margin-top:9px;font-weight:600;text-align:center">Battles logged — tap for the full map</div>
-    </button>
-
     <!-- a hero from the roster, cross-fading to the next one -->
     <div class="homeart" aria-hidden="true"><img alt=""><img alt=""></div>
 
@@ -582,6 +585,15 @@ body.at-home main{padding-top:calc(16px + env(safe-area-inset-top))}
     <button class="randbar" onclick="randomBattle()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
       Random matchup
+    </button>
+
+    <button class="progstrip" onclick="go('matrix');setMatrixView('map')">
+      <div class="spread">
+        <span class="count"><span id="hDone">0</span><small> / <span id="hTotal">0</span></small></span>
+        <span class="small" style="font-family:var(--cond);font-weight:700;font-size:15px;letter-spacing:.6px;color:var(--gold);text-transform:uppercase"><span id="hPct">0%</span> complete</span>
+      </div>
+      <div class="meterwrap"><div class="meter" id="hMeter" style="width:0%"></div></div>
+      <div class="small muted" style="margin-top:9px;font-weight:600;text-align:center">Battles logged — tap for the full map</div>
     </button>
   </section>
 
