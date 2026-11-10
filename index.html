@@ -520,10 +520,24 @@ td[style*="--loss"],span[style*="--loss"]{color:var(--loss-hi)!important;font-we
   -webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 #4A2804);text-transform:uppercase}
 #stRemain{color:var(--gold)} #stW{color:var(--win-hi)} #stL{color:var(--loss-hi)}
 #s-stats .card .tiny.muted,#s-hero .count + .small{font-family:var(--cond);font-weight:700;font-size:14px;letter-spacing:.6px;text-transform:uppercase}
+/* home: no top bar (the progress card says the same), no Home tab, a hero
+   in the empty middle, and Log a battle just above the rail */
+body.at-home .topbar{display:none}
+body.at-home #t-home{display:none}
+body.at-home .tabs{grid-template-columns:repeat(5,1fr)}
+body.at-home main{padding-top:calc(16px + env(safe-area-inset-top))}
+#s-home.on{display:flex;flex-direction:column;min-height:calc(100dvh - var(--tab-h) - env(safe-area-inset-bottom) - env(safe-area-inset-top) - 40px)}
+#s-home .progstrip{margin-bottom:0;position:relative;z-index:2}
+#s-home .fbtn{margin:0 6px 4px;position:relative;z-index:2}
+.homeart{position:relative;flex:1;min-height:220px;margin:-14px -16px -10px;
+  -webkit-mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 55%,transparent 100%);mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 55%,transparent 100%)}
+.homeart::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 55%,rgba(70,96,150,.45),transparent 70%)}
+.homeart img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 25%;opacity:0;transition:opacity 1.4s ease}
+.homeart img.on{opacity:1}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
-<body>
+<body class="at-home">
 
 <div class="ground"></div>
 <div class="grit"></div>
@@ -542,39 +556,15 @@ td[style*="--loss"],span[style*="--loss"]{color:var(--loss-hi)!important;font-we
         <span class="small" style="font-family:var(--cond);font-weight:700;font-size:15px;letter-spacing:.6px;color:var(--gold);text-transform:uppercase"><span id="hPct">0%</span> complete</span>
       </div>
       <div class="meterwrap"><div class="meter" id="hMeter" style="width:0%"></div></div>
-      <div class="small muted" style="margin-top:9px;font-weight:600">Battles logged — tap for the full map</div>
+      <div class="small muted" style="margin-top:9px;font-weight:600;text-align:center">Battles logged — tap for the full map</div>
     </button>
+
+    <!-- a hero from the roster, cross-fading to the next one -->
+    <div class="homeart" aria-hidden="true"><img alt=""><img alt=""></div>
 
     <button class="fbtn" onclick="openBattle()">
       <span class="top"><svg class="die" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4.5" fill="#fff" stroke="#9A4A06" stroke-width="1.8"/><circle cx="8" cy="8" r="1.7" fill="#9A4A06"/><circle cx="16" cy="8" r="1.7" fill="#9A4A06"/><circle cx="12" cy="12" r="1.7" fill="#9A4A06"/><circle cx="8" cy="16" r="1.7" fill="#9A4A06"/><circle cx="16" cy="16" r="1.7" fill="#9A4A06"/></svg>LOG A BATTLE</span>
     </button>
-
-    <div class="tiles">
-      <button class="tile" onclick="go('draw')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><circle cx="8.5" cy="8.5" r="1.4" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/></svg>
-        Draw heroes
-      </button>
-      <button class="tile" onclick="randomBattle()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7M21 16v5h-5M14 14l7 7M3 8V3h5M10 10 3 3"/></svg>
-        Random matchup
-      </button>
-      <button class="tile" onclick="go('matrix')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>
-        Matchup matrix
-      </button>
-      <button class="tile" onclick="go('heroes')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20v-1a6 6 0 0 1 12 0v1"/><circle cx="10" cy="7" r="3.4"/><path d="M17 20v-1a5 5 0 0 0-2-4"/></svg>
-        Hero roster
-      </button>
-      <button class="tile" onclick="go('stats')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
-        Stats
-      </button>
-      <button class="tile" onclick="go('set')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/></svg>
-        Setup
-      </button>
-    </div>
   </section>
 
   <!-- ========== MATRIX ========== -->
@@ -1133,6 +1123,7 @@ function go(id, back){
   screenNow = id;
   $$('.screen').forEach(s => s.classList.remove('on'));
   $('#s-' + id).classList.add('on');
+  document.body.classList.toggle('at-home', id === 'home');
   $$('.tabs button').forEach(b => b.classList.remove('on'));
   const tab = $('#t-' + id); if (tab) tab.classList.add('on');
   window.scrollTo(0,0);
@@ -1140,7 +1131,7 @@ function go(id, back){
   if (id === 'heroes') renderHeroes();
   if (id === 'stats')  renderStats();
   if (id === 'draw')   renderDraw();
-  if (id === 'home')   renderHome();
+  if (id === 'home')   { renderHome(); homeArtNext(); }
   if (id === 'bkg')     renderThemes();
   if (id === 'bkg' || id === 'credits') $('#t-set').classList.add('on');
 }
@@ -3378,7 +3369,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '4.5';
+const APP_VERSION = '4.6';
 let swReg = null;
 
 function takeOver(sw){
@@ -3510,6 +3501,29 @@ function refresh(){
   if ($('#s-hero').classList.contains('on') && current) openHero(current);
 }
 
+
+/* ---------------- home hero art ----------------
+   One hero from the roster at a time, cross-fading to the next every few
+   seconds. Only runs while Home is on screen; the next picture is loaded
+   before it fades in, so nothing ever pops in half-drawn. */
+let homeArtTimer = null, homeArtLast = '';
+function homeArtNext(){
+  const imgs = $$('.homeart img'); if (imgs.length < 2) return;
+  if (!$('#s-home').classList.contains('on') || document.hidden) return;
+  const pool = S.heroes.map(h => slug(h.name)).filter(s => s !== homeArtLast);
+  if (!pool.length) return;
+  const s = pool[Math.floor(Math.random() * pool.length)];
+  const cur = imgs.find(i => i.classList.contains('on')), nxt = imgs.find(i => i !== cur);
+  nxt.onload = () => { nxt.classList.add('on'); if (cur) cur.classList.remove('on'); homeArtLast = s; };
+  nxt.onerror = () => { homeArtLast = s; };
+  nxt.src = 'art/' + s + '.webp';
+}
+function startHomeArt(){
+  homeArtNext();
+  clearInterval(homeArtTimer);
+  homeArtTimer = setInterval(homeArtNext, 5500);
+}
+
 (async function init(){
   const raw = await Store.get();
   if (raw){
@@ -3528,6 +3542,7 @@ function refresh(){
   renderSortBars();
   fillSelects();
   renderHome();
+  startHomeArt();
   $('#verNum').textContent = 'v' + APP_VERSION;
 })();
 </script>
