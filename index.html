@@ -523,8 +523,6 @@ td[style*="--loss"],span[style*="--loss"]{color:var(--loss-hi)!important;font-we
 /* home: no top bar (the progress card says the same), no Home tab, a hero
    in the empty middle, and Log a battle just above the rail */
 body.at-home .topbar{display:none}
-body.at-home #t-home{display:none}
-body.at-home .tabs{grid-template-columns:repeat(5,1fr)}
 body.at-home main{padding-top:calc(16px + env(safe-area-inset-top))}
 #s-home.on{display:flex;flex-direction:column;min-height:calc(100dvh - var(--tab-h) - env(safe-area-inset-bottom) - env(safe-area-inset-top) - 40px)}
 #s-home .progstrip{margin-bottom:0;position:relative;z-index:2}
@@ -565,7 +563,7 @@ body.at-home main{padding-bottom:12px}
 #s-home .homeart img{object-position:50% 0;transform:translateY(-9%) scale(1.14);transform-origin:50% 0}
 /* no Random matchup on home: a slightly bigger logo, the hero a little lower */
 #s-home .homelogo img{width:min(54%,220px)}
-#s-home .homeart{margin:-64px -16px 6px}
+#s-home .homeart{margin:-80px -16px 6px}
 #s-home .fbtn{margin:0 6px 20px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
