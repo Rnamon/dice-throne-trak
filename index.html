@@ -182,15 +182,13 @@ main{padding:16px 16px 24px;max-width:760px;margin:0 auto}
   box-shadow:inset 0 0 0 2px var(--line),0 10px 20px rgba(0,0,0,.4);
 }
 .progstrip .count{font-size:34px}
-/* Log a battle: the whole button leans and clips what's inside, so the
-   ember strip runs edge to edge; the lettering is stood back up */
-.fbtn{display:flex;flex-direction:column;width:calc(100% - 12px);margin:0 6px 26px;transform:skewX(var(--tilt));border-radius:10px;overflow:hidden;color:#fff;text-align:center;
+/* Log a battle: the same gold button as Fight in DT Intros. The whole button leans,
+   the lettering is stood back up, and the die and the words sit in the middle of it */
+.fbtn{display:flex;flex-direction:column;width:calc(100% - 12px);min-height:92px;margin:0 6px 26px;transform:skewX(var(--tilt));border-radius:10px;overflow:hidden;color:#fff;text-align:center;
   background:var(--gold-face);border:2.5px solid var(--brown);box-shadow:inset 0 2px 0 rgba(255,255,255,.55),0 6px 0 #6B3404,0 9px 14px rgba(0,0,0,.45)}
-.fbtn .top{display:flex;align-items:center;justify-content:center;gap:12px;transform:skewX(var(--untilt));padding:18px 12px 14px;
-  font-family:var(--head);font-size:40px;line-height:1;text-transform:uppercase;letter-spacing:.02em;text-shadow:0 3px 0 #9A4A06,0 0 1px #6B3404}
-.fbtn .top svg{width:36px;height:36px;flex:none;filter:drop-shadow(0 3px 0 #9A4A06)}
-.fbtn .strip{background:linear-gradient(180deg,#E8781A,var(--ember));border-top:2px solid #A8460A;padding:4px 0 5px}
-.fbtn .strip span{display:block;transform:skewX(var(--untilt));font-family:var(--cond);font-weight:700;font-size:15px;letter-spacing:.9px;text-transform:uppercase;text-shadow:0 1px 0 #7A3404}
+.fbtn .top{flex:1;display:flex;align-items:center;justify-content:center;gap:.14em;transform:skewX(var(--untilt));padding:.12em .5em .08em;
+  font-family:var(--head);font-size:clamp(30px,10.4vw,40px);line-height:1;white-space:nowrap;text-transform:uppercase;letter-spacing:.02em;text-shadow:0 3px 0 #9A4A06,0 0 1px #6B3404}
+.fbtn .top svg.die{width:.82em;height:.82em;flex:none;transform:rotate(-10deg);filter:drop-shadow(0 3px 0 #9A4A06)}
 .fbtn:active{transform:skewX(var(--tilt)) translateY(3px);box-shadow:inset 0 2px 0 rgba(255,255,255,.55),0 3px 0 #6B3404}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:18px 16px;padding:0 6px}
 .tile{
@@ -238,15 +236,15 @@ main{padding:16px 16px 24px;max-width:760px;margin:0 auto}
 /* sort chips and two-way switches: slate chips, the chosen one gold */
 .sortbar{display:flex;gap:12px;overflow-x:auto;margin-bottom:14px;padding:2px 6px 6px;scrollbar-width:none}
 .sortbar::-webkit-scrollbar{display:none}
-.sortbar button,.seg button,.seg3 button,.toggles button,.theme{
+.sortbar button,.seg button,.seg3 button,.toggles button{
   position:relative;isolation:isolate;flex:none;display:grid;place-items:center;min-height:38px;padding:6px 14px;
   font-family:var(--cond);font-weight:700;font-size:16px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;color:#C9D3EA;
 }
-.sortbar button::before,.seg button::before,.seg3 button::before,.toggles button::before,.theme::before{
+.sortbar button::before,.seg button::before,.seg3 button::before,.toggles button::before{
   content:"";position:absolute;inset:0;z-index:-1;transform:skewX(var(--tilt));border-radius:6px;
   background:linear-gradient(180deg,#2E4468,#1F3050);border:2px solid var(--edge);box-shadow:0 3px 0 var(--edge)}
-.sortbar button.on,.seg button.on,.seg3 button.on,.toggles button.on,.theme.on{color:#fff;text-shadow:0 1px 0 #9A4A06}
-.sortbar button.on::before,.seg button.on::before,.seg3 button.on::before,.toggles button.on::before,.theme.on::before{
+.sortbar button.on,.seg button.on,.seg3 button.on,.toggles button.on{color:#fff;text-shadow:0 1px 0 #9A4A06}
+.sortbar button.on::before,.seg button.on::before,.seg3 button.on::before,.toggles button.on::before{
   background:linear-gradient(180deg,var(--gold-hi),var(--gold) 50%,var(--gold-lo));border-color:var(--brown)}
 .seg,.toggles{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 4px}
 .seg3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 4px}
@@ -281,20 +279,26 @@ main{padding:16px 16px 24px;max-width:760px;margin:0 auto}
 .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:13px;font-weight:600;color:var(--quiet);align-items:center}
 .sw{width:13px;height:13px;border-radius:3px;display:inline-block;vertical-align:-2px;margin-right:6px}
 
-/* avatars: the round portraits get a dark rim and a fine slate ring */
+/* avatars: square portraits cut from the hero art (art/<slug>.webp, the same
+   pictures and the same face crop as DT Intros), with a dark rim and a fine slate ring */
 .av{
   position:relative;flex:none;display:inline-flex;align-items:center;justify-content:center;
-  border-radius:50%;overflow:hidden;background:var(--c,#8A85A8);color:#14121F;
+  border-radius:7px;overflow:hidden;background:var(--c,#8A85A8);color:#14121F;
   font-family:var(--head);letter-spacing:.5px;
   box-shadow:0 0 0 2px var(--edge),0 0 0 3.5px #3A4867;
 }
-.av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.av img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;object-position:50% 30%;transform:scale(1.9);transform-origin:50% 28%}
+/* the old img/ pictures (only used if a file is missing from art/) are already cropped to the face */
+.av img.legacy,.hsq img.legacy{transform:none;object-position:50% 50%}
 .av.xs{width:26px;height:26px;font-size:11px}
 .av.s{width:36px;height:36px;font-size:13px}
 .av.m{width:46px;height:46px;font-size:15px}
 .av.l{width:64px;height:64px;font-size:22px}
 .av.p{width:64px;height:64px;font-size:19px}
 .av.xl{width:118px;height:118px;font-size:40px;box-shadow:0 0 0 3px var(--edge),0 0 0 6px var(--gold),0 0 18px rgba(247,181,44,.35)}
+.av.xxs{border-radius:4px}
+.av.xs{border-radius:5px}
+.av.l,.av.xl,#dAv .av{border-radius:10px}
 
 /* hero page: the name in gold, like a logo */
 #dName{font-size:30px;background:linear-gradient(180deg,#FFF3B0,var(--gold) 55%,#C77712);-webkit-background-clip:text;background-clip:text;color:transparent;
@@ -302,14 +306,38 @@ main{padding:16px 16px 24px;max-width:760px;margin:0 auto}
 #dAv .av{width:72px;height:72px;font-size:24px;box-shadow:0 0 0 3px var(--edge),0 0 0 5px var(--gold)}
 
 /* draw */
-.pickgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px 8px;justify-items:center;padding:14px 10px}
-.pick{border:0;background:none;padding:0;line-height:0;border-radius:50%}
-.pick .av{transition:filter .15s,opacity .15s,box-shadow .15s}
-.pick.off .av{filter:grayscale(1) brightness(.34);opacity:.55}
-.pick.on .av{box-shadow:0 0 0 2px var(--edge),0 0 0 4px var(--gold),0 0 10px rgba(247,181,44,.45)}
+/* hero grids (Heroes and Draw): small square cards like the Pool in DT Intros, the
+   hero's name on the picture, and under it a thin bar of wins (blue), losses (red)
+   and battles not played yet (dark). In Draw: gold frame = in the pool, dim = out. */
+.shead{display:flex;align-items:center;gap:10px;padding:14px 4px 6px;border-bottom:2px solid var(--line)}
+.shead b{flex:1;font-family:var(--head);font-weight:400;font-size:19px;letter-spacing:.4px;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.45)}
+.shead.in{margin:0 12px;padding-top:12px}
+.hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:14px 9px;padding:12px 3px 6px}
+.card .hgrid{padding:12px 12px 6px}
+.card .hgrid:last-child{padding-bottom:16px}
+.hcell{display:flex;flex-direction:column;gap:9px;min-width:0;padding:0;background:none;border:0;color:inherit;text-align:center;line-height:1}
+.hsq{position:relative;display:block;aspect-ratio:64/78;border-radius:7px;overflow:hidden;background:var(--c,#555);min-width:0;
+  box-shadow:0 0 0 2px #0B0F17,0 0 0 3px #2C3448;transition:filter .15s,box-shadow .15s,transform .1s}
+.hsq img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;object-position:50% 30%;transform:scale(1.6);transform-origin:50% 36%}
+.hsq .ini{position:absolute;inset:0;display:grid;place-items:center;padding-bottom:12px;font-family:var(--head);font-size:24px;color:rgba(255,255,255,.4);
+  background:radial-gradient(ellipse at 50% 35%,color-mix(in srgb,var(--c) 85%,#fff),color-mix(in srgb,var(--c) 50%,#000))}
+.hsq .nm{position:absolute;left:0;right:0;bottom:0;padding:14px 2px 4px;font-family:var(--cond);font-weight:700;font-size:12.5px;line-height:1.02;text-align:center;letter-spacing:.3px;
+  color:#fff;text-transform:uppercase;background:linear-gradient(to top,rgba(5,7,12,.95) 40%,transparent)}
+.hcell:active .hsq{transform:translateY(1px)}
+.hcell.off .hsq{filter:grayscale(1) brightness(.32)}
+.hcell.on .hsq{box-shadow:0 0 0 2px #0B0F17,0 0 0 4px var(--gold),0 0 10px rgba(247,181,44,.45)}
+.hbadge{position:absolute;top:4px;right:4px;font-style:normal;font-family:var(--head);font-size:13px;line-height:1;padding:3px 5px 2px;border-radius:5px;color:#fff;
+  box-shadow:0 0 0 1.5px var(--edge);text-shadow:0 1px 0 rgba(0,0,0,.45)}
+.hbadge.w{background:var(--win-face)}
+.hbadge.l{background:var(--loss-face)}
+/* wins, losses, not played: the dark part is whatever is left of the 45 matchups */
+.hbar{display:flex;height:7px;margin:0 2px;border-radius:99px;overflow:hidden;background:linear-gradient(180deg,#05070C,#1B2230);box-shadow:0 0 0 1px #2A3346}
+.hbar i{display:block;flex:none;height:100%;min-width:3px}
+.hbar .w{background:var(--win-face)}
+.hbar .l{background:var(--loss-face)}
 .poolhead{display:flex;align-items:center;gap:12px;padding:14px 16px 4px}
 .poolhead h3{font-size:20px;flex:1}
-.reelwrap{position:relative;width:118px;height:118px;flex:none;border-radius:50%}
+.reelwrap{position:relative;width:118px;height:118px;flex:none;border-radius:10px}
 .reelwrap.tappable{cursor:pointer}
 .reelwrap.tappable:active{transform:scale(.96)}
 /* Every logo sits in the same 10:3 box (matches the 600x180 files), so they all read at one size. */
@@ -363,8 +391,18 @@ input[type=range]::-moz-range-thumb{width:32px;height:32px;border-radius:50%;bor
 .vs{font-family:var(--head);font-size:24px;text-transform:uppercase;letter-spacing:.5px;text-align:center;margin-bottom:2px;color:#fff}
 .vsmark{color:var(--gold);font-size:17px;letter-spacing:1px;margin:0 9px;vertical-align:2px}
 
-.themerow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;padding:0 4px}
-.themes{display:flex;flex-wrap:wrap;gap:12px 14px;padding:0 4px}
+/* background picker: a tile per picture, the chosen one in gold (same as DT Intros) */
+.bgpick{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:9px;padding:8px 0 4px}
+.bgpair{display:grid;grid-template-rows:1fr 1fr;gap:5px;aspect-ratio:16/10}
+.bgpair .bgtile{aspect-ratio:auto;height:100%;border-radius:7px}
+.bgtile{position:relative;display:block;width:100%;padding:0;aspect-ratio:16/10;border-radius:8px;overflow:hidden;border:2.5px solid var(--line);background:var(--panel);color:#fff}
+.bgtile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;max-width:none}
+.bgtile.base{background:radial-gradient(ellipse at 30% 20%,rgba(80,100,140,.3),transparent 60%),radial-gradient(ellipse at 80% 90%,rgba(0,0,0,.6),transparent 60%),var(--ink)}
+.bgtile span{position:absolute;left:0;right:0;bottom:0;padding:10px 4px 3px;font-family:var(--cond);font-weight:700;font-size:14px;letter-spacing:.6px;text-transform:uppercase;text-align:center;line-height:1.1;
+  background:linear-gradient(180deg,transparent,rgba(0,0,0,.75));text-shadow:0 1px 2px #000}
+.bgtile.base span{position:absolute;inset:0;display:grid;place-items:center;padding:0;background:none}
+.bgtile[aria-pressed="true"]{border-color:var(--gold);box-shadow:0 0 0 2px rgba(247,181,44,.35),0 0 14px rgba(247,181,44,.5)}
+#bgoRow.dim{opacity:.4}
 
 .cr{margin-bottom:12px}
 .cr span{display:block;font-family:var(--cond);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--gold);margin-bottom:2px}
@@ -451,7 +489,7 @@ input[type=range]::-moz-range-thumb{width:32px;height:32px;border-radius:50%;bor
 .usedby{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
 .usedby h3{font-size:15px;color:var(--gold);margin-bottom:10px}
 .heroes{display:flex;flex-wrap:wrap;gap:8px}
-.hero{display:flex;align-items:center;gap:8px;background:linear-gradient(180deg,#2E4468,#1F3050);border-radius:99px;padding:4px 12px 4px 4px;font-size:13px;font-weight:600;
+.hero{display:flex;align-items:center;gap:8px;background:linear-gradient(180deg,#2E4468,#1F3050);border-radius:9px;padding:4px 12px 4px 4px;font-size:13px;font-weight:600;
       border:0;color:inherit;font-family:inherit;cursor:pointer;box-shadow:0 0 0 1.5px var(--edge),0 2px 0 var(--edge)}
 .hero:active{background:var(--line)}
 .av.xxs{width:22px;height:22px;font-size:9px;box-shadow:none}
@@ -508,11 +546,7 @@ td[style*="--loss"],span[style*="--loss"]{color:var(--loss-hi)!important;font-we
     </button>
 
     <button class="fbtn" onclick="openBattle()">
-      <span class="top">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5 3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2M9.5 17.5 21 6V3h-3L6.5 14.5M11 19l-6-6M8 16l-4 4M5 21l-2-2"/></svg>
-        Log a battle
-      </span>
-      <span class="strip"><span>HP · Ultimates · Notes</span></span>
+      <span class="top"><svg class="die" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4.5" fill="#fff" stroke="#9A4A06" stroke-width="1.8"/><circle cx="8" cy="8" r="1.7" fill="#9A4A06"/><circle cx="16" cy="8" r="1.7" fill="#9A4A06"/><circle cx="12" cy="12" r="1.7" fill="#9A4A06"/><circle cx="8" cy="16" r="1.7" fill="#9A4A06"/><circle cx="16" cy="16" r="1.7" fill="#9A4A06"/></svg>LOG A BATTLE</span>
     </button>
 
     <div class="tiles">
@@ -718,15 +752,14 @@ td[style*="--loss"],span[style*="--loss"]{color:var(--loss-hi)!important;font-we
     <button class="link" style="margin-bottom:10px" onclick="go('set')">&lsaquo; Setup</button>
 
     <div class="card">
-      <h3 style="font-size:17px;margin-bottom:10px">Choose a background</h3>
-      <div class="themerow" id="themeRow"></div>
-      <div class="themes" id="themes"></div>
+      <h3 style="font-size:17px;margin-bottom:2px">Background</h3>
+      <div class="bgpick" id="bgPick"></div>
     </div>
 
-    <div class="card">
-      <label for="scrimRange" style="margin-top:0">Darkening &middot; <span id="scrimVal">40%</span></label>
-      <input type="range" id="scrimRange" min="40" max="95" step="1" value="40"
-             oninput="setScrim(this.value)" style="padding:0">
+    <div class="card" id="bgoRow">
+      <label for="bgoRange" style="margin-top:0">Background opacity &middot; <span id="bgoVal">70%</span></label>
+      <input type="range" id="bgoRange" min="40" max="100" step="5" value="70"
+             oninput="setBgo(this.value)" style="padding:0">
     </div>
 
   </section>
@@ -910,11 +943,16 @@ function initials(n){
   return (w.length > 1 ? w[0][0] + w[1][0] : n.slice(0,2)).toUpperCase();
 }
 
+/* Hero portraits are cut from the full hero art in art/<slug>.webp (the pictures
+   DT Intros uses). The old img/ files are only a fallback if one is missing. */
+function imgSrc(s, i){ return i === 0 ? 'art/' + s + '.webp' : 'img/' + s + '.' + IMG_EXT[i - 1]; }
+
 function nextImg(el){
   const i = +el.dataset.i + 1;
-  if (i >= IMG_EXT.length) return el.remove();
+  if (i > IMG_EXT.length) return el.remove();
   el.dataset.i = i;
-  el.src = 'img/' + el.dataset.slug + '.' + IMG_EXT[i];
+  el.classList.add('legacy');
+  el.src = imgSrc(el.dataset.slug, i);
 }
 
 function av(name, size, eager){
@@ -923,8 +961,24 @@ function av(name, size, eager){
   const c = SET_COLOR[h.set] || '#8A85A8';
   const s = slug(name);
   return '<span class="av ' + (size || 's') + '" style="--c:' + c + '">' + initials(name) +
-    '<img src="img/' + s + '.' + IMG_EXT[0] + '" data-slug="' + s + '" data-i="0" alt="" loading="' +
+    '<img src="' + imgSrc(s, 0) + '" data-slug="' + s + '" data-i="0" alt="" loading="' +
     (eager ? 'eager' : 'lazy') + '" onerror="nextImg(this)"></span>';
+}
+
+/* a square hero card: the art, the name on it, and (when asked) a small badge */
+function heroSq(name, badge){
+  const h = hero(name), s = slug(name);
+  return '<span class="hsq" style="--c:' + ((h && SET_COLOR[h.set]) || '#8A85A8') + '"><span class="ini">' + initials(name) + '</span>' +
+    '<img src="' + imgSrc(s, 0) + '" data-slug="' + s + '" data-i="0" alt="" loading="lazy" decoding="async" onerror="nextImg(this)">' +
+    (badge || '') + '<span class="nm">' + esc(name) + '</span></span>';
+}
+
+/* the bar under a hero: blue = won, red = lost, dark = not played yet */
+function recBar(name){
+  const s = heroStats(name), t = s.total || 1;
+  const seg = (cls, n) => n ? '<i class="' + cls + '" style="width:' + (n / t * 100) + '%"></i>' : '';
+  return '<span class="hbar" role="img" aria-label="' + s.w + ' won, ' + s.l + ' lost, ' + (s.total - s.done) + ' not played yet">' +
+    seg('w', s.w) + seg('l', s.l) + '</span>';
 }
 
 /* ---------------- hero logos ----------------
@@ -963,60 +1017,76 @@ const THEMES = [
   { id:'treant', label:'Treant' },
   { id:'vampire-lord', label:'Vampire Lord' }
 ];
-const DEFAULT_SCRIM = 40;
+const DEFAULT_BGO = 70;   /* how much of the picture shows over the plain ground (40-100%), as in DT Intros */
 
-/* 'random' picks a new wallpaper each time the app starts and keeps it for the
-   whole session, so it never changes under you mid-use. */
+/* 'random' picks a new wallpaper each time the app starts (and each time Random
+   is tapped) and keeps it for the whole session, so it never changes under you. */
 let sessionTheme = null;
+
+function rollRandomTheme(){
+  const ids = THEMES.map(t => t.id).filter(id => id !== sessionTheme);
+  sessionTheme = ids[Math.floor(Math.random() * ids.length)];
+}
 
 function activeTheme(){
   const id = S.theme || 'random';   /* a fresh wallpaper each launch, until you pick one */
   if (id === 'random'){
-    if (!sessionTheme) sessionTheme = THEMES[Math.floor(Math.random() * THEMES.length)].id;
+    if (!sessionTheme) rollRandomTheme();
     return sessionTheme;
   }
   return THEMES.some(t => t.id === id) ? id : 'none';
 }
 
-function scrimVal(){ return S.scrim == null ? DEFAULT_SCRIM : S.scrim; }
+/* Picture opacity. The old "Darkening" slider is carried over (40% dark = 60% picture). */
+function bgoVal(){
+  if (S.bgo != null) return S.bgo;
+  if (S.scrim != null) return Math.min(100, Math.max(40, 100 - S.scrim));
+  return DEFAULT_BGO;
+}
 
 function applyTheme(){
   const id = activeTheme();
   const on = id !== 'none';
   document.body.classList.toggle('hasbkg', on);
   document.body.style.setProperty('--bkg',   on ? 'url(bkg/' + id + '.webp)' : 'none');
-  document.body.style.setProperty('--scrim', on ? scrimVal() / 100 : 0);
+  /* the ground is laid over the picture, so its opacity is whatever the picture leaves */
+  document.body.style.setProperty('--scrim', on ? (100 - bgoVal()) / 100 : 0);
 }
 
 function renderThemes(){
-  const cur = S.theme || 'random';
-  const chip = (id, label) =>
-    '<button class="theme ' + (cur === id ? 'on' : '') + '" onclick="setTheme(&quot;' + id + '&quot;)">' +
-    label + '</button>';
+  const pick = $('#bgPick');
+  if (!pick.children.length){                 /* built once, the first time the screen opens */
+    pick.innerHTML = '<div class="bgpair"><button class="bgtile base" data-bg="none"><span>None</span></button>' +
+      '<button class="bgtile base" data-bg="random"><span>Random</span></button></div>' +
+      THEMES.map(t => '<button class="bgtile" data-bg="' + t.id + '"><img src="bkg/' + t.id +
+        '.webp" alt="" loading="lazy" decoding="async"><span>' + t.label + '</span></button>').join('');
+    pick.onclick = e => { const b = e.target.closest('[data-bg]'); if (b) setTheme(b.dataset.bg); };
+  }
+  const shown = activeTheme() === 'none' ? 'none' : (S.theme || 'random');
+  pick.querySelectorAll('.bgtile').forEach(t => t.setAttribute('aria-pressed', String(t.dataset.bg === shown)));
 
-  $('#themeRow').innerHTML = chip('none', 'None') + chip('random', 'Random');
-  $('#themes').innerHTML   = THEMES.map(t => chip(t.id, t.label)).join('');
-
-  const v = scrimVal();
-  $('#scrimRange').value = v;
-  $('#scrimVal').textContent = v + '%';
+  const v = bgoVal(), none = shown === 'none';
+  $('#bgoRange').value = v;
+  $('#bgoVal').textContent = v + '%';
+  $('#bgoRow').classList.toggle('dim', none);
+  $('#bgoRange').disabled = none;
 }
 
 async function setTheme(id){
   S.theme = id;
-  if (id === 'random') sessionTheme = null;
+  if (id === 'random') rollRandomTheme();
   await save();
   applyTheme();
   renderThemes();
 }
 
-let scrimTimer = null;
-function setScrim(v){
-  S.scrim = +v;
-  $('#scrimVal').textContent = v + '%';
+let bgoTimer = null;
+function setBgo(v){
+  S.bgo = +v;
+  $('#bgoVal').textContent = v + '%';
   applyTheme();
-  clearTimeout(scrimTimer);
-  scrimTimer = setTimeout(save, 400);
+  clearTimeout(bgoTimer);
+  bgoTimer = setTimeout(save, 400);
 }
 
 /* ---------------- ordering ---------------- */
@@ -1177,34 +1247,31 @@ function heroStats(name){
   return { done, w, l, total: S.heroes.length };
 }
 
-function heroRow(h){
-  const s = heroStats(h.name), pct = s.total ? s.done / s.total * 100 : 0;
-  const tail = S.sort === 'wins'   ? '<span class="tiny" style="color:var(--win);min-width:32px;text-align:right">' + s.w + ' W</span>'
-             : S.sort === 'losses' ? '<span class="tiny" style="color:var(--loss);min-width:32px;text-align:right">' + s.l + ' L</span>' : '';
-  return '<button class="item" onclick="openHero(' + jq(h.name) + ')">' +
-    av(h.name) + '<span class="name">' + esc(h.name) + '</span>' + tail +
-    '<span class="bar"><i style="width:' + pct + '%"></i></span>' +
-    '<span class="tiny muted" style="min-width:44px;text-align:right">' + s.done + '/' + s.total + '</span></button>';
+/* a square card per hero: art, name, and under it the wins / losses / not-played bar.
+   Sorted by wins or losses, a small number in the corner shows the count. */
+function heroCell(h){
+  const s = heroStats(h.name);
+  const badge = S.sort === 'wins'   ? '<em class="hbadge w">' + s.w + '</em>'
+              : S.sort === 'losses' ? '<em class="hbadge l">' + s.l + '</em>' : '';
+  return '<button class="hcell" aria-label="' + esc(h.name) + '" onclick="openHero(' + jq(h.name) + ')">' +
+    heroSq(h.name, badge) + recBar(h.name) + '</button>';
 }
 
 function renderHeroes(){
-  const H = sortedHeroes();
-  let html = '';
-  if (S.sort === 'set' || S.sort === 'diff'){
-    let cur = null;
-    H.forEach(h => {
-      const g = groupOf(h);
-      if (g !== cur){
-        if (cur !== null) html += '</div>';
-        html += '<div class="list" style="margin-bottom:14px"><div class="setlabel">' + groupDisplay(h) + '</div>';
-        cur = g;
-      }
-      html += heroRow(h);
-    });
-    if (cur !== null) html += '</div>';
-  } else {
-    html = '<div class="list">' + H.map(heroRow).join('') + '</div>';
-  }
+  /* cur starts undefined, not null: when there are no groups (A-Z, wins, losses)
+     every hero's group is null, and the first grid must still be opened */
+  let html = '', cur, open = false;
+  sortedHeroes().forEach(h => {
+    const g = groupOf(h);
+    if (!open || g !== cur){
+      if (open) html += '</div>';
+      cur = g;
+      if (g !== null) html += '<div class="shead"><b>' + groupDisplay(h) + '</b></div>';
+      html += '<div class="hgrid">'; open = true;
+    }
+    html += heroCell(h);
+  });
+  if (open) html += '</div>';
   $('#heroList').innerHTML = html;
 }
 
@@ -3063,12 +3130,13 @@ function poolHTML(which, title){
     if (!open || g !== cur){
       if (open) html += '</div>';
       cur = g;
-      if (g) html += '<div class="setlabel" style="border:0;background:none">' +
-        (S.drawSort === 'diff' ? diffHTML(diffOf(h), 19) : esc(g)) + '</div>';
-      html += '<div class="pickgrid">'; open = true;
+      if (g) html += '<div class="shead in"><b>' +
+        (S.drawSort === 'diff' ? diffHTML(diffOf(h), 19) : esc(g)) + '</b></div>';
+      html += '<div class="hgrid">'; open = true;
     }
-    html += '<button class="pick ' + (picked(which, h.name) ? 'on' : 'off') + '" aria-label="' + esc(h.name) +
-      '" onclick="togglePick(\'' + which + '\',' + jq(h.name) + ')">' + av(h.name, 'p') + '</button>';
+    const on = picked(which, h.name);
+    html += '<button class="hcell ' + (on ? 'on' : 'off') + '" aria-label="' + esc(h.name) + '" aria-pressed="' + on +
+      '" onclick="togglePick(\'' + which + '\',' + jq(h.name) + ')">' + heroSq(h.name) + recBar(h.name) + '</button>';
   });
   if (open) html += '</div>';
   return html + '</div>';
@@ -3310,7 +3378,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '4.4';
+const APP_VERSION = '4.5';
 let swReg = null;
 
 function takeOver(sw){

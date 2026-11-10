@@ -1,6 +1,6 @@
 /* Dice Throne Matrix — service worker
    Bump VERSION on every release: it wipes the old cache and forces a refresh. */
-const VERSION = 'v52';
+const VERSION = 'v53';
 const CACHE   = 'dt-' + VERSION;
 
 /* The app shell: without these the app cannot start offline. */
@@ -13,8 +13,9 @@ const SHELL = [
   './icon-maskable-512.png'
 ];
 
-/* Hero artwork. Missing files are skipped quietly, so you can add images at
-   your own pace without ever breaking the install. */
+/* Hero artwork: the portraits are cut from art/<slug>.webp (the same pictures as
+   DT Intros). Missing files are skipped quietly, so you can add images at your
+   own pace without ever breaking the install. */
 const HEROES = [
   'alchemist',
   'artificer',
@@ -62,7 +63,6 @@ const HEROES = [
   'vampire-lord',
   'wolverine'
 ];
-const EXT = ['webp', 'png', 'jpg', 'jpeg'];
 
 /* Token artwork — add a slug here whenever a token is added to the app. */
 const TOKEN_ART = [
@@ -309,18 +309,11 @@ async function tryCache(cache, url){
   return false;
 }
 
-/* For each hero, store the first extension that actually exists. */
-async function cacheHero(cache, slug){
-  for (const ext of EXT){
-    if (await tryCache(cache, './img/' + slug + '.' + ext)) return;
-  }
-}
-
 self.addEventListener('install', e => {
   e.waitUntil((async () => {
     const cache = await caches.open(CACHE);
     await cache.addAll(SHELL);                       // must succeed
-    await Promise.all(HEROES.map(s => cacheHero(cache, s)));  // best effort
+    await Promise.all(HEROES.map(s => tryCache(cache, './art/' + s + '.webp')));  // best effort
     await Promise.all(HEROES.map(s => tryCache(cache, './logos/' + (LOGO_FILE[s] || s) + '.png')));
     await Promise.all(BACKGROUNDS.map(b => tryCache(cache, './bkg/' + b + '.webp')));
     await Promise.all(TOKEN_ART.map(t => tryCache(cache, './tok/' + t + '.png')));
