@@ -563,6 +563,10 @@ body.at-home main{padding-bottom:12px}
 #s-home .homeart{margin:-96px -16px 4px;z-index:1;
   -webkit-mask-image:radial-gradient(ellipse 58% 54% at 50% 50%,#000 58%,transparent 100%);mask-image:radial-gradient(ellipse 58% 54% at 50% 50%,#000 58%,transparent 100%)}
 #s-home .homeart img{object-position:50% 0;transform:translateY(-9%) scale(1.14);transform-origin:50% 0}
+/* no Random matchup on home: a slightly bigger logo, the hero a little lower */
+#s-home .homelogo img{width:min(54%,220px)}
+#s-home .homeart{margin:-64px -16px 6px}
+#s-home .fbtn{margin:0 6px 20px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -579,18 +583,13 @@ body.at-home main{padding-bottom:12px}
 <main>
   <!-- ========== HOME ========== -->
   <section class="screen on" id="s-home">
-    <h1 class="homelogo"><img src="app-logo.webp" alt="Dice Throne Matrix"></h1>
+    <h1 class="homelogo"><img src="app-logo-2.webp" alt="Dice Throne Matrix"></h1>
 
     <!-- a hero from the roster, cross-fading to the next one -->
     <div class="homeart" aria-hidden="true"><img alt=""><img alt=""></div>
 
     <button class="fbtn" onclick="openBattle()">
       <span class="top"><svg class="die" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4.5" fill="#fff" stroke="#9A4A06" stroke-width="1.8"/><circle cx="8" cy="8" r="1.7" fill="#9A4A06"/><circle cx="16" cy="8" r="1.7" fill="#9A4A06"/><circle cx="12" cy="12" r="1.7" fill="#9A4A06"/><circle cx="8" cy="16" r="1.7" fill="#9A4A06"/><circle cx="16" cy="16" r="1.7" fill="#9A4A06"/></svg>LOG A BATTLE</span>
-    </button>
-
-    <button class="randbar" onclick="randomBattle()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
-      Random matchup
     </button>
 
     <button class="progstrip" onclick="go('matrix');setMatrixView('map')">

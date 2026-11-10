@@ -7,7 +7,7 @@ const CACHE   = 'dt-' + VERSION;
 const SHELL = [
   './',
   './index.html',
-  './app-logo.webp',
+  './app-logo-2.webp',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
