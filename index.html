@@ -582,6 +582,49 @@ body.at-home main{padding-bottom:12px}
 #heroList .shead{padding:0 4px 6px;margin-top:12px}
 #heroList .shead:first-child{margin-top:0}
 #heroList .shead b{line-height:1.15}
+/* ---------- Log a battle: full screen, two heroes facing off ---------- */
+.sheet{top:0;max-height:none;border-radius:0;border-top:0;box-shadow:none;
+  padding:calc(12px + env(safe-area-inset-top)) 16px calc(20px + env(safe-area-inset-bottom))}
+.sheet.on{animation:fadein .18s ease-out}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.shx{position:absolute;top:calc(6px + env(safe-area-inset-top));right:8px;width:44px;height:44px;display:grid;place-items:center;
+  font-size:32px;line-height:1;color:var(--quiet);z-index:3}
+.vsbox{display:grid;grid-template-columns:minmax(0,1fr) 26px minmax(0,1fr);align-items:stretch;margin-top:38px}
+.vside{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:0;padding:0;color:inherit}
+.vtag{position:relative;isolation:isolate;padding:4px 16px 5px;font-family:var(--head);font-size:18px;letter-spacing:.8px;text-transform:uppercase;color:#fff;
+  text-shadow:0 1px 0 rgba(0,0,0,.45)}
+.vtag::before{content:"";position:absolute;inset:0;z-index:-1;transform:skewX(var(--tilt));border-radius:5px;border:2px solid var(--edge);box-shadow:0 3px 0 var(--edge)}
+.vside.me .vtag::before{background:var(--win-face)}
+.vside.opp .vtag::before{background:var(--loss-face)}
+.vart{position:relative;display:block;width:100%;aspect-ratio:64/78;border-radius:10px;overflow:hidden;background:var(--c,#555);transition:transform .1s}
+.vside.me .vart{box-shadow:0 0 0 2px var(--edge),0 0 0 5px var(--win),0 0 18px rgba(62,155,219,.45)}
+.vside.opp .vart{box-shadow:0 0 0 2px var(--edge),0 0 0 5px var(--loss),0 0 18px rgba(184,50,74,.45)}
+.vside:active .vart{transform:scale(.97)}
+.vart img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;object-position:50% 30%;transform:scale(1.35);transform-origin:50% 40%}
+.vart img.legacy{transform:none;object-position:50% 50%}
+.vart .ini{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--head);font-size:40px;color:rgba(255,255,255,.4)}
+.vlogo{display:flex;align-items:center;justify-content:center;width:100%;min-height:44px;font-family:var(--head);font-size:18px;text-transform:uppercase;color:#fff;text-align:center;line-height:1.05}
+.vlogo .hlogo{width:100%;max-width:170px}
+.vdie{min-height:24px;line-height:0}
+.vstrip{position:relative;z-index:2;margin:34px 0 0;justify-self:center;width:8px;border-radius:4px;
+  background:linear-gradient(90deg,var(--gold-lo),var(--gold-hi) 50%,var(--gold-lo));box-shadow:0 0 0 1.5px #5A2E04}
+.vstrip span{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%) rotate(-6deg);font-family:var(--head);font-size:48px;line-height:1;
+  background:linear-gradient(180deg,#FFF3B0,var(--gold) 50%,var(--gold-lo));-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 3px 0 #4A2804) drop-shadow(0 0 2px #2B1600) drop-shadow(0 0 12px rgba(0,0,0,.7))}
+.vhint{margin:12px 0 4px;text-align:center;font-family:var(--cond);font-size:14px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+
+/* the picker */
+.picker{position:fixed;inset:0;z-index:65;display:none;flex-direction:column;
+  background:radial-gradient(ellipse at 30% 0%,rgba(80,100,140,.2),transparent 60%),var(--ink);padding-top:env(safe-area-inset-top)}
+.picker.on{display:flex;animation:fadein .15s ease-out}
+.pkbar{position:relative;flex:none;padding:14px 60px 10px 16px}
+.pkbar h2{font-size:26px;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.45)}
+.pkbar .shx{top:6px}
+.pksort{flex:none;margin:0 10px 6px}
+.sortbar button:first-child:nth-last-child(2),.sortbar button:first-child:nth-last-child(2) ~ button{grid-column:span 3}
+.pkbody{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:0 16px calc(20px + env(safe-area-inset-bottom))}
+.pkbody .shead{padding:0 4px 6px;margin-top:12px}
+.pkbody .shead:first-child{margin-top:4px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -828,15 +871,29 @@ body.at-home main{padding-bottom:12px}
 <div class="pop" id="tokPop"></div>
 
 <div class="sheet" id="sheet">
-  <div class="grab"></div>
-  <div class="row" id="shAvs" style="justify-content:center;gap:12px;margin-bottom:10px"></div>
-  <div class="vs" id="shTitle">Battle</div>
+  <button class="shx" onclick="closeSheet()" aria-label="Close">&times;</button>
 
-  <label for="fMine">You played</label>
-  <select id="fMine" onchange="syncTitle()"></select>
+  <!-- who fought: tap either hero to pick another one -->
+  <div class="vsbox">
+    <button class="vside me" onclick="openPicker('mine')" aria-label="Choose your hero">
+      <span class="vtag">You</span>
+      <span class="vart" id="vaMine"></span>
+      <span class="vlogo" id="vlMine"></span>
+      <span class="vdie" id="vdMine"></span>
+    </button>
+    <div class="vstrip" aria-hidden="true"><span>VS</span></div>
+    <button class="vside opp" onclick="openPicker('opp')" aria-label="Choose the opponent">
+      <span class="vtag">Opponent</span>
+      <span class="vart" id="vaOpp"></span>
+      <span class="vlogo" id="vlOpp"></span>
+      <span class="vdie" id="vdOpp"></span>
+    </button>
+  </div>
+  <div class="vhint">Tap a hero to choose</div>
 
-  <label for="fOpp">Against</label>
-  <select id="fOpp" onchange="syncTitle()"></select>
+  <!-- the chosen heroes are kept here; saving reads them as before -->
+  <select id="fMine" hidden onchange="syncTitle()"></select>
+  <select id="fOpp" hidden onchange="syncTitle()"></select>
 
   <div class="logged" id="shLogged"></div>
 
@@ -869,6 +926,15 @@ body.at-home main{padding-bottom:12px}
     <button class="btn" onclick="closeSheet()">Cancel</button>
   </div>
   <button class="btn danger block" id="delBtn" style="margin-top:10px;display:none" onclick="deleteBattle()">Delete this battle</button>
+</div>
+
+<div class="picker" id="picker" role="dialog" aria-modal="true" aria-labelledby="pkTitle">
+  <div class="pkbar">
+    <button class="shx" onclick="closePicker()" aria-label="Close">&times;</button>
+    <h2 id="pkTitle">Choose your hero</h2>
+  </div>
+  <div class="sortbar pksort" id="pkSort"></div>
+  <div class="pkbody" id="pkList"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -2908,9 +2974,82 @@ function toggleUlt(who){
 
 function syncTitle(){
   const a = $('#fMine').value, b = $('#fOpp').value;
-  $('#shTitle').innerHTML = esc(a) + '<span class="vsmark">vs</span>' + esc(b);
-  $('#shAvs').innerHTML = av(a,'m') + '<span class="muted small">vs</span>' + av(b,'m');
+  vsSide('Mine', a);
+  vsSide('Opp', b);
   syncLogged();
+}
+
+/* one side of the VS box: big art, the hero's logo, its difficulty die */
+function vsSide(id, name){
+  const h = hero(name), s = slug(name);
+  $('#va' + id).innerHTML = '<span class="ini">' + initials(name) + '</span>' +
+    '<img src="' + imgSrc(s, 0) + '" data-slug="' + s + '" data-i="0" alt="" decoding="async" onerror="nextImg(this)">';
+  $('#va' + id).style.setProperty('--c', (h && SET_COLOR[h.set]) || '#8A85A8');
+  $('#vl' + id).innerHTML = logoHTML(name);
+  $('#vd' + id).innerHTML = h && diffOf(h) ? die(diffOf(h), 24) : '';
+}
+
+/* ---------------- hero picker (inside Log a battle) ----------------
+   A full-screen grid of every hero, A-Z or by set. Picking one fills that side
+   and closes the picker. When choosing the opponent, heroes you have already
+   played your hero against carry a small W or L. Back closes just the picker. */
+let pickWhich = null;
+const PICK_SORTS = [['abc','A-Z'], ['set','By set']];
+
+function openPicker(which){
+  pickWhich = which;
+  $('#pkTitle').textContent = which === 'mine' ? 'Choose your hero' : 'Choose the opponent';
+  renderPicker();
+  $('#picker').classList.add('on');
+  $('#pkList').scrollTop = 0;
+  history.pushState({ dt: 'o', pick: 1 }, '');
+}
+function hidePicker(){ $('#picker').classList.remove('on'); }
+function pickerOpen(){ return $('#picker').classList.contains('on'); }
+function closePicker(){
+  if (history.state && history.state.pick) history.back();   /* popstate hides it */
+  else hidePicker();
+}
+function setPickSort(k){ S.pickSort = k; save(); renderPicker(); }
+
+function renderPicker(){
+  const sort = S.pickSort || 'set';
+  $('#pkSort').innerHTML = PICK_SORTS.map(([k,l]) =>
+    '<button class="' + (sort === k ? 'on' : '') + '" onclick="setPickSort(\'' + k + '\')">' + l + '</button>').join('');
+  const chosen = $(pickWhich === 'mine' ? '#fMine' : '#fOpp').value;
+  const mine = $('#fMine').value;
+  const list = S.heroes.slice().sort(sort === 'set'
+    ? (a,b) => (SET_ORDER[a.set] ?? 99) - (SET_ORDER[b.set] ?? 99) || a.set.localeCompare(b.set) || byName(a,b)
+    : byName);
+  let html = '', cur, open = false;
+  list.forEach(h => {
+    const g = sort === 'set' ? h.set : null;
+    if (!open || g !== cur){
+      if (open) html += '</div>';
+      cur = g;
+      if (g !== null) html += '<div class="shead"><b>' + esc(g) + '</b></div>';
+      html += '<div class="hgrid">'; open = true;
+    }
+    let badge = '';
+    if (pickWhich === 'opp'){
+      const b = get(mine, h.name);
+      if (b) badge = '<em class="hbadge ' + (b.w === 'me' ? 'w' : 'l') + '">' + (b.w === 'me' ? 'W' : 'L') + '</em>';
+    }
+    html += '<button class="hcell' + (h.name === chosen ? ' on' : '') + '" aria-label="' + esc(h.name) +
+      '" onclick="pickHero(' + jq(h.name) + ')">' + heroSq(h.name, badge) + '</button>';
+  });
+  if (open) html += '</div>';
+  $('#pkList').innerHTML = html;
+}
+
+function pickHero(name){
+  $(pickWhich === 'mine' ? '#fMine' : '#fOpp').value = name;
+  /* a matchup already in the log loads in, a new one starts from a clean form */
+  const k = kk($('#fMine').value, $('#fOpp').value);
+  if (S.battles[k]){ fillForm(S.battles[k]); editing = k; }
+  else if (editing){ fillForm(null); editing = null; }
+  syncTitle();
+  closePicker();
 }
 
 /* Writes the form from a record, or clears it when passed nothing. */
@@ -3018,9 +3157,10 @@ function closeSheet(){
 }
 
 function anyOverlayOpen(){
-  return $('#sheet').classList.contains('on') || $('#tokPop').classList.contains('on');
+  return $('#sheet').classList.contains('on') || $('#tokPop').classList.contains('on') || pickerOpen();
 }
 function hideOverlays(){
+  hidePicker();
   hideSheet();
   hideToken();
 }
@@ -3072,6 +3212,9 @@ function initBackButton(){
 
   window.addEventListener('popstate', e => {
     const st = e.state || {};
+
+    /* Back while picking a hero closes only the picker; the battle stays open */
+    if (pickerOpen()){ hidePicker(); return; }
 
     /* stepping back through a chain of linked tokens */
     if (st.dt === 'o' && st.tok){
