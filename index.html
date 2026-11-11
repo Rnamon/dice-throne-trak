@@ -565,6 +565,18 @@ body.at-home main{padding-bottom:12px}
 #s-home .homelogo img{width:min(54%,220px)}
 #s-home .homeart{margin:-80px -16px 6px}
 #s-home .fbtn{margin:0 6px 20px}
+/* sort buttons: all on screen at once, no sideways scrolling. Six columns,
+   so three buttons fill a row and five sit as three over two. */
+.sortbar{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px 12px;overflow:visible;padding:2px 6px 6px}
+.sortbar button{grid-column:span 2;min-width:0;padding:6px 6px;font-size:15px}
+.sortbar button:nth-child(4):nth-last-child(2),.sortbar button:nth-child(5):last-child{grid-column:span 3}
+.sortbar button:first-child:nth-last-child(4),.sortbar button:first-child:nth-last-child(4) ~ button{grid-column:span 3}
+/* a hero who has played all 45 matchups: a bold gold frame and a gold check */
+.hcell.done .hsq{box-shadow:0 0 0 2px #3A1F02,0 0 0 5px var(--gold),0 0 0 6px #7A3E06,0 0 16px rgba(247,181,44,.75)}
+.hcell.done .hsq::after{content:"";position:absolute;top:4px;left:4px;width:19px;height:19px;border-radius:50%;z-index:2;
+  background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M6 12.5l4 4 8-9' fill='none' stroke='%23fff' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/></svg>") center/14px no-repeat,
+    linear-gradient(180deg,var(--gold-hi),var(--gold) 50%,var(--gold-lo));box-shadow:0 0 0 1.5px #7A3E06,0 2px 3px rgba(0,0,0,.5)}
+.hcell.done .nm{color:var(--gold-hi)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -1277,8 +1289,9 @@ function heroCell(h){
   const s = heroStats(h.name);
   const badge = S.sort === 'wins'   ? '<em class="hbadge w">' + s.w + '</em>'
               : S.sort === 'losses' ? '<em class="hbadge l">' + s.l + '</em>' : '';
-  return '<button class="hcell" aria-label="' + esc(h.name) + '" onclick="openHero(' + jq(h.name) + ')">' +
-    heroSq(h.name, badge) + recBar(h.name) + '</button>';
+  const done = s.total > 0 && s.done >= s.total;   /* played against every hero: finished */
+  return '<button class="hcell' + (done ? ' done' : '') + '" aria-label="' + esc(h.name) + (done ? ', all matchups played' : '') +
+    '" onclick="openHero(' + jq(h.name) + ')">' + heroSq(h.name, badge) + recBar(h.name) + '</button>';
 }
 
 function renderHeroes(){
