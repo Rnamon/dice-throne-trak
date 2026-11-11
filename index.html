@@ -625,6 +625,16 @@ body.at-home main{padding-bottom:12px}
 .pkbody{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:0 16px calc(20px + env(safe-area-inset-bottom))}
 .pkbody .shead{padding:0 4px 6px;margin-top:12px}
 .pkbody .shead:first-child{margin-top:4px}
+/* tags and the difficulty die sit inside the cards; the strip has square ends */
+.vsbox{margin-top:44px}
+.vart .vtag{position:absolute;top:7px;z-index:2;padding:2px 10px 3px;font-size:14px}
+.vside.me .vart .vtag{left:9px}
+.vside.opp .vart .vtag{right:9px}
+.vart .vdie{position:absolute;bottom:6px;z-index:2;min-height:0;padding:3px;border-radius:6px;background:rgba(5,7,12,.7);box-shadow:0 0 0 1.5px var(--edge);line-height:0}
+.vart .vdie img.die{position:static;inset:auto;display:block;width:20px;height:20px;max-width:none;margin:0;transform:none;object-fit:contain}
+.vside.me .vart .vdie{left:7px}
+.vside.opp .vart .vdie{right:7px}
+.vstrip{border-radius:0;margin-top:0}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -876,17 +886,13 @@ body.at-home main{padding-bottom:12px}
   <!-- who fought: tap either hero to pick another one -->
   <div class="vsbox">
     <button class="vside me" onclick="openPicker('mine')" aria-label="Choose your hero">
-      <span class="vtag">You</span>
       <span class="vart" id="vaMine"></span>
       <span class="vlogo" id="vlMine"></span>
-      <span class="vdie" id="vdMine"></span>
     </button>
     <div class="vstrip" aria-hidden="true"><span>VS</span></div>
     <button class="vside opp" onclick="openPicker('opp')" aria-label="Choose the opponent">
-      <span class="vtag">Opponent</span>
       <span class="vart" id="vaOpp"></span>
       <span class="vlogo" id="vlOpp"></span>
-      <span class="vdie" id="vdOpp"></span>
     </button>
   </div>
   <div class="vhint">Tap a hero to choose</div>
@@ -2983,10 +2989,11 @@ function syncTitle(){
 function vsSide(id, name){
   const h = hero(name), s = slug(name);
   $('#va' + id).innerHTML = '<span class="ini">' + initials(name) + '</span>' +
-    '<img src="' + imgSrc(s, 0) + '" data-slug="' + s + '" data-i="0" alt="" decoding="async" onerror="nextImg(this)">';
+    '<img src="' + imgSrc(s, 0) + '" data-slug="' + s + '" data-i="0" alt="" decoding="async" onerror="nextImg(this)">' +
+    '<span class="vtag">' + (id === 'Mine' ? 'You' : 'Opponent') + '</span>' +
+    (h && diffOf(h) ? '<span class="vdie">' + die(diffOf(h), 20) + '</span>' : '');
   $('#va' + id).style.setProperty('--c', (h && SET_COLOR[h.set]) || '#8A85A8');
   $('#vl' + id).innerHTML = logoHTML(name);
-  $('#vd' + id).innerHTML = h && diffOf(h) ? die(diffOf(h), 24) : '';
 }
 
 /* ---------------- hero picker (inside Log a battle) ----------------
