@@ -635,6 +635,31 @@ body.at-home main{padding-bottom:12px}
 .vside.me .vart .vdie{left:7px}
 .vside.opp .vart .vdie{right:7px}
 .vstrip{border-radius:0;margin-top:0}
+/* Log a battle, round 3: hint up by the X, corner tags like DT Intros,
+   no gold strip, a smaller VS, tighter spacing, HP and Ultimate on one row */
+.sheet .vhint{position:absolute;top:calc(6px + env(safe-area-inset-top));left:16px;right:60px;height:44px;margin:0;display:flex;align-items:center;
+  font-size:12px;letter-spacing:.8px}
+.vsbox{margin-top:40px;grid-template-columns:minmax(0,1fr) 12px minmax(0,1fr)}
+.vside{gap:4px}
+.vart .vtag{top:0;padding:4px 12px 5px;font-family:var(--cond);font-weight:700;font-size:15px;letter-spacing:1.4px;line-height:1;border-radius:0;
+  text-shadow:0 1px 0 rgba(0,0,0,.5)}
+.vart .vtag::before{transform:none;border:0;border-radius:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 2px 4px rgba(0,0,0,.4)}
+.vside.me .vart .vtag{left:0}
+.vside.opp .vart .vtag{right:0}
+.vside.me .vart .vtag::before{background:repeating-linear-gradient(115deg,rgba(255,255,255,.14) 0 3px,transparent 3px 12px),var(--win-face)}
+.vside.opp .vart .vtag::before{background:repeating-linear-gradient(115deg,rgba(255,255,255,.12) 0 3px,transparent 3px 12px),var(--loss-face)}
+.vstrip{width:0;background:none;box-shadow:none}
+.vstrip span{font-size:36px;top:42%}
+.vart .vdie{bottom:3px;padding:1px;border-radius:5px;background:rgba(5,7,12,.55);box-shadow:0 0 0 1px rgba(5,7,12,.8)}
+.vside.me .vart .vdie{left:3px}
+.vside.opp .vart .vdie{right:3px}
+.vlogo{min-height:38px}
+.sheet .logged{margin-top:10px}
+.sheet label{margin:10px 0 6px}
+.seg#wSeg.flip button::before{transform:skewX(var(--untilt))}
+.hprow{display:grid;grid-template-columns:104px minmax(0,1fr);gap:14px;align-items:end}
+.hprow .toggles{padding:0 4px}
+.hprow #fHP{height:44px;text-align:center;font-size:18px;font-weight:700}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -882,6 +907,7 @@ body.at-home main{padding-bottom:12px}
 
 <div class="sheet" id="sheet">
   <button class="shx" onclick="closeSheet()" aria-label="Close">&times;</button>
+  <div class="vhint">Tap a hero to choose</div>
 
   <!-- who fought: tap either hero to pick another one -->
   <div class="vsbox">
@@ -895,7 +921,6 @@ body.at-home main{padding-bottom:12px}
       <span class="vlogo" id="vlOpp"></span>
     </button>
   </div>
-  <div class="vhint">Tap a hero to choose</div>
 
   <!-- the chosen heroes are kept here; saving reads them as before -->
   <select id="fMine" hidden onchange="syncTitle()"></select>
@@ -904,18 +929,23 @@ body.at-home main{padding-bottom:12px}
   <div class="logged" id="shLogged"></div>
 
   <label>Winner</label>
-  <div class="seg">
+  <div class="seg" id="wSeg">
     <button id="wMe" onclick="setWinner('me')">Me</button>
     <button id="wOpp" onclick="setWinner('opp')">Opponent</button>
   </div>
 
-  <label for="fHP" id="fHPLab">My HP left</label>
-  <input id="fHP" type="number" inputmode="numeric" min="0" placeholder="0">
-
-  <label>Ultimate used</label>
-  <div class="toggles">
-    <button id="uMe" onclick="toggleUlt('me')">Me</button>
-    <button id="uOpp" onclick="toggleUlt('opp')">Opponent</button>
+  <div class="hprow">
+    <div class="hpcol">
+      <label for="fHP" id="fHPLab">My HP left</label>
+      <input id="fHP" type="number" inputmode="numeric" min="0" placeholder="0">
+    </div>
+    <div class="ultcol">
+      <label>Ultimate used</label>
+      <div class="toggles">
+        <button id="uMe" onclick="toggleUlt('me')">Me</button>
+        <button id="uOpp" onclick="toggleUlt('opp')">Opponent</button>
+      </div>
+    </div>
   </div>
 
   <label for="fVs">Played against</label>
@@ -2970,7 +3000,8 @@ function setWinner(v){
   winner = v;
   $('#wMe').classList.toggle('on', v === 'me');
   $('#wOpp').classList.toggle('on', v === 'opp');
-  $('#fHPLab').textContent = v === 'me' ? 'My HP left' : "Opponent's HP left";
+  $('#fHPLab').textContent = v === 'me' ? 'My HP left' : 'Their HP left';
+  $('#wSeg').classList.toggle('flip', v === 'opp');   /* the lean points to whoever won */
 }
 
 function toggleUlt(who){
