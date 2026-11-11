@@ -577,6 +577,11 @@ body.at-home main{padding-bottom:12px}
   background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M6 12.5l4 4 8-9' fill='none' stroke='%23fff' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/></svg>") center/14px no-repeat,
     linear-gradient(180deg,var(--gold-hi),var(--gold) 50%,var(--gold-lo));box-shadow:0 0 0 1.5px #7A3E06,0 2px 3px rgba(0,0,0,.5)}
 .hcell.done .nm{color:var(--gold-hi)}
+/* group headings (by set / by difficulty) sit as tight as the A-Z grid:
+   no tall padding above them, a short break between groups */
+#heroList .shead{padding:0 4px 6px;margin-top:12px}
+#heroList .shead:first-child{margin-top:0}
+#heroList .shead b{line-height:1.15}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
