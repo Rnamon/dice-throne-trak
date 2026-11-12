@@ -820,6 +820,33 @@ body.at-home main{padding-bottom:12px}
 /* pool tabs: the shadow matches the tab (dark blue / dark red), not gold-brown */
 .ptab[data-side="mine"][aria-pressed="true"]::before{box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 4px 0 #123E66}
 .ptab[data-side="opp"][aria-pressed="true"]::before{box-shadow:inset 0 2px 0 rgba(255,255,255,.3),0 4px 0 #5C1322}
+/* ---------- Draw, round 3 ----------
+   less gap under the panel; no die on the pictures; under each picture a
+   bigger logo, then set · Difficulty level [die] on one line. Just for me:
+   the picture on the left, logo / set / difficulty stacked on the right. */
+main:has(#s-draw.on){padding-bottom:6px}
+#s-draw.on{height:calc(100dvh - var(--tab-h) - env(safe-area-inset-bottom) - var(--topbar-h,56px) - 22px)}
+#s-draw .vart .vdie{display:none}
+#s-draw .vinfo{min-height:74px;gap:2px}
+#s-draw .vinfo .vlogo{height:46px;width:100%}
+#s-draw .vinfo .vlogo .hlogo{max-height:46px;max-width:100%}
+.vmeta{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:2px 8px;min-height:22px}
+#s-draw .vmeta .vset{min-height:0;font-size:12px}
+#s-draw .vdif{display:flex;align-items:center;gap:5px;line-height:1}
+.vdl{font-family:var(--cond);font-weight:700;font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+#s-draw .vdif .die{margin:0;width:20px!important;height:20px!important}
+/* just for me */
+#s-draw.solo .vside.me{flex-direction:row;align-items:stretch;gap:14px}
+#s-draw.solo .vart{flex:0 0 56%;height:100%}
+#s-draw.solo .vart img{transform:scale(1.25);transform-origin:50% 30%;object-position:50% 25%}
+#s-draw.solo .vinfo{flex:1;min-width:0;flex-direction:column;justify-content:center;align-items:center;gap:12px;padding:0;min-height:0}
+#s-draw.solo .vinfo .vlogo{width:100%;height:auto;min-height:60px}
+#s-draw.solo .vinfo .vlogo .hlogo{max-height:80px;width:100%}
+#s-draw.solo .vmeta{flex-direction:column;gap:12px}
+#s-draw.solo .vmeta .vset{flex:none;text-align:center;font-size:15px}
+#s-draw.solo .vdif{flex:none;flex-direction:column;justify-content:center;gap:6px}
+#s-draw.solo .vdl{font-size:13px}
+#s-draw.solo .vdif .die{width:30px!important;height:30px!important}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -928,12 +955,12 @@ body.at-home main{padding-bottom:12px}
     <div class="vsbox dstage">
       <button class="vside me" id="dsMe" disabled>
         <span class="vart"><span class="reel" id="f1"></span><span class="vtag">You</span><span class="vdie" id="ddMe"></span></span>
-        <span class="vinfo"><span class="vset" id="dtMe"></span><span class="vlogo" id="dlMe"></span><span class="vdif" id="dfMe"></span></span>
+        <span class="vinfo"><span class="vlogo" id="dlMe"></span><span class="vmeta"><span class="vset" id="dtMe"></span><span class="vdif" id="dfMe"></span></span></span>
       </button>
       <div class="vstrip" aria-hidden="true"><span>VS</span></div>
       <button class="vside opp" id="dsOpp" disabled>
         <span class="vart"><span class="reel" id="f2"></span><span class="vtag">Opponent</span><span class="vdie" id="ddOpp"></span></span>
-        <span class="vinfo"><span class="vset" id="dtOpp"></span><span class="vlogo" id="dlOpp"></span><span class="vdif"></span></span>
+        <span class="vinfo"><span class="vlogo" id="dlOpp"></span><span class="vmeta"><span class="vset" id="dtOpp"></span><span class="vdif" id="dfOpp"></span></span></span>
       </button>
     </div>
     <div class="dstatus" id="dStatus"></div>
@@ -3768,7 +3795,7 @@ function showHero(id, name){
   $('#dl' + id).innerHTML = logoHTML(name);
   $('#dt' + id).textContent = h.set || '';
   $('#dd' + id).innerHTML = diffOf(h) ? die(diffOf(h), 20) : '';
-  const fd = $('#df' + id); if (fd) fd.innerHTML = diffOf(h) ? die(diffOf(h), 22) : '';
+  const fd = $('#df' + id); if (fd) fd.innerHTML = diffOf(h) ? '<span class="vdl">Difficulty level</span>' + die(diffOf(h), 22) : '';
   $('#ds' + id).disabled = false;
   $('#ds' + id).onclick = () => openHero(name);
 }
@@ -3789,7 +3816,7 @@ async function startRoll(){
 
   rolling = true; lastDraw = null;
   ['Me', 'Opp'].forEach(id => { $('#dl' + id).innerHTML = ''; $('#dt' + id).textContent = ''; $('#dd' + id).innerHTML = ''; $('#ds' + id).disabled = true; });
-  if ($('#dfMe')) $('#dfMe').innerHTML = '';
+  ['#dfMe', '#dfOpp'].forEach(s => { if ($(s)) $(s).innerHTML = ''; });
   $('#dStatus').textContent = '';
   $('#s-draw').classList.remove('rolled');
   $('#rollBtn').disabled = true; $('#rollAgain').disabled = true;
