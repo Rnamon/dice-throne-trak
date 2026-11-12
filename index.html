@@ -773,6 +773,53 @@ body.at-home main{padding-bottom:12px}
 .mirrorbtn[aria-checked="true"]{text-shadow:0 1px 0 #9A4A06}
 .mirrorbtn.shake{animation:shake .45s ease}
 @keyframes shake{0%,100%{transform:translateX(0)}15%{transform:translateX(-9px)}30%{transform:translateX(8px)}45%{transform:translateX(-6px)}60%{transform:translateX(5px)}75%{transform:translateX(-2px)}}
+/* ---------- Draw, round 2: one screen, nothing moves ----------
+   The screen fills the space between the top bar and the rail. The panel is
+   pinned to the bottom and keeps its size: after a roll only its contents
+   swap (the switch becomes Roll again, Roll becomes Log this battle). */
+.fbtn{padding:0}
+#s-draw.on{display:flex;flex-direction:column;height:calc(100dvh - var(--tab-h) - env(safe-area-inset-bottom) - var(--topbar-h,56px) - 42px)}
+#s-draw .vsbox.dstage{flex:1 1 0;min-height:0;margin-top:12px;grid-template-rows:minmax(0,1fr)}
+#s-draw .vside{min-height:0;height:100%}
+#s-draw .vart{flex:1 1 0;min-height:0;aspect-ratio:auto}
+#s-draw .vart img{transform:scale(1.15);transform-origin:50% 30%;object-position:50% 22%}
+#s-draw .vinfo{flex:none;display:flex;flex-direction:column;align-items:center;gap:0;min-height:62px;justify-content:center}
+#s-draw .vinfo .vlogo{min-height:0;height:40px}
+#s-draw .vinfo .vlogo .hlogo{max-height:40px}
+#s-draw .vdif{display:none}
+#s-draw .vset{min-height:16px}
+.dstatus{flex:none;visibility:hidden;margin:6px auto 2px}
+.dstatus:empty{display:flex;visibility:hidden}
+.dstatus:empty::before{display:none}
+.dstatus:not(:empty){visibility:visible}
+.dstatus:empty::after{content:"\00a0"}
+.dpanel{flex:none;margin-top:8px}
+.dslot{height:58px;display:flex;align-items:center;border-top:1.5px solid rgba(52,64,94,.6);margin-top:6px}
+.dslot .trow{flex:1;border-top:0;margin:0;padding:0}
+.dslot #rollAgain{display:none;margin:0 4px;width:calc(100% - 8px);min-height:44px}
+.dslot #rollAgain svg{width:22px;height:22px;flex:none}
+#s-draw.rolled .dslot .trow{display:none}
+#s-draw.rolled .dslot #rollAgain{display:flex}
+.dpanel .fbtn{height:96px}
+.dpanel #rollLog{display:none}
+#s-draw.rolled #rollBtn{display:none}
+#s-draw.rolled #rollLog{display:flex}
+#s-draw.rolled #rollBtn,#s-draw.rolled .trow{display:none}
+.dpanel .fbtn.log .top{font-size:34px;padding:10px}
+/* just for me: one wide picture, no tag, set | logo | difficulty underneath */
+#s-draw.solo .vsbox.dstage{grid-template-columns:minmax(0,1fr)}
+#s-draw.solo .vsbox .vside.me{width:100%}
+#s-draw.solo .vart .vtag,#s-draw.solo .vart .vdie{display:none}
+#s-draw.solo .vinfo{flex-direction:row;justify-content:space-between;gap:10px;padding:0 6px;min-height:56px}
+#s-draw.solo .vinfo .vset{flex:1;text-align:left;font-size:15px}
+#s-draw.solo .vinfo .vlogo{flex:none;width:170px;height:48px}
+#s-draw.solo .vinfo .vlogo .hlogo{max-height:48px}
+#s-draw.solo .vdif{display:flex;flex:1;justify-content:flex-end;line-height:0}
+#s-draw.solo .vdif .die{margin:0}
+#s-draw.solo .vart img{transform:scale(1.05);object-position:50% 25%}
+/* pool tabs: the shadow matches the tab (dark blue / dark red), not gold-brown */
+.ptab[data-side="mine"][aria-pressed="true"]::before{box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 4px 0 #123E66}
+.ptab[data-side="opp"][aria-pressed="true"]::before{box-shadow:inset 0 2px 0 rgba(255,255,255,.3),0 4px 0 #5C1322}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -881,12 +928,12 @@ body.at-home main{padding-bottom:12px}
     <div class="vsbox dstage">
       <button class="vside me" id="dsMe" disabled>
         <span class="vart"><span class="reel" id="f1"></span><span class="vtag">You</span><span class="vdie" id="ddMe"></span></span>
-        <span class="vlogo" id="dlMe"></span><span class="vset" id="dtMe"></span>
+        <span class="vinfo"><span class="vset" id="dtMe"></span><span class="vlogo" id="dlMe"></span><span class="vdif" id="dfMe"></span></span>
       </button>
       <div class="vstrip" aria-hidden="true"><span>VS</span></div>
       <button class="vside opp" id="dsOpp" disabled>
         <span class="vart"><span class="reel" id="f2"></span><span class="vtag">Opponent</span><span class="vdie" id="ddOpp"></span></span>
-        <span class="vlogo" id="dlOpp"></span><span class="vset" id="dtOpp"></span>
+        <span class="vinfo"><span class="vset" id="dtOpp"></span><span class="vlogo" id="dlOpp"></span><span class="vdif"></span></span>
       </button>
     </div>
     <div class="dstatus" id="dStatus"></div>
@@ -897,19 +944,19 @@ body.at-home main{padding-bottom:12px}
         <span class="ptxt"><b>Pool</b><small id="dpSub"></small></span>
         <button class="btn gold sm" onclick="openPoolEd()">Edit</button>
       </div>
+      <div class="dslot">
       <div class="trow" id="dUnRow">
         <span>Only matchups I haven't played<small id="dUnSub"></small></span>
         <button class="mtog" id="dUnplayed" role="switch" aria-checked="false" aria-label="Only matchups I haven't played" onclick="toggleUnplayed()"></button>
+      </div>
+      <button class="btn block" id="rollAgain" onclick="startRoll()"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.5 6.2L3 16M3 21v-5h5"/></svg> Roll again</button>
       </div>
       <div class="prep" id="prep" style="display:none">
         <div class="tiny muted" style="text-align:center" id="prepText"></div>
         <div class="meterwrap"><div class="meter" id="prepMeter" style="width:0%"></div></div>
       </div>
       <button class="fbtn" id="rollBtn" onclick="startRoll()"><span class="top"><svg class="die" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4.5" fill="#fff" stroke="#9A4A06" stroke-width="1.8"/><circle cx="8" cy="8" r="1.7" fill="#9A4A06"/><circle cx="16" cy="8" r="1.7" fill="#9A4A06"/><circle cx="12" cy="12" r="1.7" fill="#9A4A06"/><circle cx="8" cy="16" r="1.7" fill="#9A4A06"/><circle cx="16" cy="16" r="1.7" fill="#9A4A06"/></svg><span id="rollTxt">Roll</span></span><span class="strip"><span>Random from your pool</span></span></button>
-      <div class="dres">
-        <button class="fbtn log" id="rollLog" onclick="logDraw()"><span class="top">Log this battle</span></button>
-        <button class="btn block" id="rollAgain" onclick="startRoll()"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.5 6.2L3 16M3 21v-5h5"/></svg> Roll again</button>
-      </div>
+      <button class="fbtn log" id="rollLog" onclick="logDraw()"><span class="top">Log this battle</span><span class="strip"><span>Opens Log a battle</span></span></button>
     </div>
   </section>
 
@@ -1439,7 +1486,7 @@ function go(id, back){
   if (id === 'matrix') setMatrixView(S.matView || 'grid');
   if (id === 'heroes') renderHeroes();
   if (id === 'stats')  renderStats();
-  if (id === 'draw')   renderDraw();
+  if (id === 'draw')   { measureTopbar(); renderDraw(); }
   if (id === 'home')   { renderHome(); homeArtNext(); }
   if (id === 'bkg')     renderThemes();
   if (id === 'bkg' || id === 'credits') $('#t-set').classList.add('on');
@@ -3550,6 +3597,7 @@ function resetFaces(){
   ['#f1', '#f2'].forEach(s => $(s).innerHTML = '<span class="frame on"><b class="q">?</b></span>');
   ['Me', 'Opp'].forEach(id => {
     $('#dl' + id).innerHTML = ''; $('#dt' + id).textContent = ''; $('#dd' + id).innerHTML = '';
+    const fd = $('#df' + id); if (fd) fd.innerHTML = '';
     $('#ds' + id).disabled = true; $('#ds' + id).onclick = null;
   });
   $('#dStatus').textContent = '';
@@ -3574,7 +3622,18 @@ function closePoolEd(){
   if (history.state && history.state.pooled) history.back();   /* popstate hides it */
   else hidePoolEd();
 }
-function poolRoll(){ closePoolEd(); setTimeout(startRoll, 60); }
+/* Roll from inside the pool screen: an empty pool says so and stays put */
+function drawProblem(){
+  if (S.drawMode !== 'both') return drawSingles().length ? '' : (S.unplayedOnly ? 'These heroes have played every matchup' : 'Pick at least one hero');
+  if (!pickList('mine').length) return 'Pick at least one hero for you';
+  if (!S.mirrorOnly && !pickList('opp').length) return 'Pick at least one hero for the opponent';
+  return drawPairs().length ? '' : 'Every matchup in this pool is already played';
+}
+function poolRoll(){
+  const why = drawProblem();
+  if (why) return toast(why);
+  closePoolEd(); setTimeout(startRoll, 60);
+}
 function editSide(){ return (S.drawMode === 'both' && !S.mirrorOnly) ? (S.poolSide || 'mine') : 'mine'; }
 
 function setPoolSide(side){
@@ -3709,6 +3768,7 @@ function showHero(id, name){
   $('#dl' + id).innerHTML = logoHTML(name);
   $('#dt' + id).textContent = h.set || '';
   $('#dd' + id).innerHTML = diffOf(h) ? die(diffOf(h), 20) : '';
+  const fd = $('#df' + id); if (fd) fd.innerHTML = diffOf(h) ? die(diffOf(h), 22) : '';
   $('#ds' + id).disabled = false;
   $('#ds' + id).onclick = () => openHero(name);
 }
@@ -3729,6 +3789,7 @@ async function startRoll(){
 
   rolling = true; lastDraw = null;
   ['Me', 'Opp'].forEach(id => { $('#dl' + id).innerHTML = ''; $('#dt' + id).textContent = ''; $('#dd' + id).innerHTML = ''; $('#ds' + id).disabled = true; });
+  if ($('#dfMe')) $('#dfMe').innerHTML = '';
   $('#dStatus').textContent = '';
   $('#s-draw').classList.remove('rolled');
   $('#rollBtn').disabled = true; $('#rollAgain').disabled = true;
@@ -3815,7 +3876,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '4.9';
+const APP_VERSION = '4.10';
 let swReg = null;
 
 function takeOver(sw){
@@ -3969,6 +4030,14 @@ function startHomeArt(){
   clearInterval(homeArtTimer);
   homeArtTimer = setInterval(homeArtNext, 5500);
 }
+
+/* the Draw screen fills exactly the space under the top bar, so it needs its height */
+function measureTopbar(){
+  const t = document.querySelector('.topbar');
+  if (t && t.offsetHeight) document.documentElement.style.setProperty('--topbar-h', t.offsetHeight + 'px');
+}
+window.addEventListener('resize', measureTopbar);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureTopbar);
 
 (async function init(){
   const raw = await Store.get();
