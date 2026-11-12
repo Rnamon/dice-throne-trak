@@ -876,6 +876,11 @@ main:has(#s-draw.on){padding-bottom:6px}
 .dslot #rollAgain{min-height:44px;height:44px}
 #s-draw.rolled .dslot{padding:12px 0 17px}
 .dpanel .fbtn{margin-top:0}
+/* a battle already in the log: the side bar says how it went (blue won, red lost) */
+.logged.won{border-left-color:var(--win)}
+.logged.lost{border-left-color:var(--loss)}
+/* Draw: a gold | between the set and Difficulty */
+#s-draw .vdif:not(:empty)::before{content:"|";margin-right:3px;font-family:var(--cond);font-weight:700;font-size:15px;line-height:1;color:var(--gold)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -3401,6 +3406,8 @@ function syncLogged(){
     '</div>';
 
   box.classList.add('on');
+  box.classList.toggle('won', won);
+  box.classList.toggle('lost', !won);
   $('#delBtn').style.display = 'block';
   $('#saveBtn').textContent  = mine ? 'Update it' : 'Replace it';
 }
@@ -3932,7 +3939,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '4.14';
+const APP_VERSION = '4.15';
 let swReg = null;
 
 function takeOver(sw){
