@@ -847,6 +847,8 @@ main:has(#s-draw.on){padding-bottom:6px}
 #s-draw.solo .vdif{flex:none;flex-direction:column;justify-content:center;gap:6px}
 #s-draw.solo .vdl{font-size:13px}
 #s-draw.solo .vdif .die{width:30px!important;height:30px!important}
+/* both players: the art sits a little higher inside the frame */
+#s-draw:not(.solo) .vart img{object-position:50% 0;transform:translateY(-6%) scale(1.15);transform-origin:50% 0}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -3903,7 +3905,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '4.10';
+const APP_VERSION = '4.11';
 let swReg = null;
 
 function takeOver(sw){
