@@ -869,6 +869,13 @@ main:has(#s-draw.on){padding-bottom:6px}
 #s-draw.solo .vdif .die{width:20px!important;height:20px!important}
 .dpanel{position:relative}
 .dpanel .prep{position:absolute;left:14px;right:14px;top:-34px;margin:0;padding:6px 10px;border-radius:8px;background:rgba(10,14,24,.92);box-shadow:0 0 0 1.5px var(--line);z-index:3}
+/* the middle row of the Draw panel: equal space above and below it,
+   whether it holds the switch or Roll again (its 4px shadow counted) */
+.dslot{height:auto;min-height:0;padding:12px 0 13px;margin-top:6px}
+.dslot .trow{min-height:48px}
+.dslot #rollAgain{min-height:44px;height:44px}
+#s-draw.rolled .dslot{padding:12px 0 17px}
+.dpanel .fbtn{margin-top:0}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -3925,7 +3932,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '4.13';
+const APP_VERSION = '4.14';
 let swReg = null;
 
 function takeOver(sw){
