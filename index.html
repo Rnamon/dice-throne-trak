@@ -849,6 +849,26 @@ main:has(#s-draw.on){padding-bottom:6px}
 #s-draw.solo .vdif .die{width:30px!important;height:30px!important}
 /* both players: the art sits a little higher inside the frame */
 #s-draw:not(.solo) .vart img{object-position:50% 0;transform:translateY(-6%) scale(1.15);transform-origin:50% 0}
+/* ---------- Draw, round 4 ----------
+   bigger art inside the frames; Just for me is a single card in the middle,
+   laid out like one side of Both players; set and difficulty in white; the
+   "Preparing heroes" bar floats over the panel so the panel never grows */
+#s-draw:not(.solo) .vart img,#s-draw.solo .vart img{object-position:50% 22%;transform:scale(1.4);transform-origin:50% 22%}
+#s-draw .vmeta .vset,#s-draw .vdl{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+#s-draw.solo .vsbox.dstage{grid-template-columns:minmax(0,1fr) 12px minmax(0,1fr);justify-items:stretch}
+#s-draw.solo .vsbox .vside.me{grid-column:1 / -1;justify-self:center;width:52%;flex-direction:column;align-items:center;gap:4px}
+#s-draw.solo .vart{flex:1 1 0;width:100%;height:auto}
+#s-draw.solo .vart .vtag{display:none}
+#s-draw.solo .vinfo{flex:none;width:100%;flex-direction:column;justify-content:center;align-items:center;gap:2px;min-height:74px;padding:0}
+#s-draw.solo .vinfo .vlogo{width:100%;height:46px;min-height:0}
+#s-draw.solo .vinfo .vlogo .hlogo{max-height:46px}
+#s-draw.solo .vmeta{flex-direction:row;gap:2px 8px}
+#s-draw.solo .vmeta .vset{font-size:12px}
+#s-draw.solo .vdif{flex-direction:row;gap:5px}
+#s-draw.solo .vdl{font-size:12px}
+#s-draw.solo .vdif .die{width:20px!important;height:20px!important}
+.dpanel{position:relative}
+.dpanel .prep{position:absolute;left:14px;right:14px;top:-34px;margin:0;padding:6px 10px;border-radius:8px;background:rgba(10,14,24,.92);box-shadow:0 0 0 1.5px var(--line);z-index:3}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -3797,7 +3817,7 @@ function showHero(id, name){
   $('#dl' + id).innerHTML = logoHTML(name);
   $('#dt' + id).textContent = h.set || '';
   $('#dd' + id).innerHTML = diffOf(h) ? die(diffOf(h), 20) : '';
-  const fd = $('#df' + id); if (fd) fd.innerHTML = diffOf(h) ? '<span class="vdl">Difficulty level</span>' + die(diffOf(h), 22) : '';
+  const fd = $('#df' + id); if (fd) fd.innerHTML = diffOf(h) ? '<span class="vdl">Difficulty</span>' + die(diffOf(h), 22) : '';
   $('#ds' + id).disabled = false;
   $('#ds' + id).onclick = () => openHero(name);
 }
