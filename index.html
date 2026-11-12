@@ -881,6 +881,9 @@ main:has(#s-draw.on){padding-bottom:6px}
 .logged.lost{border-left-color:var(--loss)}
 /* Draw: a gold | between the set and Difficulty */
 #s-draw .vdif:not(:empty)::before{content:"|";margin-right:3px;font-family:var(--cond);font-weight:700;font-size:15px;line-height:1;color:var(--gold)}
+/* Draw: VS sits exactly halfway down the pictures */
+#s-draw .vstrip{align-self:stretch;margin:0}
+#s-draw .vstrip span{top:var(--vs-mid,42%)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -1547,7 +1550,7 @@ function go(id, back){
   if (id === 'matrix') setMatrixView(S.matView || 'grid');
   if (id === 'heroes') renderHeroes();
   if (id === 'stats')  renderStats();
-  if (id === 'draw')   { measureTopbar(); renderDraw(); }
+  if (id === 'draw')   { measureTopbar(); renderDraw(); requestAnimationFrame(placeVS); }
   if (id === 'home')   { renderHome(); homeArtNext(); }
   if (id === 'bkg')     renderThemes();
   if (id === 'bkg' || id === 'credits') $('#t-set').classList.add('on');
@@ -3640,6 +3643,7 @@ function renderDraw(){
   $('#dmMe').classList.toggle('on', !both);
   $('#dmBoth').classList.toggle('on', both);
   $('#s-draw').classList.toggle('solo', !both);
+  requestAnimationFrame(placeVS);
 
   const m = pickList('mine'), o = pickList('opp');
   const show = m.slice().sort(() => Math.random() - .5).slice(0, 3);
@@ -3825,6 +3829,14 @@ function spin(frames, dur, target, done){
     setTimeout(tick, 55 + 330 * Math.pow(t / dur, 3));
   })();
 }
+
+function placeVS(){
+  const box = $('#s-draw .vsbox'), art = $('#dsMe .vart');
+  if (!box || !art || !box.offsetHeight) return;
+  const b = box.getBoundingClientRect(), a = art.getBoundingClientRect();
+  box.style.setProperty('--vs-mid', (a.top - b.top + a.height / 2) + 'px');
+}
+window.addEventListener('resize', () => { if (screenNow === 'draw') placeVS(); });
 
 function showHero(id, name){
   const h = hero(name) || {};
