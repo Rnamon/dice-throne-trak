@@ -676,6 +676,10 @@ body.at-home main{padding-bottom:12px}
   background:linear-gradient(180deg,#FFF3B0,var(--gold) 50%,var(--gold-lo));-webkit-background-clip:text;background-clip:text;color:transparent;
   filter:drop-shadow(0 2px 0 #4A2804)}
 .rmeta{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-end;gap:2px;line-height:1.2;text-align:right}
+/* the winner's face gets a coloured frame: blue when you won, red when they did */
+.rface{display:inline-flex;line-height:0}
+.rface.won-me .av{box-shadow:0 0 0 2px var(--edge),0 0 0 4.5px var(--win),0 0 10px rgba(62,155,219,.55)}
+.rface.won-opp .av{box-shadow:0 0 0 2px var(--edge),0 0 0 4.5px var(--loss),0 0 10px rgba(184,50,74,.55)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -1365,7 +1369,10 @@ function renderRecent(){
     ? '<div class="list">' + recent.map(([k,b]) => {
         const [a,o] = k.split('||');
         return '<button class="item recent" aria-label="' + esc(a) + ' vs ' + esc(o) + '" onclick="openBattle(' + jq(a) + ',' + jq(o) + ')">' +
-          '<span class="rpair">' + av(a, 'm') + '<span class="rvs">vs</span>' + av(o, 'm') + '</span>' +
+          '<span class="rpair">' +
+            '<span class="rface' + (b.w === 'me' ? ' won-me' : '') + '">' + av(a, 'm') + '</span>' +
+            '<span class="rvs">vs</span>' +
+            '<span class="rface' + (b.w === 'me' ? '' : ' won-opp') + '">' + av(o, 'm') + '</span></span>' +
           '<span class="rmeta">' + ultMark(b) +
           '<span class="tiny muted">' + esc(fmtDate(b.date)) + '</span></span>' +
           '<span class="chip ' + (b.w === 'me' ? 'w' : 'l') + '">' + (b.w === 'me' ? 'Won' : 'Lost') + '</span></button>';
@@ -3620,7 +3627,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '4.7';
+const APP_VERSION = '4.8';
 let swReg = null;
 
 function takeOver(sw){
