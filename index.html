@@ -853,7 +853,7 @@ main:has(#s-draw.on){padding-bottom:6px}
    bigger art inside the frames; Just for me is a single card in the middle,
    laid out like one side of Both players; set and difficulty in white; the
    "Preparing heroes" bar floats over the panel so the panel never grows */
-#s-draw:not(.solo) .vart img,#s-draw.solo .vart img{object-position:50% 22%;transform:scale(1.4);transform-origin:50% 22%}
+#s-draw:not(.solo) .vart img,#s-draw.solo .vart img{object-position:50% 22%;transform:translateY(-13%) scale(1.4);transform-origin:50% 22%}
 #s-draw .vmeta .vset,#s-draw .vdl{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.8)}
 #s-draw.solo .vsbox.dstage{grid-template-columns:minmax(0,1fr) 12px minmax(0,1fr);justify-items:stretch}
 #s-draw.solo .vsbox .vside.me{grid-column:1 / -1;justify-self:center;width:52%;flex-direction:column;align-items:center;gap:4px}
@@ -3925,7 +3925,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '4.12';
+const APP_VERSION = '4.13';
 let swReg = null;
 
 function takeOver(sw){
