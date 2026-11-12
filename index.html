@@ -680,6 +680,99 @@ body.at-home main{padding-bottom:12px}
 .rface{display:inline-flex;line-height:0}
 .rface.won-me .av{box-shadow:0 0 0 2px var(--edge),0 0 0 4.5px var(--win),0 0 10px rgba(62,155,219,.55)}
 .rface.won-opp .av{box-shadow:0 0 0 2px var(--edge),0 0 0 4.5px var(--loss),0 0 10px rgba(184,50,74,.55)}
+/* ---------- Draw: big heroes, one pool, Roll ---------- */
+#s-draw .seg{margin-bottom:0}
+#s-draw .vsbox{margin:14px 0 0}
+#s-draw.solo .vsbox{grid-template-columns:minmax(0,1fr);justify-items:center}
+#s-draw.solo .vsbox .vside.opp,#s-draw.solo .vsbox .vstrip{display:none}
+#s-draw.solo .vsbox .vside.me{width:62%}
+#s-draw .vside:disabled{cursor:default;opacity:1}
+#s-draw .reel{position:absolute;inset:0}
+#s-draw .reel .frame{position:absolute;inset:0;opacity:0}
+#s-draw .reel .frame.on{opacity:1}
+#s-draw .reel b.q{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--head);font-weight:400;font-size:78px;color:var(--gold);
+  text-shadow:0 4px 0 #4A2804,0 0 18px rgba(247,181,44,.35);background:radial-gradient(circle at 50% 38%,#3E5C8C,#1C2A44 72%)}
+#s-draw .reel.spin{animation:none}
+#s-draw .vlogo{min-height:46px}
+.vset{font-family:var(--cond);font-weight:700;font-size:13px;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);text-align:center;min-height:16px}
+.dstatus{display:flex;justify-content:center;min-height:0;margin:6px 0 2px}
+.dstatus:empty{display:none}
+.dstatus{position:relative;isolation:isolate;align-self:center;width:max-content;max-width:100%;margin:8px auto 4px;padding:4px 14px 5px;
+  font-family:var(--cond);font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;color:#1a1206}
+.dstatus::before{content:"";position:absolute;inset:0;z-index:-1;transform:skewX(var(--tilt));border-radius:5px;background:var(--gold-face);border:2px solid var(--brown);box-shadow:0 3px 0 #6B3404}
+.dpanel{margin-top:12px;padding:10px 14px 16px;border-radius:14px;background:linear-gradient(180deg,rgba(26,33,52,.95),rgba(12,16,26,.95));box-shadow:inset 0 0 0 2px var(--line),0 10px 20px rgba(0,0,0,.4)}
+.prow{display:flex;align-items:center;gap:12px;padding:4px 0}
+.dfaces{display:flex;flex:none}
+.dfaces .av{width:38px;height:38px;margin-left:-8px;box-shadow:0 0 0 2px #141A28,0 0 0 3.5px rgba(247,181,44,.8)}
+.dfaces .av:first-child{margin-left:0}
+.ptxt{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.15}
+.ptxt b{font-family:var(--head);font-weight:400;font-size:21px;color:#fff}
+.ptxt small{font-size:14px;font-weight:600;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trow{display:flex;align-items:center;gap:12px;padding:10px 0 2px;border-top:1.5px solid rgba(52,64,94,.6);margin-top:6px}
+.trow > span{flex:1;font-weight:600;font-size:16px;color:var(--quiet);line-height:1.2}
+.trow small{display:block;font-size:13px;color:#7D89A6}
+.mtog{position:relative;flex:none;width:70px;height:36px;border-radius:999px;background:linear-gradient(180deg,#0B0F17,#1A2131);box-shadow:inset 0 2px 6px rgba(0,0,0,.8),0 0 0 2px #2A3346}
+.mtog::after{content:"";position:absolute;top:4px;left:4px;width:28px;height:28px;border-radius:50%;transition:left .18s,background .18s;
+  background:radial-gradient(circle at 35% 30%,#8B95AD,#566079 60%,#343C50);box-shadow:0 2px 3px rgba(0,0,0,.6)}
+.mtog[aria-checked="true"]::after{left:calc(100% - 32px);background:radial-gradient(circle at 35% 30%,var(--gold-hi),var(--gold) 50%,#9A5A08);box-shadow:0 0 10px rgba(247,181,44,.45),0 2px 3px rgba(0,0,0,.6)}
+.dpanel .fbtn{margin:12px 4px 0;width:calc(100% - 8px);min-height:0}
+.dpanel .fbtn .top{padding:12px 10px 8px;font-size:40px}
+.fbtn .strip{background:linear-gradient(180deg,#E8781A,var(--ember));border-top:2px solid #A8460A;padding:4px 0 5px}
+.fbtn .strip span{display:block;transform:skewX(var(--untilt));font-family:var(--cond);font-weight:700;font-size:14px;letter-spacing:.9px;text-transform:uppercase;text-shadow:0 1px 0 #7A3404}
+.dpanel .fbtn.log .top{font-size:32px;padding:14px 10px}
+.dres{display:none}
+#s-draw.rolled .dres{display:block}
+#s-draw.rolled #rollBtn,#s-draw.rolled .trow{display:none}
+.dres .btn{margin:14px 4px 0;width:calc(100% - 8px)}
+.dres .btn svg{width:22px;height:22px;flex:none}
+
+/* ---------- pool editor (the DT Intros pool screen) ---------- */
+.pooled{position:fixed;inset:0;z-index:65;display:none;flex-direction:column;
+  background:radial-gradient(ellipse at 30% 0%,rgba(80,100,140,.2),transparent 60%),var(--ink);padding-top:env(safe-area-inset-top)}
+.pooled.on{display:flex;animation:fadein .15s ease-out}
+.pebar{display:flex;align-items:center;gap:16px;padding:12px 16px 8px}
+.pebar h2{flex:1;font-size:32px;color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.45)}
+.pebar .count{font-size:30px}
+.pebar .count small{font-size:18px}
+.ptabs{display:flex;gap:12px;padding:4px 18px 8px;--sk:var(--tilt)}
+.ptabs.lean-l{--sk:var(--untilt)}
+.ptab{position:relative;flex:1;display:grid;place-items:center;height:44px;isolation:isolate;
+  font-family:var(--cond);font-weight:700;font-size:18px;text-transform:uppercase;letter-spacing:.5px;color:#C9D3EA}
+.ptab::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:7px;transform:skewX(var(--sk));transition:transform .25s ease;
+  background:var(--slate-face);border:2px solid var(--edge);box-shadow:0 4px 0 var(--edge)}
+.ptab[aria-pressed="true"]{color:#fff;text-shadow:0 2px 0 #9A4A06}
+.ptab[aria-pressed="true"]::before{background:var(--gold-face);border-color:var(--brown);box-shadow:inset 0 2px 0 rgba(255,255,255,.5),0 4px 0 #6B3404}
+.ptab[data-side="mine"][aria-pressed="true"]::before{background:repeating-linear-gradient(115deg,rgba(255,255,255,.13) 0 3px,transparent 3px 12px),var(--win-face);border-color:var(--edge)}
+.ptab[data-side="opp"][aria-pressed="true"]::before{background:repeating-linear-gradient(115deg,rgba(255,255,255,.12) 0 3px,transparent 3px 12px),var(--loss-face);border-color:var(--edge)}
+.ptab[aria-pressed="true"]{text-shadow:0 1px 0 rgba(0,0,0,.45)}
+.ptabs.dim .ptab{opacity:.35;filter:grayscale(1)}
+.petools{display:flex;align-items:center;gap:10px;padding:4px 18px 6px}
+.pesort{display:flex;gap:10px}
+.pesort button{position:relative;isolation:isolate;display:grid;place-items:center;height:36px;padding:0 11px;font-family:var(--cond);font-weight:700;font-size:15px;
+  text-transform:uppercase;letter-spacing:.4px;color:#C9D3EA;white-space:nowrap}
+.pesort button::before{content:"";position:absolute;inset:0;z-index:-1;transform:skewX(var(--tilt));border-radius:6px;background:linear-gradient(180deg,#2E4468,#1F3050);border:2px solid var(--edge);box-shadow:0 3px 0 var(--edge)}
+.pesort button.on{color:#fff;text-shadow:0 1px 0 #9A4A06}
+.pesort button.on::before{background:linear-gradient(180deg,var(--gold-hi),var(--gold) 50%,var(--gold-lo));border-color:var(--brown)}
+.allgrp{margin-left:auto;display:flex;gap:10px}
+.allgrp .btn{min-height:36px;padding:4px 11px;font-size:15px}
+.pebody{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:0 16px 10px;
+  -webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 40px),transparent);mask-image:linear-gradient(to bottom,#000 calc(100% - 40px),transparent)}
+.pebody .shead{padding:0 4px 6px;margin-top:12px}
+.pebody .shead:first-child{margin-top:4px}
+.pen{font-size:15px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums}
+.petog{min-width:70px;padding:4px 0;text-align:right;font-family:var(--cond);font-size:15px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--gold)}
+.pebody .hgrid{grid-template-columns:repeat(5,minmax(0,1fr))}
+.pefoot{padding:6px 18px calc(14px + env(safe-area-inset-bottom))}
+.pefoot .fbtn{margin:0 4px;width:calc(100% - 8px);min-height:0}
+.pefoot .fbtn .top{padding:12px 10px 8px;font-size:40px}
+.mirrorbtn{width:calc(100% - 8px);margin:14px 4px 0;min-height:42px;font-size:16px}
+.mirrorbtn .box{display:inline-grid;place-items:center;width:20px;height:20px;border:2px solid #C9D3EA;border-radius:5px;transform:skewX(var(--tilt))}
+.mirrorbtn[aria-checked="true"] .box{background:#fff;border-color:#fff}
+.mirrorbtn[aria-checked="true"] .box::after{content:"";width:9px;height:5px;border-left:3px solid #9A4A06;border-bottom:3px solid #9A4A06;transform:rotate(-45deg) translate(1px,-1px)}
+.mirrorbtn[aria-checked="true"]::before{background:var(--gold-face);border-color:var(--brown);box-shadow:inset 0 2px 0 rgba(255,255,255,.5),0 4px 0 #6B3404}
+.mirrorbtn[aria-checked="true"]{text-shadow:0 1px 0 #9A4A06}
+.mirrorbtn.shake{animation:shake .45s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}15%{transform:translateX(-9px)}30%{transform:translateX(8px)}45%{transform:translateX(-6px)}60%{transform:translateX(5px)}75%{transform:translateX(-2px)}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -779,26 +872,45 @@ body.at-home main{padding-bottom:12px}
 
   <!-- ========== DRAW ========== -->
   <section class="screen" id="s-draw">
-    <div class="seg" style="margin-bottom:14px">
+    <div class="seg">
       <button id="dmMe" onclick="setDrawMode('me')">Just for me</button>
       <button id="dmBoth" onclick="setDrawMode('both')">Both players</button>
     </div>
 
-    <div class="card">
-      <div class="row" id="faces" style="justify-content:center;gap:18px"></div>
-      <div class="rollname" id="rollName"></div>
-      <div class="tiny" id="rollHint" style="display:none;text-align:center;margin-top:8px;font-weight:700;color:var(--bone)"></div>
+    <!-- the two heroes (one in "just for me"): a "?" until rolled; tap a hero for its page -->
+    <div class="vsbox dstage">
+      <button class="vside me" id="dsMe" disabled>
+        <span class="vart"><span class="reel" id="f1"></span><span class="vtag">You</span><span class="vdie" id="ddMe"></span></span>
+        <span class="vlogo" id="dlMe"></span><span class="vset" id="dtMe"></span>
+      </button>
+      <div class="vstrip" aria-hidden="true"><span>VS</span></div>
+      <button class="vside opp" id="dsOpp" disabled>
+        <span class="vart"><span class="reel" id="f2"></span><span class="vtag">Opponent</span><span class="vdie" id="ddOpp"></span></span>
+        <span class="vlogo" id="dlOpp"></span><span class="vset" id="dtOpp"></span>
+      </button>
+    </div>
+    <div class="dstatus" id="dStatus"></div>
+
+    <div class="dpanel">
+      <div class="prow">
+        <span class="dfaces" id="dpFaces"></span>
+        <span class="ptxt"><b>Pool</b><small id="dpSub"></small></span>
+        <button class="btn gold sm" onclick="openPoolEd()">Edit</button>
+      </div>
+      <div class="trow" id="dUnRow">
+        <span>Only matchups I haven't played<small id="dUnSub"></small></span>
+        <button class="mtog" id="dUnplayed" role="switch" aria-checked="false" aria-label="Only matchups I haven't played" onclick="toggleUnplayed()"></button>
+      </div>
       <div class="prep" id="prep" style="display:none">
         <div class="tiny muted" style="text-align:center" id="prepText"></div>
         <div class="meterwrap"><div class="meter" id="prepMeter" style="width:0%"></div></div>
       </div>
-      <button class="btn gold block" id="rollBtn" style="margin-top:14px" onclick="startRoll()">Roll</button>
-      <button class="btn block" id="rollLog" style="margin-top:10px;display:none" onclick="logDraw()">Log this battle</button>
+      <button class="fbtn" id="rollBtn" onclick="startRoll()"><span class="top"><svg class="die" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4.5" fill="#fff" stroke="#9A4A06" stroke-width="1.8"/><circle cx="8" cy="8" r="1.7" fill="#9A4A06"/><circle cx="16" cy="8" r="1.7" fill="#9A4A06"/><circle cx="12" cy="12" r="1.7" fill="#9A4A06"/><circle cx="8" cy="16" r="1.7" fill="#9A4A06"/><circle cx="16" cy="16" r="1.7" fill="#9A4A06"/></svg><span id="rollTxt">Roll</span></span><span class="strip"><span>Random from your pool</span></span></button>
+      <div class="dres">
+        <button class="fbtn log" id="rollLog" onclick="logDraw()"><span class="top">Log this battle</span></button>
+        <button class="btn block" id="rollAgain" onclick="startRoll()"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.5 6.2L3 16M3 21v-5h5"/></svg> Roll again</button>
+      </div>
     </div>
-
-    <div class="sortbar" id="sortDraw"></div>
-    <div id="poolMine"></div>
-    <div id="poolOpp"></div>
   </section>
 
   <!-- ========== STATS ========== -->
@@ -998,6 +1110,27 @@ body.at-home main{padding-bottom:12px}
   <div class="pkbody" id="pkList"></div>
 </div>
 
+<div class="pooled" id="poolEd" role="dialog" aria-modal="true" aria-labelledby="peTitle">
+  <div class="pebar">
+    <button class="link" onclick="closePoolEd()">Back</button>
+    <h2 id="peTitle">Pool</h2>
+    <span class="count" id="peCount"></span>
+  </div>
+  <div class="ptabs" id="peTabs">
+    <button class="ptab" data-side="mine" onclick="setPoolSide('mine')">You</button>
+    <button class="ptab" data-side="opp" onclick="setPoolSide('opp')">Opponent</button>
+  </div>
+  <div class="petools">
+    <div class="pesort" id="peSort"></div>
+    <span class="allgrp"><button class="btn sm" onclick="pickAll(true)">All</button><button class="btn sm" onclick="pickAll(false)">None</button></span>
+  </div>
+  <div class="pebody" id="peList"></div>
+  <div class="pefoot">
+    <button class="fbtn" onclick="poolRoll()"><span class="top"><svg class="die" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4.5" fill="#fff" stroke="#9A4A06" stroke-width="1.8"/><circle cx="8" cy="8" r="1.7" fill="#9A4A06"/><circle cx="16" cy="8" r="1.7" fill="#9A4A06"/><circle cx="12" cy="12" r="1.7" fill="#9A4A06"/><circle cx="8" cy="16" r="1.7" fill="#9A4A06"/><circle cx="16" cy="16" r="1.7" fill="#9A4A06"/></svg>Roll</span><span class="strip"><span>From this pool</span></span></button>
+    <button class="btn mirrorbtn" id="peMirror" role="switch" aria-checked="false" onclick="toggleMirror()"><span class="box" aria-hidden="true"></span>Mirror matches only</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1068,7 +1201,6 @@ const SORTS = [
   ['wins',   'Most wins'],
   ['losses', 'Most losses']
 ];
-const DRAW_SORTS = [['set','By set'],['diff','By difficulty'],['abc','A-Z']];
 
 let S = { heroes: SEED.slice(), battles: {}, sort: 'abc' };
 let editing = null, winner = 'me', current = null, ult = { me:false, opp:false };
@@ -3221,10 +3353,11 @@ function closeSheet(){
 }
 
 function anyOverlayOpen(){
-  return $('#sheet').classList.contains('on') || $('#tokPop').classList.contains('on') || pickerOpen();
+  return $('#sheet').classList.contains('on') || $('#tokPop').classList.contains('on') || pickerOpen() || poolEdOpen();
 }
 function hideOverlays(){
   hidePicker();
+  hidePoolEd();
   hideSheet();
   hideToken();
 }
@@ -3279,6 +3412,7 @@ function initBackButton(){
 
     /* Back while picking a hero closes only the picker; the battle stays open */
     if (pickerOpen()){ hidePicker(); return; }
+    if (poolEdOpen()){ hidePoolEd(); return; }
 
     /* stepping back through a chain of linked tokens */
     if (st.dt === 'o' && st.tok){
@@ -3343,7 +3477,11 @@ function randomBattle(){
   openBattle(a, b);
 }
 
-/* ---------------- draw ---------------- */
+/* ---------------- draw ----------------
+   Can't decide what to play? The dice pick for you, from one pool screen with
+   a You side and an Opponent side (like DT Intros). Optional: only matchups
+   not played yet, and mirror matches only. The result shows the two heroes big,
+   with logo, set and difficulty; tap one for its page, or log the battle. */
 function pool(which){
   if (!S.pools) S.pools = {};
   if (!S.pools[which]) S.pools[which] = S.heroes.map(h => h.name);
@@ -3351,6 +3489,7 @@ function pool(which){
 }
 function picked(which, name){ return pool(which).includes(name); }
 function pickList(which){ return pool(which).filter(n => hero(n)); }
+const DRAW_SORTS = [['abc','A–Z'], ['set','Set'], ['diff','Difficulty']];
 
 function drawOrder(){
   const list = S.heroes.slice();
@@ -3359,106 +3498,167 @@ function drawOrder(){
   return list.sort((a,b) => (SET_ORDER[a.set] ?? 99) - (SET_ORDER[b.set] ?? 99) || a.set.localeCompare(b.set) || byName(a,b));
 }
 function drawGroup(h){
-  if (S.drawSort === 'diff') return diffOf(h) ? 'Difficulty ' + diffOf(h) : 'Unrated';
+  if (S.drawSort === 'diff') return diffOf(h) ? 'd' + diffOf(h) : 'd0';
   if (S.drawSort === 'abc')  return null;
   return h.set;
 }
 
-function poolHTML(which, title){
-  let html = '<div class="card" style="padding:0;margin-bottom:14px">' +
-    '<div class="poolhead"><h3>' + title + '</h3>' +
-    '<span class="tiny muted">' + pickList(which).length + '/' + S.heroes.length + '</span>' +
-    '<button class="btn sm" onclick="pickAll(\'' + which + '\',true)">All</button>' +
-    '<button class="btn sm" onclick="pickAll(\'' + which + '\',false)">None</button></div>';
-  /* cur starts undefined, not null: in A-Z every hero's group *is* null, so a
-     null start meant "same group as before" and the grid was never opened —
-     the icons spilled out ungridded. */
-  let cur, open = false;
-  drawOrder().forEach(h => {
-    const g = drawGroup(h);
-    if (!open || g !== cur){
-      if (open) html += '</div>';
-      cur = g;
-      if (g) html += '<div class="shead in"><b>' +
-        (S.drawSort === 'diff' ? diffHTML(diffOf(h), 19) : esc(g)) + '</b></div>';
-      html += '<div class="hgrid">'; open = true;
-    }
-    const on = picked(which, h.name);
-    html += '<button class="hcell ' + (on ? 'on' : 'off') + '" aria-label="' + esc(h.name) + '" aria-pressed="' + on +
-      '" onclick="togglePick(\'' + which + '\',' + jq(h.name) + ')">' + heroSq(h.name) + recBar(h.name) + '</button>';
-  });
-  if (open) html += '</div>';
-  return html + '</div>';
+/* what the dice may land on */
+function drawPairs(){
+  const mine = pickList('mine');
+  let pairs = [];
+  if (S.mirrorOnly) mine.forEach(a => pairs.push([a, a]));
+  else { const opp = pickList('opp'); mine.forEach(a => opp.forEach(b => pairs.push([a, b]))); }
+  if (S.unplayedOnly) pairs = pairs.filter(([a,b]) => !get(a, b));
+  return pairs;
+}
+function drawSingles(){
+  let list = pickList('mine');
+  if (S.unplayedOnly) list = list.filter(n => { const s = heroStats(n); return s.done < s.total; });
+  return list;
+}
+function reelLists(){
+  if (S.drawMode !== 'both') return [drawSingles(), null];
+  const pairs = drawPairs();
+  return [[...new Set(pairs.map(p => p[0]))], [...new Set(pairs.map(p => p[1]))]];
 }
 
 function renderDraw(){
   if (!S.drawSort) S.drawSort = 'set';
   if (!S.drawMode) S.drawMode = 'both';
-  $('#dmMe').classList.toggle('on', S.drawMode === 'me');
-  $('#dmBoth').classList.toggle('on', S.drawMode === 'both');
-  $('#sortDraw').innerHTML = DRAW_SORTS.map(([k,l]) =>
-    '<button class="' + (S.drawSort === k ? 'on' : '') + '" onclick="setDrawSort(\'' + k + '\')">' + l + '</button>').join('');
-  $('#poolMine').innerHTML = poolHTML('mine', 'My heroes');
-  $('#poolOpp').innerHTML  = S.drawMode === 'both' ? poolHTML('opp', "Opponent's heroes") : '';
-  if (!rolling && !lastDraw) warmReels();
+  const both = S.drawMode === 'both';
+  $('#dmMe').classList.toggle('on', !both);
+  $('#dmBoth').classList.toggle('on', both);
+  $('#s-draw').classList.toggle('solo', !both);
+
+  const m = pickList('mine'), o = pickList('opp');
+  const show = m.slice().sort(() => Math.random() - .5).slice(0, 3);
+  $('#dpFaces').innerHTML = show.map(n => av(n, 's')).join('');
+  $('#dpSub').textContent = !both ? m.length + ' of ' + S.heroes.length + ' heroes'
+    : S.mirrorOnly ? 'Mirror · ' + m.length + ' heroes'
+    : (m.length === S.heroes.length && o.length === S.heroes.length ? 'All ' + S.heroes.length + ' heroes'
+       : 'You ' + m.length + ' · Opponent ' + o.length);
+  $('#dUnplayed').setAttribute('aria-checked', String(!!S.unplayedOnly));
+  const left = total() - played();
+  $('#dUnSub').textContent = left.toLocaleString('en-US') + ' left to play';
+  if (!rolling && !lastDraw){ resetFaces(); warmReels(); }
+  if (poolEdOpen()) renderPoolEd();
 }
 
 function resetFaces(){
-  const both = S.drawMode === 'both';
-  reel = { sig: '', f1: null, f2: null, ready: false, p: null };
-  $('#faces').innerHTML = '<span class="reelwrap" id="f1">' + av('?', 'xl') + '</span>' +
-    (both ? '<span class="muted small">vs</span><span class="reelwrap" id="f2">' + av('?', 'xl') + '</span>' : '');
-  $('#rollName').textContent = '';
-  $('#rollLog').style.display = 'none';
+  reel = { sig: '', f1: null, f2: null, ready: false, p: null, lists: null };
+  ['#f1', '#f2'].forEach(s => $(s).innerHTML = '<span class="frame on"><b class="q">?</b></span>');
+  ['Me', 'Opp'].forEach(id => {
+    $('#dl' + id).innerHTML = ''; $('#dt' + id).textContent = ''; $('#dd' + id).innerHTML = '';
+    $('#ds' + id).disabled = true; $('#ds' + id).onclick = null;
+  });
+  $('#dStatus').textContent = '';
+  $('#s-draw').classList.remove('rolled');
   $('#prep').style.display = 'none';
-  $('#rollHint').style.display = 'none';
 }
 
-async function setDrawMode(m){ S.drawMode = m; lastDraw = null; reel.sig = ''; await save(); resetFaces(); renderDraw(); }
-async function setDrawSort(k){ S.drawSort = k; await save(); renderDraw(); }
+async function setDrawMode(m){ S.drawMode = m; lastDraw = null; await save(); resetFaces(); renderDraw(); }
+async function toggleUnplayed(){ S.unplayedOnly = !S.unplayedOnly; lastDraw = null; await save(); resetFaces(); renderDraw(); }
 
-async function togglePick(which, name){
-  const p = pool(which), i = p.indexOf(name);
-  i < 0 ? p.push(name) : p.splice(i,1);
-  await save();
-  renderDraw();
-  warmReels();
+/* ---- pool editor ---- */
+function poolEdOpen(){ return $('#poolEd').classList.contains('on'); }
+function openPoolEd(){
+  if (!S.poolSide || S.drawMode !== 'both') S.poolSide = 'mine';
+  renderPoolEd();
+  $('#poolEd').classList.add('on');
+  $('#peList').scrollTop = 0;
+  history.pushState({ dt: 'o', pooled: 1 }, '');
+}
+function hidePoolEd(){ $('#poolEd').classList.remove('on'); }
+function closePoolEd(){
+  if (history.state && history.state.pooled) history.back();   /* popstate hides it */
+  else hidePoolEd();
+}
+function poolRoll(){ closePoolEd(); setTimeout(startRoll, 60); }
+function editSide(){ return (S.drawMode === 'both' && !S.mirrorOnly) ? (S.poolSide || 'mine') : 'mine'; }
+
+function setPoolSide(side){
+  if (S.drawMode !== 'both') return;
+  if (S.mirrorOnly){   /* the sides don't apply to mirror matches: nudge the switch */
+    const b = $('#peMirror'); b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); return;
+  }
+  S.poolSide = side; save(); renderPoolEd();
+}
+async function toggleMirror(){ S.mirrorOnly = !S.mirrorOnly; lastDraw = null; await save(); resetFaces(); renderDraw(); renderPoolEd(); }
+async function setDrawSort(k){ S.drawSort = k; await save(); renderPoolEd(); }
+
+function renderPoolEd(){
+  const both = S.drawMode === 'both', side = editSide();
+  $('#peTabs').style.display = both ? '' : 'none';
+  $('#peTabs').classList.toggle('dim', both && !!S.mirrorOnly);
+  $('#peTabs').classList.toggle('lean-l', side === 'opp');
+  $$('#peTabs .ptab').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.side === side)));
+  $('#peMirror').style.display = both ? '' : 'none';
+  $('#peMirror').setAttribute('aria-checked', String(!!S.mirrorOnly));
+  $('#peCount').innerHTML = pickList(side).length + '<small> / ' + S.heroes.length + '</small>';
+  $('#peSort').innerHTML = DRAW_SORTS.map(([k,l]) =>
+    '<button class="' + (S.drawSort === k ? 'on' : '') + '" onclick="setDrawSort(\'' + k + '\')">' + l + '</button>').join('');
+
+  const groups = [];
+  drawOrder().forEach(h => {
+    const g = drawGroup(h);
+    if (!groups.length || groups[groups.length - 1].g !== g) groups.push({ g, h, list: [] });
+    groups[groups.length - 1].list.push(h);
+  });
+  $('#peList').innerHTML = groups.map((grp, gi) => {
+    const on = grp.list.filter(h => picked(side, h.name)).length;
+    const head = grp.g === null ? '' :
+      '<div class="shead"><b>' + (S.drawSort === 'diff' ? diffHTML(diffOf(grp.h), 19) : esc(grp.g)) + '</b>' +
+      '<span class="pen">' + on + '/' + grp.list.length + '</span>' +
+      '<button class="petog" onclick="setGroup(' + gi + ',' + (on !== grp.list.length) + ')">' + (on === grp.list.length ? 'Remove' : 'Add all') + '</button></div>';
+    return head + '<div class="hgrid">' + grp.list.map(h => {
+      const p = picked(side, h.name);
+      return '<button class="hcell ' + (p ? 'on' : 'off') + '" aria-label="' + esc(h.name) + '" aria-pressed="' + p +
+        '" onclick="togglePick(' + jq(h.name) + ')">' + heroSq(h.name) + '</button>';
+    }).join('') + '</div>';
+  }).join('');
+  renderPoolEd.groups = groups;
 }
 
-async function pickAll(which, on){
-  S.pools[which] = on ? S.heroes.map(h => h.name) : [];
-  await save();
-  renderDraw();
-  warmReels();
+async function togglePick(name){
+  const p = pool(editSide()), i = p.indexOf(name);
+  i < 0 ? p.push(name) : p.splice(i, 1);
+  lastDraw = null; await save(); renderDraw(); renderPoolEd();
+}
+async function pickAll(on){
+  S.pools[editSide()] = on ? S.heroes.map(h => h.name) : [];
+  lastDraw = null; await save(); renderDraw(); renderPoolEd();
+}
+async function setGroup(gi, on){
+  const grp = (renderPoolEd.groups || [])[gi]; if (!grp) return;
+  const p = pool(editSide());
+  grp.list.forEach(h => { const i = p.indexOf(h.name); if (on && i < 0) p.push(h.name); if (!on && i >= 0) p.splice(i, 1); });
+  lastDraw = null; await save(); renderDraw(); renderPoolEd();
 }
 
 /* ---- spin reel ----
-   Frames are rendered for real (transparent, not display:none) and loaded
-   eagerly — a hidden or lazy image never downloads, which is what made the
-   initials flash through mid-spin. The reel is built in the background when
-   you open this screen, so pressing Roll is usually instant. */
-let reel = { sig: '', f1: null, f2: null, ready: false, p: null };
+   Frames are the big hero pictures, all loaded up front (a hidden or lazy image
+   never downloads, which is what made blanks flash mid-spin). The reel is built
+   in the background when this screen opens, so Roll is usually instant. */
+let reel = { sig: '', f1: null, f2: null, ready: false, p: null, lists: null };
 let warmTimer = null;
 
 function poolSig(){
-  return S.drawMode + '|' + pickList('mine').join(',') + '|' +
-    (S.drawMode === 'both' ? pickList('opp').join(',') : '');
+  return [S.drawMode, S.mirrorOnly ? 1 : 0, S.unplayedOnly ? played() : '-',
+          pickList('mine').join(','), S.drawMode === 'both' ? pickList('opp').join(',') : ''].join('|');
 }
-
 function fillReel(sel, list){
   const el = $(sel);
-  el.innerHTML = ['?'].concat(list)
-    .map(n => '<span class="frame">' + av(n, 'xl', true) + '</span>').join('');
-  const frames = [...el.children];
-  frames[0].classList.add('on');
-  return frames;
+  el.innerHTML = '<span class="frame on"><b class="q">?</b></span>' + list.map(n => {
+    const s = slug(n);
+    return '<span class="frame"><img src="' + imgSrc(s, 0) + '" data-slug="' + s + '" data-i="0" alt="" loading="eager" decoding="async" onerror="nextImg(this)"></span>';
+  }).join('');
+  return [...el.children];
 }
-
 function showFrame(frames, i){
   frames.forEach(f => f.classList.remove('on'));
   frames[i].classList.add('on');
 }
-
 function decodeAll(frames){
   const imgs = frames.flatMap(f => [...f.querySelectorAll('img')]);
   const total = imgs.length;
@@ -3470,119 +3670,107 @@ function decodeAll(frames){
     $('#prepMeter').style.width = (done / total * 100) + '%';
   };
   return Promise.race([
-    Promise.all(imgs.map(i =>
-      (i.decode ? i.decode() : Promise.resolve()).catch(() => {}).then(bump)
-    )),
+    Promise.all(imgs.map(i => (i.decode ? i.decode() : Promise.resolve()).catch(() => {}).then(bump))),
     new Promise(r => setTimeout(r, 12000))
   ]).then(() => { reel.ready = true; $('#prep').style.display = 'none'; });
 }
-
 function buildReels(){
   const sig = poolSig();
   if (reel.sig === sig && reel.f1) return;
   const both = S.drawMode === 'both';
-  const mine = pickList('mine'), opp = both ? pickList('opp') : [];
-  if (!mine.length || (both && !opp.length)){ reel.sig = ''; reel.f1 = null; return resetFaces(); }
-
-  reel.sig = sig; reel.ready = false;
-  $('#faces').innerHTML = '<span class="reelwrap" id="f1"></span>' +
-    (both ? '<span class="muted small">vs</span><span class="reelwrap" id="f2"></span>' : '');
-  reel.f1 = fillReel('#f1', mine);
-  reel.f2 = both ? fillReel('#f2', opp) : null;
+  const [A, B] = reelLists();
+  if (!A.length || (both && !B.length)){ reel.sig = ''; reel.f1 = null; return; }
+  reel.sig = sig; reel.ready = false; reel.lists = [A, B];
+  reel.f1 = fillReel('#f1', A);
+  reel.f2 = both ? fillReel('#f2', B) : null;
   reel.p  = decodeAll(reel.f2 ? reel.f1.concat(reel.f2) : reel.f1);
 }
-
-/* Rebuilding on every tap would be wasteful, so wait for the tapping to stop. */
 function warmReels(){
   clearTimeout(warmTimer);
   warmTimer = setTimeout(() => { if (!rolling) buildReels(); }, 400);
 }
 
-function spin(frames, dur, done){
+/* spins through random faces, slowing down, and lands on `target` */
+function spin(frames, dur, target, done){
   const wrap = frames[0].parentElement;
   wrap.classList.add('spin');
   const t0 = performance.now();
   const pick = () => 1 + Math.floor(Math.random() * (frames.length - 1));
   (function tick(){
     const t = performance.now() - t0;
-    if (t >= dur){
-      const i = pick();
-      showFrame(frames, i);
-      wrap.classList.remove('spin');
-      return done(i - 1);
-    }
+    if (t >= dur){ showFrame(frames, target + 1); wrap.classList.remove('spin'); return done(); }
     showFrame(frames, pick());
     setTimeout(tick, 55 + 330 * Math.pow(t / dur, 3));
   })();
 }
 
-/* After a roll, the landed faces link to their hero page. Coming back
-   with the device Back button returns here with the result untouched. */
-function makeTappable(sel, name){
-  const el = $(sel);
-  if (!el) return;
-  el.classList.add('tappable');
-  el.onclick = () => openHero(name);
-}
-function clearTappable(){
-  ['#f1', '#f2'].forEach(sel => {
-    const el = $(sel);
-    if (el){ el.classList.remove('tappable'); el.onclick = null; }
-  });
-  $('#rollHint').style.display = 'none';
+function showHero(id, name){
+  const h = hero(name) || {};
+  $('#dl' + id).innerHTML = logoHTML(name);
+  $('#dt' + id).textContent = h.set || '';
+  $('#dd' + id).innerHTML = diffOf(h) ? die(diffOf(h), 20) : '';
+  $('#ds' + id).disabled = false;
+  $('#ds' + id).onclick = () => openHero(name);
 }
 
 async function startRoll(){
   if (rolling) return;
   const both = S.drawMode === 'both';
-  const mine = pickList('mine');
-  if (!mine.length) return toast('No heroes selected');
-  const opp = both ? pickList('opp') : [];
-  if (both && !opp.length) return toast('No heroes selected for the opponent');
+  let a, b = null;
+  if (both){
+    const pairs = drawPairs();
+    if (!pairs.length) return toast(S.unplayedOnly ? 'Every matchup in this pool is already played' : 'Add heroes to the pool first');
+    [a, b] = pairs[Math.floor(Math.random() * pairs.length)];
+  } else {
+    const list = drawSingles();
+    if (!list.length) return toast(S.unplayedOnly ? 'These heroes have played every matchup' : 'Add heroes to the pool first');
+    a = list[Math.floor(Math.random() * list.length)];
+  }
 
   rolling = true; lastDraw = null;
-  clearTappable();
-  $('#rollName').textContent = '';
-  $('#rollLog').style.display = 'none';
-  $('#rollBtn').disabled = true;
+  ['Me', 'Opp'].forEach(id => { $('#dl' + id).innerHTML = ''; $('#dt' + id).textContent = ''; $('#dd' + id).innerHTML = ''; $('#ds' + id).disabled = true; });
+  $('#dStatus').textContent = '';
+  $('#s-draw').classList.remove('rolled');
+  $('#rollBtn').disabled = true; $('#rollAgain').disabled = true;
 
   clearTimeout(warmTimer);
   buildReels();
   if (!reel.ready){
-    $('#rollBtn').textContent = 'Preparing…';
+    $('#rollTxt').textContent = 'Preparing…';
     $('#prep').style.display = 'block';
     $('#prepText').textContent = 'Preparing heroes…';
     await reel.p;
   }
-  $('#rollBtn').textContent = 'Rolling…';
+  $('#rollTxt').textContent = 'Rolling…';
 
-  let a = null, b = null;
-  const label = n => {
-    const h = hero(n) || {};
-    const bits = [esc(h.set || ''), diffOf(h) ? diffHTML(diffOf(h), 20) : ''].filter(Boolean);
-    return logoHTML(n, 'roll') + (bits.length ? '<div class="muted small" style="font-family:var(--sans);font-weight:400;text-transform:none;letter-spacing:0;margin-top:2px">' + bits.join(' · ') + '</div>' : '');
-  };
-  const finish = () => {
+  const [A, B] = reel.lists;
+  let left = both ? 2 : 1;
+  const done = () => {
+    if (--left) return;
     rolling = false;
-    $('#rollBtn').textContent = 'Roll again';
-    $('#rollBtn').disabled = false;
+    $('#rollTxt').textContent = 'Roll';
+    $('#rollBtn').disabled = false; $('#rollAgain').disabled = false;
     lastDraw = [a, b];
-    const pick = n => '<button class="rollhero" onclick="openHero(' + jq(n) + ')">' + label(n) + '</button>';
-    $('#rollName').innerHTML = both
-      ? pick(a) + '<div class="muted small" style="margin:6px 0">vs</div>' + pick(b)
-      : pick(a);
-    makeTappable('#f1', a);
-    if (both){ makeTappable('#f2', b); $('#rollLog').style.display = 'block'; }
-    $('#rollHint').textContent = both ? 'Tap the heroes for details' : 'Tap the hero for details';
-    $('#rollHint').style.display = 'block';
+    showHero('Me', a);
+    if (both){
+      showHero('Opp', b);
+      const r = get(a, b);
+      $('#dStatus').textContent = r ? 'Played · you ' + (r.w === 'me' ? 'won' : 'lost') : 'New matchup · not played yet';
+      $('#rollLog').querySelector('.top').textContent = 'Log this battle';
+    } else {
+      const s = heroStats(a);
+      $('#dStatus').textContent = 'Played ' + s.done + ' of ' + s.total + ' matchups';
+      $('#rollLog').querySelector('.top').textContent = 'Log a battle';
+    }
+    $('#s-draw').classList.add('rolled');
   };
-
-  spin(reel.f1, 5000, i => { a = mine[i]; if (!both) finish(); });
-  if (both) spin(reel.f2, 5600, i => { b = opp[i]; finish(); });
+  spin(reel.f1, 4200, A.indexOf(a), done);
+  if (both) spin(reel.f2, 4800, B.indexOf(b), done);
 }
 
 function logDraw(){
-  if (lastDraw && lastDraw[1]) openBattle(lastDraw[0], lastDraw[1]);
+  if (!lastDraw) return;
+  lastDraw[1] ? openBattle(lastDraw[0], lastDraw[1]) : openBattle(lastDraw[0]);
 }
 
 /* ---------------- backup ---------------- */
