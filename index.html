@@ -932,6 +932,9 @@ main:has(#s-draw.on){padding-bottom:6px}
 .mpop .mdet{font-size:13px;font-weight:600;color:var(--quiet)}
 .mpop .mdot{color:#fff;font-weight:800;margin:0 6px}
 .mpop .mhint{font-family:var(--cond);font-weight:700;font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+/* result card: names and details stay on one line each; the card grows to fit */
+.mpop{width:max-content;max-width:calc(100% - 12px);min-width:180px}
+.mpop .mvs,.mpop .mdet{white-space:nowrap}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -1758,7 +1761,7 @@ function showMatPop(cell){
     const won = b.w === 'me', hp = hpOf(b);
     tag = '<span class="mt ' + (won ? 'w' : 'l') + '"><span>' + (won ? 'Won' : 'Lost') + '</span></span>';
     const bits = [];
-    if (hp !== null) bits.push(won ? hp + ' HP left' : 'Opp. ' + hp + ' HP left');
+    if (hp !== null) bits.push(hp + ' HP left');
     if (b.date) bits.push(esc(fmtDate(b.date)));
     line = bits.join('<b class="mdot">·</b>') || 'Logged';
   } else {
