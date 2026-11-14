@@ -884,6 +884,54 @@ main:has(#s-draw.on){padding-bottom:6px}
 /* Draw: VS sits exactly halfway down the pictures */
 #s-draw .vstrip{align-self:stretch;margin:0}
 #s-draw .vstrip span{top:var(--vs-mid,42%)}
+/* ---------- Matrix: Full grid with faces ---------- */
+.msort{display:flex;align-items:center;gap:10px;margin:0 2px 10px}
+.msort .pesort button{height:34px}
+.msort small{margin-left:auto;font-family:var(--cond);font-weight:700;font-size:12px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted)}
+#matGrid .mwrap{position:relative;max-height:calc(100dvh - var(--tab-h) - env(safe-area-inset-bottom) - 250px)}
+#grid{padding:4px 6px 6px 4px}
+#grid .mcorner,#grid .mch,#grid .mrh,#grid .msp.top,#grid .msp.left{background:#182134}
+#grid .mcorner{position:sticky;top:0;left:0;z-index:4;width:34px;height:34px}
+#grid .mcorner svg{display:block;width:34px;height:34px}
+#grid .mch{position:sticky;top:0;z-index:3;display:grid;place-items:center;height:34px}
+#grid .mrh{position:sticky;left:0;z-index:2;display:grid;place-items:center;width:34px}
+.mf{position:relative;display:block;width:28px;height:28px;border-radius:5px;overflow:hidden;background:var(--c)}
+.mf img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;object-position:50% 30%;transform:scale(1.9);transform-origin:50% 37%}
+.mf img.legacy{transform:none;object-position:50% 50%}
+.mf .ini{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--head);font-size:11px;color:rgba(255,255,255,.6)}
+.mf.me{box-shadow:0 0 0 2px var(--win)}
+.mf.op{box-shadow:0 0 0 2px var(--loss)}
+.mch.on .mf,.mrh.on .mf{box-shadow:0 0 0 2.5px var(--gold-hi),0 0 8px rgba(255,226,122,.6)}
+#grid .cell{position:relative;width:33px;height:33px;padding:0;border:0;background:none}
+#grid .cell::before{content:"";position:absolute;inset:2px;border-radius:4px;background:#0B0F17;box-shadow:inset 0 0 0 1px #26324A}
+#grid .cell.w::before{background:var(--win-face);box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
+#grid .cell.l::before{background:var(--loss-face);box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
+#grid .cell.diag::before{background-image:repeating-linear-gradient(135deg,rgba(247,181,44,.35) 0 2px,transparent 2px 6px)}
+#grid .cell.diag.w::before{background:var(--win-face)}
+#grid .cell.diag.l::before{background:var(--loss-face)}
+#grid .cell.xh::before{outline:1.5px solid rgba(247,181,44,.45);outline-offset:-1.5px}
+#grid .cell.sel{z-index:1}
+#grid .cell.sel::before{box-shadow:0 0 0 2px var(--gold-hi),0 0 10px rgba(255,226,122,.7)}
+#grid .msp{display:block}
+#grid .msp.v{background:linear-gradient(var(--gold-lo),var(--gold-lo)) center/2px 100% no-repeat}
+#grid .msp.h{background:linear-gradient(var(--gold-lo),var(--gold-lo)) center/100% 2px no-repeat}
+#grid .msp.vx{background:linear-gradient(var(--gold-lo),var(--gold-lo)) center/2px 100% no-repeat,linear-gradient(var(--gold-lo),var(--gold-lo)) center/100% 2px no-repeat}
+#grid .msp.top{position:sticky;top:0;z-index:3}
+#grid .msp.left{position:sticky;left:0;z-index:2;background:#182134}
+.mlegend{margin:10px 2px 0}
+/* the result card over a tapped square */
+.mpop{position:absolute;z-index:6;display:flex;align-items:stretch;min-width:190px;max-width:260px;border-radius:10px;overflow:hidden;cursor:pointer;
+  background:rgba(10,14,24,.97);box-shadow:0 0 0 2px var(--gold),0 8px 18px rgba(0,0,0,.6);animation:fadein .12s ease-out}
+.mpop.gone{visibility:hidden}
+.mpop .mt{display:grid;place-items:center;width:26px;flex:none}
+.mpop .mt span{writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--head);font-size:14px;letter-spacing:1.5px;text-transform:uppercase;color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.4)}
+.mpop .mt.w{background:var(--win-face)} .mpop .mt.l{background:var(--loss-face)} .mpop .mt.n{background:var(--slate-face)}
+.mpop .mb{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 12px;text-align:center}
+.mpop .mvs{font-family:var(--head);font-size:16px;line-height:1.1;color:#fff}
+.mpop .mvs em{font-style:normal;color:var(--gold);font-size:13px;margin:0 6px}
+.mpop .mdet{font-size:13px;font-weight:600;color:var(--quiet)}
+.mpop .mdot{color:#fff;font-weight:800;margin:0 6px}
+.mpop .mhint{font-family:var(--cond);font-weight:700;font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -927,11 +975,16 @@ main:has(#s-draw.on){padding-bottom:6px}
     </div>
 
     <div id="matGrid">
-      <div class="mwrap"><div class="grid" id="grid"></div></div>
-      <div class="card legend" style="margin-top:12px">
+      <div class="msort">
+        <div class="pesort" id="mSort"></div>
+        <small>Tap a square for the result</small>
+      </div>
+      <div class="mwrap"><div class="grid" id="grid"></div><div class="mpop" id="mPop" hidden></div></div>
+      <div class="legend mlegend">
         <span><i class="sw" style="background:var(--win)"></i>Won</span>
         <span><i class="sw" style="background:var(--loss)"></i>Lost</span>
-        <span><i class="sw" style="background:repeating-linear-gradient(135deg,rgba(62,92,140,.75) 0 2px,transparent 2px 5px);outline:1px solid var(--line)"></i>Diagonal = mirror</span>
+        <span><i class="sw" style="background:#0B0F17;outline:1px solid #34405E"></i>Not played</span>
+        <span><i class="sw" style="background:repeating-linear-gradient(135deg,rgba(247,181,44,.5) 0 2px,transparent 2px 5px);outline:1px solid #34405E"></i>Mirror</span>
       </div>
     </div>
 
@@ -1624,30 +1677,119 @@ function renderRecent(){
 }
 
 /* ---------------- matrix ---------------- */
+/* Full grid: rows are the hero you played (blue frames), columns the opponent
+   (red frames). A-Z or by set (set blocks split by gold lines). Tapping a square
+   shows its result in a small card over it; tapping the same square again opens
+   it in Log a battle. */
+const MAT_SORTS = [['abc','A–Z'], ['set','By set']];
+let matSel = null;
+
+function matOrder(){
+  const list = S.heroes.slice();
+  if (S.matSort === 'set') return list.sort((a,b) =>
+    (SET_ORDER[a.set] ?? 99) - (SET_ORDER[b.set] ?? 99) || a.set.localeCompare(b.set) || byName(a,b));
+  return list.sort(byName);
+}
+function matFace(name, side){
+  const h = hero(name), s = slug(name);
+  return '<span class="mf ' + side + '" style="--c:' + ((h && SET_COLOR[h.set]) || '#8A85A8') + '" title="' + esc(name) + '">' +
+    '<span class="ini">' + initials(name) + '</span>' +
+    '<img src="' + imgSrc(s, 0) + '" data-slug="' + s + '" data-i="0" alt="" loading="lazy" decoding="async" onerror="nextImg(this)"></span>';
+}
+function setMatSort(k){ S.matSort = k; save(); renderMatrix(); }
+
 function renderMatrix(){
-  const H = abcHeroes(), n = H.length, g = $('#grid');
-  g.style.gridTemplateColumns = '104px repeat(' + n + ',30px)';
-  const corner =
-    '<div class="corner"><svg viewBox="0 0 104 104" width="104" height="104" aria-label="Rows are the hero you played, columns are the opponent">' +
-    '<line x1="4" y1="4" x2="100" y2="100" stroke="currentColor" stroke-width="1.5" opacity=".45"/>' +
-    '<text x="99" y="27" text-anchor="end" font-size="11" font-weight="700" letter-spacing="0.6" fill="currentColor">OPPONENT</text>' +
-    '<text x="7" y="88" text-anchor="start" font-size="11" font-weight="700" letter-spacing="0.6" fill="currentColor">YOU</text>' +
-    '</svg></div>';
-  const p = [corner];
-  H.forEach(h => p.push('<div class="gh">' + esc(h.name) + '</div>'));
-  H.forEach(r => {
-    p.push('<div class="rh">' + esc(r.name) + '</div>');
-    H.forEach(c => {
+  if (!S.matSort) S.matSort = 'abc';
+  $('#mSort').innerHTML = MAT_SORTS.map(([k,l]) =>
+    '<button class="' + (S.matSort === k ? 'on' : '') + '" onclick="setMatSort(\'' + k + '\')">' + l + '</button>').join('');
+  hideMatPop();
+  const H = matOrder(), g = $('#grid');
+  const cut = new Set();
+  if (S.matSort === 'set') H.forEach((h, i) => { if (i && h.set !== H[i-1].set) cut.add(i); });
+  const tracks = ['34px'];
+  H.forEach((h, i) => { if (cut.has(i)) tracks.push('7px'); tracks.push('33px'); });
+  g.style.gridTemplateColumns = tracks.join(' ');
+  g.style.gridTemplateRows = tracks.join(' ');
+
+  const p = ['<div class="mcorner" aria-label="Rows: the hero you played. Columns: the opponent">' +
+    '<svg viewBox="0 0 34 34"><path d="M3 3L31 31" stroke="#5B6A8C" stroke-width="1.3"/>' +
+    '<text x="32" y="12" text-anchor="end" font-family="Barlow Condensed,sans-serif" font-weight="700" font-size="9.5" fill="#EE8496">OPP</text>' +
+    '<text x="2" y="31" font-family="Barlow Condensed,sans-serif" font-weight="700" font-size="9.5" fill="#7CC4F4">YOU</text></svg></div>'];
+  H.forEach((c, i) => {
+    if (cut.has(i)) p.push('<b class="msp v top"></b>');
+    p.push('<div class="mch" data-c="' + esc(c.name) + '">' + matFace(c.name, 'op') + '</div>');
+  });
+  H.forEach((r, i) => {
+    if (cut.has(i)){
+      p.push('<b class="msp h left"></b>');
+      H.forEach((c, j) => { if (cut.has(j)) p.push('<b class="msp vx"></b>'); p.push('<b class="msp h"></b>'); });
+    }
+    p.push('<div class="mrh" data-r="' + esc(r.name) + '">' + matFace(r.name, 'me') + '</div>');
+    H.forEach((c, j) => {
+      if (cut.has(j)) p.push('<b class="msp v"></b>');
       const b = get(r.name, c.name);
       const cls = 'cell' + (r.name === c.name ? ' diag' : '') + (b ? (b.w === 'me' ? ' w' : ' l') : '');
-      p.push('<button class="' + cls + '" data-r="' + esc(r.name) + '" data-c="' + esc(c.name) + '"></button>');
+      p.push('<button class="' + cls + '" data-r="' + esc(r.name) + '" data-c="' + esc(c.name) + '" aria-label="' +
+        esc(r.name) + ' vs ' + esc(c.name) + '"></button>');
     });
   });
   g.innerHTML = p.join('');
   g.onclick = e => {
     const cell = e.target.closest('.cell');
-    if (cell) openBattle(cell.dataset.r, cell.dataset.c);
+    if (!cell) return hideMatPop();
+    if (matSel === cell){ hideMatPop(); openBattle(cell.dataset.r, cell.dataset.c); return; }
+    showMatPop(cell);
   };
+  $('.mwrap').onscroll = () => { if (matSel) placeMatPop(); };
+}
+
+function showMatPop(cell){
+  hideMatPop();
+  matSel = cell;
+  const r = cell.dataset.r, c = cell.dataset.c, b = get(r, c);
+  cell.classList.add('sel');
+  $$('#grid .cell[data-r="' + CSS.escape(r) + '"], #grid .cell[data-c="' + CSS.escape(c) + '"]').forEach(x => { if (x !== cell) x.classList.add('xh'); });
+  const rh = $('#grid .mrh[data-r="' + CSS.escape(r) + '"]'), ch = $('#grid .mch[data-c="' + CSS.escape(c) + '"]');
+  if (rh) rh.classList.add('on'); if (ch) ch.classList.add('on');
+
+  const pop = $('#mPop');
+  let tag, line;
+  if (b){
+    const won = b.w === 'me', hp = hpOf(b);
+    tag = '<span class="mt ' + (won ? 'w' : 'l') + '"><span>' + (won ? 'Won' : 'Lost') + '</span></span>';
+    const bits = [];
+    if (hp !== null) bits.push(won ? hp + ' HP left' : 'Opp. ' + hp + ' HP left');
+    if (b.date) bits.push(esc(fmtDate(b.date)));
+    line = bits.join('<b class="mdot">·</b>') || 'Logged';
+  } else {
+    tag = '<span class="mt n"><span>New</span></span>';
+    line = 'Not played yet';
+  }
+  pop.innerHTML = tag + '<span class="mb"><span class="mvs">' + esc(r) + '<em>vs</em>' + esc(c) + '</span>' +
+    '<span class="mdet">' + line + '</span><span class="mhint">' + (b ? 'Tap again to edit' : 'Tap again to log it') + '</span></span>';
+  pop.onclick = () => { hideMatPop(); openBattle(r, c); };
+  pop.hidden = false;
+  placeMatPop();
+}
+function placeMatPop(){
+  const pop = $('#mPop'), w = $('.mwrap'), cell = matSel;
+  if (!cell || pop.hidden) return;
+  const wr = w.getBoundingClientRect(), cr = cell.getBoundingClientRect();
+  const pw = pop.offsetWidth, ph = pop.offsetHeight, head = 40;
+  let left = cr.left - wr.left + cr.width / 2 - pw / 2;
+  left = Math.max(6, Math.min(left, wr.width - pw - 6));
+  let top = cr.top - wr.top - ph - 8;
+  if (top < head) top = cr.bottom - wr.top + 8;
+  pop.style.left = (left + w.scrollLeft) + 'px';   /* the card lives inside the scrolling grid box */
+  pop.style.top = (top + w.scrollTop) + 'px';
+  pop.classList.toggle('gone', cr.bottom < wr.top + head || cr.top > wr.bottom || cr.right < wr.left + 40 || cr.left > wr.right);
+}
+function hideMatPop(){
+  if (matSel){
+    $$('#grid .sel, #grid .xh, #grid .on').forEach(x => x.classList.remove('sel', 'xh', 'on'));
+  }
+  matSel = null;
+  const pop = $('#mPop'); if (pop){ pop.hidden = true; pop.onclick = null; }
 }
 
 /* ---------------- heroes ---------------- */
@@ -3951,7 +4093,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '4.15';
+const APP_VERSION = '4.16';
 let swReg = null;
 
 function takeOver(sw){
