@@ -1744,7 +1744,18 @@ function renderMatrix(){
     showMatPop(cell);
   };
   $('.mwrap').onscroll = () => { if (matSel) placeMatPop(); };
+  requestAnimationFrame(fitMatrix);
 }
+
+/* the grid box runs down to just above the legend and the bottom rail */
+function fitMatrix(){
+  const w = $('#matGrid .mwrap'), lg = $('#matGrid .mlegend'), tabs = $('.tabs');
+  if (!w || !w.offsetParent) return;
+  const top = w.getBoundingClientRect().top + window.scrollY - window.scrollY;
+  const bottom = (tabs ? tabs.getBoundingClientRect().top : innerHeight) - (lg ? lg.offsetHeight + 14 : 0) - 20;
+  w.style.maxHeight = Math.max(240, Math.floor(bottom - top)) + 'px';
+}
+window.addEventListener('resize', () => { if (screenNow === 'matrix' && S.matView !== 'map') fitMatrix(); });
 
 function showMatPop(cell){
   hideMatPop();
