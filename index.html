@@ -938,6 +938,47 @@ main:has(#s-draw.on){padding-bottom:6px}
 /* Full grid: legend sits midway between the grid and the rail */
 #matGrid .mlegend{margin:12px 2px 0}
 main:has(#s-matrix.on){padding-bottom:0}
+/* ---------- hero page: banner, tokens, setup, matchup cards ---------- */
+.hban{position:relative;height:330px;margin:-16px -16px 0;overflow:hidden;background:#1E2738}
+.hban .hart{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;object-position:50% 0;transform:translateY(-6%) scale(1.05);transform-origin:50% 0}
+.hban .hart.legacy{transform:none;object-position:50% 30%}
+.hban::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(10,13,20,.5),transparent 22%,transparent 42%,rgba(20,26,38,.9) 78%,var(--ink) 100%)}
+.hban .hback{position:absolute;left:14px;top:14px;z-index:2}
+.hban .hlogo-wrap{position:absolute;left:0;right:0;bottom:104px;z-index:2;display:flex;justify-content:center;
+  font-family:var(--head);font-size:30px;color:#fff;text-transform:uppercase}
+.hban .hlogo-wrap .hlogo{width:240px;max-width:70%;filter:drop-shadow(0 3px 6px rgba(0,0,0,.85))}
+.hban .hmeta{position:absolute;left:0;right:0;bottom:78px;z-index:2;text-align:center;
+  font-family:var(--cond);font-weight:700;font-size:14px;letter-spacing:.7px;text-transform:uppercase;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+.hban .hmeta i{font-style:normal;color:var(--gold);margin:0 7px}
+.hban .hmeta .die{margin:0 0 0 4px;vertical-align:-4px}
+.hban .hrec{position:absolute;left:16px;right:16px;bottom:12px;z-index:2}
+.hrl{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+.hrl .count{font-size:32px}
+.hwl{margin-left:auto;font-family:var(--cond);font-weight:700;font-size:16px;letter-spacing:.6px;text-transform:uppercase}
+.hwl b{color:var(--win-hi)} .hwl s{text-decoration:none;color:var(--loss-hi)}
+.sbar{display:flex;height:12px;border-radius:99px;overflow:hidden;background:linear-gradient(180deg,#0B0F17,#1A2131);box-shadow:inset 0 2px 4px rgba(0,0,0,.8),0 0 0 1.5px #2A3346}
+.sbar i{display:block;height:100%}
+.sbar .w{background:var(--win-face)} .sbar .l{background:var(--loss-face)}
+#s-hero #specialCard .card,#s-hero #tokCard .card,#s-hero #setupCard .card{margin-top:14px;margin-bottom:0}
+.hsec{display:flex;align-items:center;gap:10px;margin:20px 2px 10px}
+.hsec h3{flex:1;font-size:21px;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.45)}
+.hsec span{font-family:var(--cond);font-weight:700;font-size:12px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted)}
+.hfl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 6px 6px}
+.hfl button{position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:center;justify-content:center;height:46px;line-height:1;
+  font-family:var(--cond);font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:.4px;color:#C9D3EA}
+.hfl button small{font-size:12px;opacity:.85;margin-top:2px}
+.hfl button::before{content:"";position:absolute;inset:0;z-index:-1;transform:skewX(var(--tilt));border-radius:6px;background:linear-gradient(180deg,#2E4468,#1F3050);border:2px solid var(--edge);box-shadow:0 3px 0 var(--edge)}
+.hfl button.on{color:#fff;text-shadow:0 1px 0 #9A4A06}
+.hfl button.on::before{background:linear-gradient(180deg,var(--gold-hi),var(--gold) 50%,var(--gold-lo));border-color:var(--brown)}
+.hfl button.won,.hfl button.lost{color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.45)}
+.hfl button.won::before{background:var(--win-face)} .hfl button.lost::before{background:var(--loss-face)}
+#dList .hgrid{grid-template-columns:repeat(5,minmax(0,1fr))}
+#dList .shead{padding:0 4px 6px;margin-top:12px}
+#dList .hcell.np .hsq img{filter:grayscale(1) brightness(.45)}
+#dList .hcell.hw .hsq{box-shadow:0 0 0 2px #0B0F17,0 0 0 4px var(--win),0 0 8px rgba(62,155,219,.5)}
+#dList .hcell.hl .hsq{box-shadow:0 0 0 2px #0B0F17,0 0 0 4px var(--loss),0 0 8px rgba(184,50,74,.5)}
+.hmir{position:absolute;top:4px;left:4px;z-index:2;font-style:normal;padding:1px 4px;border-radius:3px;font-family:var(--cond);font-weight:700;font-size:9px;letter-spacing:.3px;text-transform:uppercase;color:#1a1206;background:var(--gold)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -1019,24 +1060,22 @@ main:has(#s-matrix.on){padding-bottom:0}
 
   <!-- ========== HERO DETAIL ========== -->
   <section class="screen" id="s-hero">
-    <button class="link" style="margin-bottom:10px" onclick="go('heroes')">‹ All heroes</button>
-    <div class="card">
-      <div class="row" style="gap:13px">
-        <span id="dAv"></span>
-        <span>
-          <h2 id="dName" style="font-size:24px"></h2>
-          <div class="small muted" id="dSet" style="margin-top:2px"></div>
-        </span>
+    <!-- the hero big across the top; the record sits in the fade at its foot -->
+    <div class="hban">
+      <img class="hart" id="dArt" alt="">
+      <button class="link hback" onclick="go('heroes')">&lsaquo; Heroes</button>
+      <div class="hlogo-wrap" id="dName"></div>
+      <div class="hmeta" id="dSet"></div>
+      <div class="hrec">
+        <div class="hrl"><span class="count"><span id="dDone">0</span><small> / <span id="dTotal">0</span></small></span><span class="hwl" id="dRec"></span></div>
+        <div class="sbar" id="dBar"></div>
       </div>
-      <div class="spread" style="margin-top:14px">
-        <div class="count" style="font-size:30px"><span id="dDone">0</span><small> / <span id="dTotal">0</span></small></div>
-        <div class="small muted" id="dRec"></div>
-      </div>
-      <div class="meterwrap"><div class="meter" id="dMeter"></div></div>
     </div>
     <div id="specialCard"></div>
     <div id="tokCard"></div>
     <div id="setupCard"></div>
+    <div class="hsec"><h3>Matchups</h3><span>Tap a hero to log</span></div>
+    <div class="hfl" id="dFilt"></div>
     <div id="dList"></div>
   </section>
 
@@ -1852,31 +1891,30 @@ function renderHeroes(){
 function openHero(name, fromPop){
   const prevHero = current, prevScreen = screenNow;
   current = name;
-  const s = heroStats(name), h = hero(name);
-  $('#dAv').innerHTML = av(name, 'l');
+  const s = heroStats(name), h = hero(name), sl = slug(name);
+  const art = $('#dArt');
+  art.classList.remove('legacy');
+  art.dataset.slug = sl; art.dataset.i = '0';
+  /* try art/, then the old img/ pictures; never remove the banner image itself */
+  art.style.visibility = '';
+  art.onerror = () => {
+    const i = +art.dataset.i + 1;
+    if (i > IMG_EXT.length){ art.style.visibility = 'hidden'; art.onerror = null; return; }
+    art.dataset.i = i; art.classList.add('legacy'); art.src = imgSrc(sl, i);
+  };
+  art.src = imgSrc(sl, 0);
   $('#dName').innerHTML = logoHTML(name, 'big');
-  $('#dSet').innerHTML = h ? (esc(h.set) + (diffOf(h) ? ' · ' + diffHTML(diffOf(h), 19) : '')) : '';
+  $('#dSet').innerHTML = h ? esc(h.set) + (diffOf(h) ? '<i>|</i>Difficulty ' + die(diffOf(h), 20) : '') : '';
   $('#dDone').textContent = s.done;
   $('#dTotal').textContent = s.total;
-  $('#dRec').textContent  = s.w + ' wins · ' + s.l + ' losses';
-  $('#dMeter').style.width = (s.total ? s.done / s.total * 100 : 0) + '%';
+  $('#dRec').innerHTML = '<b>' + s.w + ' won</b> · <s>' + s.l + ' lost</s>';
+  $('#dBar').innerHTML = '<i class="w" style="width:' + (s.total ? s.w / s.total * 100 : 0) + '%"></i>' +
+                         '<i class="l" style="width:' + (s.total ? s.l / s.total * 100 : 0) + '%"></i>';
 
   renderSpecials(name);
   renderTokens(name);
   renderSetup(name);
-
-  $('#dList').innerHTML = '<div class="list">' + abcHeroes().map(o => {
-    const b = get(name, o.name);
-    const chip = b
-      ? '<span class="chip ' + (b.w === 'me' ? 'w' : 'l') + '">' + (b.w === 'me' ? 'Won' : 'Lost') + '</span>'
-      : '<span class="chip n">Not yet</span>';
-    const hpv = hpOf(b);
-    const hp  = hpv === null ? '' : '<span class="tiny muted">' + hpv + ' HP</span>';
-    return '<button class="item" onclick="openBattle(' + jq(name) + ',' + jq(o.name) + ')">' +
-      av(o.name) + '<span class="name' + (b ? (b.w === 'me' ? ' won' : ' lost') : '') + '">' + esc(o.name) + '</span>' +
-      (o.name === name ? '<span class="mirror">Mirror</span>' : '') +
-      (b ? ultMark(b) : '') + hp + chip + '</button>';
-  }).join('') + '</div>';
+  renderHeroMatchups();
 
   /* the hero page is one screen showing many heroes, so the hero's name
      travels with the history entry — Back can then return hero to hero */
@@ -1885,6 +1923,46 @@ function openHero(name, fromPop){
   go('hero', true);
   $$('.tabs button').forEach(b => b.classList.remove('on'));
   $('#t-heroes').classList.add('on');
+}
+
+/* the opponents of the hero on show, as cards: blue frame won, red lost,
+   grey not played yet. A-Z, by set, or only the wins / only the losses. */
+const HM_FILTERS = [['abc','A–Z'], ['set','Set'], ['won','Won'], ['lost','Lost']];
+function setHeroFilter(k){ S.heroFilt = k; save(); renderHeroMatchups(); }
+function renderHeroMatchups(){
+  const name = current; if (!name) return;
+  const f = S.heroFilt || 'abc', s = heroStats(name);
+  $('#dFilt').innerHTML = HM_FILTERS.map(([k,l]) => {
+    const n = k === 'won' ? s.w : k === 'lost' ? s.l : null;
+    const cls = f === k ? (k === 'won' ? 'won' : k === 'lost' ? 'lost' : 'on') : '';
+    return '<button class="' + cls + '" onclick="setHeroFilter(\'' + k + '\')">' + l + (n !== null ? '<small>' + n + '</small>' : '') + '</button>';
+  }).join('');
+  let list = S.heroes.slice();
+  if (f === 'set') list.sort((a,b) => (SET_ORDER[a.set] ?? 99) - (SET_ORDER[b.set] ?? 99) || a.set.localeCompare(b.set) || byName(a,b));
+  else list.sort(byName);
+  if (f === 'won')  list = list.filter(o => { const b = get(name, o.name); return b && b.w === 'me'; });
+  if (f === 'lost') list = list.filter(o => { const b = get(name, o.name); return b && b.w !== 'me'; });
+  if (!list.length){
+    $('#dList').innerHTML = '<div class="card empty">' + (f === 'won' ? 'No wins with ' : 'No losses with ') + esc(name) + ' yet.</div>';
+    return;
+  }
+  let html = '', cur, open = false;
+  list.forEach(o => {
+    const g = f === 'set' ? o.set : null;
+    if (!open || g !== cur){
+      if (open) html += '</div>';
+      cur = g;
+      if (g !== null) html += '<div class="shead"><b>' + esc(g) + '</b></div>';
+      html += '<div class="hgrid">'; open = true;
+    }
+    const b = get(name, o.name), st = b ? (b.w === 'me' ? 'hw' : 'hl') : 'np';
+    const badge = (b ? '<em class="hbadge ' + (b.w === 'me' ? 'w' : 'l') + '">' + (b.w === 'me' ? 'W' : 'L') + '</em>' : '') +
+                  (o.name === name ? '<em class="hmir">Mirror</em>' : '');
+    html += '<button class="hcell ' + st + '" aria-label="' + esc(name) + ' vs ' + esc(o.name) + '" onclick="openBattle(' + jq(name) + ',' + jq(o.name) + ')">' +
+      heroSq(o.name, badge) + '</button>';
+  });
+  if (open) html += '</div>';
+  $('#dList').innerHTML = html;
 }
 
 /* ---------------- tokens ----------------
@@ -4111,7 +4189,7 @@ async function wipe(){
 }
 
 /* ---------------- offline support ---------------- */
-const APP_VERSION = '4.16';
+const APP_VERSION = '4.17';
 let swReg = null;
 
 function takeOver(sw){
