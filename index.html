@@ -979,6 +979,30 @@ main:has(#s-matrix.on){padding-bottom:0}
 #dList .hcell.hw .hsq{box-shadow:0 0 0 2px #0B0F17,0 0 0 4px var(--win),0 0 8px rgba(62,155,219,.5)}
 #dList .hcell.hl .hsq{box-shadow:0 0 0 2px #0B0F17,0 0 0 4px var(--loss),0 0 8px rgba(184,50,74,.5)}
 .hmir{position:absolute;top:4px;left:4px;z-index:2;font-style:normal;padding:1px 4px;border-radius:3px;font-family:var(--cond);font-weight:700;font-size:9px;letter-spacing:.3px;text-transform:uppercase;color:#1a1206;background:var(--gold)}
+/* hero page, round 2: a shorter picture with the hero lifted to the middle;
+   set | logo | difficulty on one row under it; the whole banner melts into
+   the background instead of ending in a hard edge */
+.hban{height:300px;background:none;overflow:visible}
+.hban .hart{height:230px;object-position:50% 0;transform:translateY(-8%) scale(1.12);transform-origin:50% 0;
+  -webkit-mask-image:linear-gradient(to bottom,#000 55%,transparent 100%);mask-image:linear-gradient(to bottom,#000 55%,transparent 100%)}
+.hban::after{background:linear-gradient(to bottom,rgba(10,13,20,.45),transparent 18%);height:230px;bottom:auto}
+.hban::before{content:"";position:absolute;left:0;right:0;top:150px;bottom:-30px;pointer-events:none;
+  background:linear-gradient(to bottom,transparent,rgba(16,21,32,.75) 35%,rgba(16,21,32,.75) 70%,transparent)}
+.hinfo{position:absolute;left:14px;right:14px;bottom:62px;z-index:2;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px}
+.hinfo .hset,.hinfo .hdif{font-family:var(--cond);font-weight:700;font-size:14px;letter-spacing:.7px;text-transform:uppercase;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.8);white-space:nowrap}
+.hinfo .hset{text-align:left}
+.hinfo .hdif{display:flex;align-items:center;justify-content:flex-end;gap:6px}
+.hinfo .hdif .die{margin:0}
+.hban .hlogo-wrap{position:static;display:flex;justify-content:center;font-size:24px}
+.hban .hlogo-wrap .hlogo{width:180px;max-width:100%}
+.hban .hrec{bottom:6px}
+#s-hero #specialCard .card:first-child,#s-hero #tokCard .card{margin-top:22px}
+/* the info row sits under the picture, not on the face */
+.hban{height:340px}
+.hban .hart{height:236px;-webkit-mask-image:linear-gradient(to bottom,#000 70%,transparent 100%);mask-image:linear-gradient(to bottom,#000 70%,transparent 100%)}
+.hban::after{height:236px}
+.hban::before{top:190px}
+.hinfo{top:222px;bottom:auto}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -1064,8 +1088,8 @@ main:has(#s-matrix.on){padding-bottom:0}
     <div class="hban">
       <img class="hart" id="dArt" alt="">
       <button class="link hback" onclick="go('heroes')">&lsaquo; Heroes</button>
-      <div class="hlogo-wrap" id="dName"></div>
-      <div class="hmeta" id="dSet"></div>
+      <div class="hinfo"><span class="hset" id="dSetName"></span><span class="hlogo-wrap" id="dName"></span><span class="hdif" id="dDiff"></span></div>
+      <div class="hmeta" id="dSet" hidden></div>
       <div class="hrec">
         <div class="hrl"><span class="count"><span id="dDone">0</span><small> / <span id="dTotal">0</span></small></span><span class="hwl" id="dRec"></span></div>
         <div class="sbar" id="dBar"></div>
@@ -1904,7 +1928,8 @@ function openHero(name, fromPop){
   };
   art.src = imgSrc(sl, 0);
   $('#dName').innerHTML = logoHTML(name, 'big');
-  $('#dSet').innerHTML = h ? esc(h.set) + (diffOf(h) ? '<i>|</i>Difficulty ' + die(diffOf(h), 20) : '') : '';
+  $('#dSetName').textContent = h ? h.set : '';
+  $('#dDiff').innerHTML = h && diffOf(h) ? 'Difficulty ' + die(diffOf(h), 22) : '';
   $('#dDone').textContent = s.done;
   $('#dTotal').textContent = s.total;
   $('#dRec').innerHTML = '<b>' + s.w + ' won</b> · <s>' + s.l + ' lost</s>';
